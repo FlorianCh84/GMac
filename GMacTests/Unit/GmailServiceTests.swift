@@ -79,4 +79,67 @@ final class GmailServiceTests: XCTestCase {
             XCTFail("Expected .gatewayError(503), got \(result)")
         }
     }
+
+    // MARK: - Task 3: send()
+
+    func test_send_postsToCorrectEndpoint() async throws {
+        let response = SendMessageResponse(id: "msg1", threadId: "t1", labelIds: ["SENT"])
+        mockClient.stub(response)
+        let message = OutgoingMessage(to: ["bob@example.com"], subject: "Test", body: "Hello")
+        let result = await service.send(message: message, senderEmail: "alice@example.com")
+        switch result {
+        case .success:
+            XCTAssertEqual(mockClient.callCount, 1)
+            XCTAssertEqual(mockClient.lastRequest?.httpMethod, "POST")
+            XCTAssertEqual(mockClient.lastRequest?.url, Endpoints.messageSend())
+        case .failure(let e):
+            XCTFail("Expected success, got \(e)")
+        }
+    }
+
+    func test_send_serverError_propagates() async {
+        mockClient.stubError(.serverError(statusCode: 500))
+        let message = OutgoingMessage(to: ["bob@example.com"], subject: "Test", body: "Hello")
+        let result = await service.send(message: message, senderEmail: "alice@example.com")
+        if case .failure(.serverError(500)) = result { } else {
+            XCTFail("Expected .serverError(500)")
+        }
+    }
+
+    func test_send_withReplyThreadId_includesThreadId() async throws {
+        let response = SendMessageResponse(id: "msg1", threadId: "t1", labelIds: nil)
+        mockClient.stub(response)
+        let message = OutgoingMessage(
+            to: ["bob@example.com"],
+            subject: "Re: Hello",
+            body: "Reply",
+            replyToThreadId: "original-thread-id"
+        )
+        _ = await service.send(message: message, senderEmail: "alice@example.com")
+        let body = mockClient.lastRequest?.httpBody ?? Data()
+        struct SendBody: Decodable { let threadId: String? }
+        let decoded = try JSONDecoder().decode(SendBody.self, from: body)
+        XCTAssertEqual(decoded.threadId, "original-thread-id")
+    }
+
+    // MARK: - Task 4: drafts
+
+    func test_createDraft_returnsId() async {
+        let draft = DraftMessage(id: "draft1", message: nil)
+        mockClient.stub(draft)
+        let message = OutgoingMessage(to: ["bob@example.com"], subject: "Draft", body: "WIP")
+        let result = await service.createDraft(message: message, senderEmail: "alice@example.com")
+        switch result {
+        case .success(let d): XCTAssertEqual(d.id, "draft1")
+        case .failure(let e): XCTFail("\(e)")
+        }
+    }
+
+    func test_deleteDraft_propagatesOffline() async {
+        mockClient.stubError(.offline)
+        let result = await service.deleteDraft(id: "draft1")
+        if case .failure(.offline) = result { } else {
+            XCTFail("Expected .offline")
+        }
+    }
 }

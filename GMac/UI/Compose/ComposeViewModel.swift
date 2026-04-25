@@ -17,6 +17,7 @@ final class ComposeViewModel {
     var body: String = ""
     var replyToThreadId: String? = nil
     var replyToMessageId: String? = nil
+    var senderEmail: String = ""
 
     var sendState: SendState = .idle
 
@@ -66,7 +67,7 @@ final class ComposeViewModel {
         guard case .countdown = sendState else { return }
 
         sendState = .sending
-        let result = await gmailService.send(message: message)
+        let result = await gmailService.send(message: message, senderEmail: senderEmail)
 
         switch result {
         case .success:

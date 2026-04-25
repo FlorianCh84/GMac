@@ -79,3 +79,42 @@ struct GmailHistoryListResponse: Decodable, Sendable {
         let labelIds: [String]
     }
 }
+
+struct SendMessageRequest: Encodable, Sendable {
+    let raw: String
+    let threadId: String?
+    let scheduleTime: String?
+
+    init(raw: String, threadId: String?, scheduledDate: Date? = nil) {
+        self.raw = raw
+        self.threadId = threadId
+        if let date = scheduledDate {
+            self.scheduleTime = ISO8601DateFormatter().string(from: date)
+        } else {
+            self.scheduleTime = nil
+        }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case raw, threadId, scheduleTime
+    }
+}
+
+struct SendMessageResponse: Decodable, Sendable {
+    let id: String
+    let threadId: String
+    let labelIds: [String]?
+}
+
+struct DraftMessage: Decodable, Sendable {
+    let id: String
+    let message: GmailAPIMessage?
+}
+
+struct CreateDraftRequest: Encodable, Sendable {
+    struct MessageRef: Encodable, Sendable {
+        let raw: String
+        let threadId: String?
+    }
+    let message: MessageRef
+}

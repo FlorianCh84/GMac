@@ -36,8 +36,55 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
         return result.map { _ in () }
     }
 
-    func send(message: OutgoingMessage) async -> Result<Void, AppError> {
-        return .failure(.unknown)
+    func send(message: OutgoingMessage, senderEmail: String) async -> Result<Void, AppError> {
+        do {
+            let raw = try MIMEBuilder.buildRaw(message: message, from: senderEmail)
+            let body = SendMessageRequest(raw: raw, threadId: message.replyToThreadId)
+            var request = URLRequest(url: Endpoints.messageSend())
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+            let result: Result<SendMessageResponse, AppError> = await httpClient.send(request)
+            return result.map { _ in () }
+        } catch {
+            return .failure(.unknown)
+        }
+    }
+
+    func createDraft(message: OutgoingMessage, senderEmail: String) async -> Result<DraftMessage, AppError> {
+        do {
+            let raw = try MIMEBuilder.buildRaw(message: message, from: senderEmail)
+            let body = CreateDraftRequest(message: .init(raw: raw, threadId: message.replyToThreadId))
+            var request = URLRequest(url: Endpoints.draftCreate())
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+            return await httpClient.send(request)
+        } catch {
+            return .failure(.unknown)
+        }
+    }
+
+    func updateDraft(id: String, message: OutgoingMessage, senderEmail: String) async -> Result<DraftMessage, AppError> {
+        do {
+            let raw = try MIMEBuilder.buildRaw(message: message, from: senderEmail)
+            let body = CreateDraftRequest(message: .init(raw: raw, threadId: message.replyToThreadId))
+            var request = URLRequest(url: Endpoints.draftUpdate(id: id))
+            request.httpMethod = "PUT"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpBody = try JSONEncoder().encode(body)
+            return await httpClient.send(request)
+        } catch {
+            return .failure(.unknown)
+        }
+    }
+
+    func deleteDraft(id: String) async -> Result<Void, AppError> {
+        var request = URLRequest(url: Endpoints.draftDelete(id: id))
+        request.httpMethod = "DELETE"
+        struct EmptyResponse: Decodable {}
+        let result: Result<EmptyResponse, AppError> = await httpClient.send(request)
+        return result.map { _ in () }
     }
 
     func fetchHistory(startHistoryId: String) async -> Result<GmailHistoryListResponse, AppError> {
