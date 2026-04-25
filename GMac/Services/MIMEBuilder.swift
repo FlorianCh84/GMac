@@ -39,7 +39,8 @@ enum MIMEBuilder {
     private static func buildSimpleMIME(message: OutgoingMessage, from senderEmail: String) throws -> String {
         var lines = try buildCommonHeaders(message: message, from: senderEmail)
         lines.append("MIME-Version: 1.0")
-        lines.append("Content-Type: text/plain; charset=utf-8")
+        let contentType = message.isHTML ? "text/html; charset=utf-8" : "text/plain; charset=utf-8"
+        lines.append("Content-Type: \(contentType)")
         lines.append("Content-Transfer-Encoding: 8bit")
 
         lines.append("")  // ligne vide séparant headers et body (RFC 2822)
@@ -57,7 +58,8 @@ enum MIMEBuilder {
 
         // Body part
         lines.append("--\(boundary)")
-        lines.append("Content-Type: text/plain; charset=utf-8")
+        let bodyContentType = message.isHTML ? "text/html; charset=utf-8" : "text/plain; charset=utf-8"
+        lines.append("Content-Type: \(bodyContentType)")
         lines.append("Content-Transfer-Encoding: 8bit")
         lines.append("")
         lines.append(message.body)

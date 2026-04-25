@@ -20,7 +20,7 @@ struct ComposeView: View {
             Divider()
             bodySection
         }
-        .frame(minWidth: 680, idealWidth: 720, minHeight: 520, idealHeight: 580)
+        .frame(minWidth: 780, idealWidth: 860, minHeight: 600, idealHeight: 680)
         .sheet(isPresented: $isShowingDrivePicker) {
             DrivePickerView(
                 vm: DrivePickerViewModel(driveService: driveService),
@@ -58,11 +58,39 @@ struct ComposeView: View {
 
     private var fieldsSection: some View {
         VStack(spacing: 0) {
+            // Sélecteur expéditeur (si plusieurs comptes)
+            if vm.availableSenders.count > 1 {
+                HStack(spacing: 8) {
+                    Text("De")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .frame(width: 44, alignment: .trailing)
+                    Picker("", selection: $vm.selectedSenderEmail) {
+                        ForEach(vm.availableSenders, id: \.sendAsEmail) { alias in
+                            Text(alias.displayName.map { "\($0) <\(alias.sendAsEmail)>" } ?? alias.sendAsEmail)
+                                .tag(alias.sendAsEmail)
+                        }
+                    }
+                    .labelsHidden()
+                    .pickerStyle(.menu)
+                    .onChange(of: vm.selectedSenderEmail) {
+                        if let alias = vm.availableSenders.first(where: { $0.sendAsEmail == vm.selectedSenderEmail }) {
+                            vm.selectSender(alias)
+                        }
+                    }
+                }
+                .padding(.horizontal, 12)
+                .padding(.vertical, 9)
+                Divider().padding(.leading, 56)
+            }
+
             ComposeField(label: "À", text: $vm.to)
             Divider().padding(.leading, 56)
             ComposeField(label: "Cc", text: $vm.cc)
             Divider().padding(.leading, 56)
             ComposeField(label: "Objet", text: $vm.subject)
+
+            // Toggle différé
             Divider().padding(.leading, 56)
             HStack(spacing: 8) {
                 Text("Différé")

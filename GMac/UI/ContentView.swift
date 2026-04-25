@@ -49,6 +49,7 @@ struct ContentView: View {
                 senderEmail: store.senderEmail,
                 gmailService: store.gmailService,
                 driveService: appEnv.driveService,
+                settingsService: appEnv.settingsService,
                 onDismiss: { isComposing = false }
             )
         }
