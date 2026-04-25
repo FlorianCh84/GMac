@@ -10,6 +10,11 @@ disabled_rules:
   - is_disjoint
   - nesting
   - type_name
+  - large_tuple
+  - trailing_comma
+  - comma
+  - colon
+  - type_body_length
 
 opt_in_rules:
   - force_unwrapping

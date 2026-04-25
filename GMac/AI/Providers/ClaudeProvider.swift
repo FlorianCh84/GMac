@@ -82,7 +82,7 @@ final class ClaudeProvider: LLMProvider, Sendable {
             let msg = (try? JSONDecoder().decode(APIError.self, from: data))?.error?.message
                 ?? String(data: data, encoding: .utf8)?.prefix(200).description
                 ?? "HTTP \(http.statusCode)"
-            throw LLMError.requestFailed("Claude \(http.statusCode): \(msg ?? "")")
+            throw LLMError.requestFailed("Claude \(http.statusCode): \(msg)")
         }
         let resp = try JSONDecoder().decode(Resp.self, from: data)
         guard let text = resp.content.first?.text else { throw LLMError.emptyResponse }
