@@ -25,6 +25,10 @@ struct SettingsView: View {
                     )
                     .navigationTitle("Labels")
                 }
+                NavigationLink("Assistant IA") {
+                    AISettingsView(vm: AISettingsViewModel())
+                        .navigationTitle("Assistant IA")
+                }
             }
             .navigationTitle("Paramètres")
             .listStyle(.sidebar)
