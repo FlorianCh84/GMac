@@ -2,10 +2,13 @@ import SwiftUI
 
 struct ComposeView: View {
     @State private var vm: ComposeViewModel
+    @State private var isShowingDrivePicker = false
+    let driveService: any DriveServiceProtocol
     let onDismiss: () -> Void
 
-    init(vm: ComposeViewModel, onDismiss: @escaping () -> Void) {
+    init(vm: ComposeViewModel, driveService: any DriveServiceProtocol, onDismiss: @escaping () -> Void) {
         self._vm = State(initialValue: vm)
+        self.driveService = driveService
         self.onDismiss = onDismiss
     }
 
@@ -18,6 +21,20 @@ struct ComposeView: View {
             bodySection
         }
         .frame(minWidth: 560, minHeight: 420)
+        .sheet(isPresented: $isShowingDrivePicker) {
+            DrivePickerView(
+                vm: DrivePickerViewModel(driveService: driveService),
+                onSelect: { file in
+                    isShowingDrivePicker = false
+                    Task { @MainActor in
+                        if case .success(let data) = await driveService.downloadFile(id: file.id) {
+                            vm.attachments.append(Attachment(id: UUID(), filename: file.name, mimeType: file.mimeType, data: data))
+                        }
+                    }
+                },
+                onDismiss: { isShowingDrivePicker = false }
+            )
+        }
     }
 
     private var headerBar: some View {
@@ -69,6 +86,16 @@ struct ComposeView: View {
 
     private var bodySection: some View {
         VStack(spacing: 0) {
+            HStack {
+                Spacer()
+                Button("Drive", systemImage: "externaldrive") {
+                    isShowingDrivePicker = true
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+                .padding(.horizontal, 12)
+                .padding(.top, 8)
+            }
             TextEditor(text: $vm.body)
                 .font(.body)
                 .padding(12)

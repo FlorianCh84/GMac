@@ -7,6 +7,7 @@ struct ComposeViewShim: View {
     let prefilledSubject: String
     let senderEmail: String
     let gmailService: any GmailServiceProtocol
+    let driveService: any DriveServiceProtocol
     let onDismiss: () -> Void
 
     @State private var vm: ComposeViewModel
@@ -19,6 +20,7 @@ struct ComposeViewShim: View {
         prefilledSubject: String,
         senderEmail: String,
         gmailService: any GmailServiceProtocol,
+        driveService: any DriveServiceProtocol,
         onDismiss: @escaping () -> Void
     ) {
         self.replyToThreadId = replyToThreadId
@@ -27,6 +29,7 @@ struct ComposeViewShim: View {
         self.prefilledSubject = prefilledSubject
         self.senderEmail = senderEmail
         self.gmailService = gmailService
+        self.driveService = driveService
         self.onDismiss = onDismiss
 
         let initialVM = ComposeViewModel(gmailService: gmailService)
@@ -39,6 +42,6 @@ struct ComposeViewShim: View {
     }
 
     var body: some View {
-        ComposeView(vm: vm, onDismiss: onDismiss)
+        ComposeView(vm: vm, driveService: driveService, onDismiss: onDismiss)
     }
 }
