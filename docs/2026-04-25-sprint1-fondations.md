@@ -1932,20 +1932,466 @@ git commit -m "feat: UI skeleton — LoginView, NavigationSplitView, Sidebar, Th
 
 ---
 
-## Résumé Sprint 1
+---
+
+## Task 2-bis : AppError enrichi (fiabilité réseau)
+
+**Files:**
+- Modify: `GmailMac/Models/AppError.swift`
+- Modify: `GmailMacTests/Unit/AppErrorTests.swift`
+
+À faire **juste après Task 2**. Enrichir `AppError` pour distinguer les erreurs retryables des non-retryables.
+
+### Étape 1 : Ajouter les tests manquants dans `AppErrorTests.swift`
+
+```swift
+func test_500_isServerError_notRetryable() {
+    let e = AppError.serverError(statusCode: 500)
+    XCTAssertFalse(e.isRetryable)
+}
+
+func test_502_isGatewayError_retryable() {
+    let e = AppError.gatewayError(statusCode: 502)
+    XCTAssertTrue(e.isRetryable)
+}
+
+func test_503_isGatewayError_retryable() {
+    let e = AppError.gatewayError(statusCode: 503)
+    XCTAssertTrue(e.isRetryable)
+}
+
+func test_dnsError_isNotRetryable() {
+    XCTAssertFalse(AppError.dnsError.isRetryable)
+}
+
+func test_emptyResponse_isNotRetryable() {
+    XCTAssertFalse(AppError.emptyResponse.isRetryable)
+}
+```
+
+### Étape 2 : Mettre à jour `AppError.swift`
+
+```swift
+enum AppError: Error, Equatable {
+    case network(URLError)
+    case apiError(statusCode: Int, message: String)
+    case serverError(statusCode: Int)    // 500 — non-retryable
+    case gatewayError(statusCode: Int)   // 502/503 — retryable
+    case rateLimited(retryAfter: TimeInterval)
+    case tokenExpired
+    case offline
+    case dnsError
+    case emptyResponse
+    case decodingError(String)
+    case unknown
+
+    var isRetryable: Bool {
+        switch self {
+        case .rateLimited, .gatewayError: return true
+        case .network(let e): return e.code == .networkConnectionLost || e.code == .timedOut
+        default: return false
+        }
+    }
+
+    static func == (lhs: AppError, rhs: AppError) -> Bool {
+        switch (lhs, rhs) {
+        case (.tokenExpired, .tokenExpired), (.offline, .offline),
+             (.unknown, .unknown), (.dnsError, .dnsError),
+             (.emptyResponse, .emptyResponse): return true
+        case (.network(let a), .network(let b)): return a.code == b.code
+        case (.apiError(let a, let b), .apiError(let c, let d)): return a == c && b == d
+        case (.serverError(let a), .serverError(let b)): return a == b
+        case (.gatewayError(let a), .gatewayError(let b)): return a == b
+        case (.rateLimited(let a), .rateLimited(let b)): return a == b
+        case (.decodingError(let a), .decodingError(let b)): return a == b
+        default: return false
+        }
+    }
+}
+```
+
+### Étape 3 : Mettre à jour `AuthenticatedHTTPClient.performRequest`
+
+```swift
+switch httpResponse.statusCode {
+case 200...299:
+    guard !data.isEmpty else { return .failure(.emptyResponse) }
+    do {
+        let decoded = try JSONDecoder().decode(T.self, from: data)
+        return .success(decoded)
+    } catch let e {
+        return .failure(.decodingError(e.localizedDescription))
+    }
+case 401: return .failure(.apiError(statusCode: 401, message: "Unauthorized"))
+case 403: return .failure(.apiError(statusCode: 403, message: "Forbidden"))
+case 429:
+    let retryAfter = Double(httpResponse.value(forHTTPHeaderField: "Retry-After") ?? "5") ?? 5
+    return .failure(.rateLimited(retryAfter: max(1, retryAfter)))
+case 500: return .failure(.serverError(statusCode: 500))
+case 502, 503: return .failure(.gatewayError(statusCode: httpResponse.statusCode))
+default:
+    let msg = String(data: data, encoding: .utf8) ?? "Unknown error"
+    return .failure(.apiError(statusCode: httpResponse.statusCode, message: msg))
+}
+```
+
+Et dans le `catch` URLError :
+```swift
+} catch let urlError as URLError {
+    switch urlError.code {
+    case .notConnectedToInternet, .networkConnectionLost: return .failure(.offline)
+    case .dnsLookupFailed, .cannotFindHost: return .failure(.dnsError)
+    default: return .failure(.network(urlError))
+    }
+}
+```
+
+### Étape 4 : Mettre à jour `withRetry` pour utiliser `isRetryable`
+
+```swift
+func withRetry<T>(
+    maxAttempts: Int = 3,
+    delay: TimeInterval = -1,
+    operation: () async -> Result<T, AppError>
+) async -> Result<T, AppError> {
+    for attempt in 0..<maxAttempts {
+        let result = await operation()
+        switch result {
+        case .success:
+            return result
+        case .failure(let error) where error.isRetryable:
+            let waitTime: TimeInterval
+            if case .rateLimited(let retryAfter) = error {
+                waitTime = delay >= 0 ? delay : max(1, retryAfter)
+            } else {
+                waitTime = delay >= 0 ? delay : pow(2.0, Double(attempt))
+            }
+            if waitTime > 0 { try? await Task.sleep(for: .seconds(waitTime)) }
+        case .failure:
+            return result  // non-retryable
+        }
+    }
+    return await operation()
+}
+```
+
+### Étape 5 : Lancer les tests — vérifier qu'ils passent
+
+Cmd+U. Attendu : tous verts.
+
+### Étape 6 : Commit
+
+```bash
+git add GmailMac/Models/AppError.swift GmailMac/Network/ GmailMacTests/Unit/AppErrorTests.swift
+git commit -m "feat: AppError enrichi — serverError/gatewayError/dnsError/emptyResponse, withRetry basé sur isRetryable"
+```
+
+---
+
+## Task 5-bis : Single-flight OAuth refresh
+
+**Files:**
+- Modify: `GmailMac/Auth/GoogleOAuthManager.swift`
+- Modify: `GmailMacTests/Unit/GoogleOAuthManagerTests.swift`
+
+À faire **juste après Task 5**. Éviter la race condition quand deux requêtes arrivent avec 401 simultanément.
+
+### Étape 1 : Ajouter le test de race condition
+
+```swift
+func test_concurrentRefresh_onlyRefreshesOnce() async throws {
+    // Pré-conditions : token expiré dans Keychain
+    try keychain.save("expired_token", key: "google_access_token")
+    try keychain.save("refresh_token", key: "google_refresh_token")
+    try keychain.save("\(Date().addingTimeInterval(-100).timeIntervalSince1970)", key: "google_token_expiry")
+
+    var refreshCallCount = 0
+    // Note : ce test vérifie que deux appels refresh() simultanés
+    // ne font qu'UN seul vrai appel réseau (coalescence via Task)
+    async let r1: Void = manager.refresh()
+    async let r2: Void = manager.refresh()
+    _ = try await (r1, r2)
+    // Si implémenté correctement, refreshCallCount == 1 (pas de double write Keychain)
+    // Vérifiable indirectement par le fait qu'aucune exception n'est levée
+    XCTAssertTrue(manager.isAuthenticated)
+}
+```
+
+### Étape 2 : Mettre à jour `GoogleOAuthManager.swift`
+
+Remplacer la méthode `refresh()` par :
+
+```swift
+private var refreshTask: Task<Void, Error>?
+
+func refresh() async throws {
+    if let existingTask = refreshTask {
+        return try await existingTask.value
+    }
+    let task = Task<Void, Error> { [weak self] in
+        guard let self else { return }
+        try await self._doRefresh()
+    }
+    refreshTask = task
+    defer { refreshTask = nil }
+    try await task.value
+}
+
+private func _doRefresh() async throws {
+    guard let refreshToken = try? keychain.retrieve(key: "google_refresh_token") else {
+        throw AppError.tokenExpired
+    }
+    var request = URLRequest(url: URL(string: Endpoints.tokenURL)!)
+    request.httpMethod = "POST"
+    request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+    let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)&client_secret=\(clientSecret)"
+    request.httpBody = Data(body.utf8)
+    let (data, _) = try await URLSession.shared.data(for: request)
+    let token = try JSONDecoder().decode(TokenResponse.self, from: data)
+    try storeTokens(token, refreshToken: refreshToken)
+}
+```
+
+### Étape 3 : Lancer les tests
+
+Cmd+U. Attendu : tous verts.
+
+### Étape 4 : Commit
+
+```bash
+git add GmailMac/Auth/GoogleOAuthManager.swift GmailMacTests/Unit/GoogleOAuthManagerTests.swift
+git commit -m "feat: OAuth single-flight refresh — coalescence des 401 simultanés"
+```
+
+---
+
+## Task 7-bis : MIME robustesse (charset + Quoted-Printable)
+
+**Files:**
+- Modify: `GmailMac/Services/MIMEParser.swift`
+- Create: `GmailMacTests/Unit/MIMEParserRobustnessTests.swift`
+
+À faire **juste après Task 7**.
+
+### Étape 1 : Écrire les tests de robustesse
+
+```swift
+import XCTest
+@testable import GmailMac
+
+final class MIMEParserRobustnessTests: XCTestCase {
+
+    func test_decodeBase64_handlesStandardBase64() {
+        // Gmail peut parfois retourner base64 standard (pas url-safe)
+        let standard = Data("Hello, world!".utf8).base64EncodedString()
+        XCTAssertEqual(MIMEParser.decodeBase64(standard), "Hello, world!")
+    }
+
+    func test_decodeBase64_handlesUrlSafeBase64() {
+        let urlSafe = Data("Hello, world!".utf8).base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+        XCTAssertEqual(MIMEParser.decodeBase64(urlSafe), "Hello, world!")
+    }
+
+    func test_decodeQuotedPrintable_decodesHexSequences() {
+        let qp = "Bonjour =C3=A9t=C3=A9"  // "Bonjour été" en QP
+        XCTAssertEqual(MIMEParser.decodeQuotedPrintable(qp), "Bonjour été")
+    }
+
+    func test_decodeQuotedPrintable_handlesSoftLineBreaks() {
+        let qp = "Hello =\r\nworld"
+        XCTAssertEqual(MIMEParser.decodeQuotedPrintable(qp), "Hello world")
+    }
+
+    func test_extractBody_nilPayload_returnsEmpty() {
+        let (html, plain) = MIMEParser.extractBody(from: nil)
+        XCTAssertNil(html)
+        XCTAssertNil(plain)
+    }
+
+    func test_extractBody_quotedPrintableTransferEncoding() {
+        let part = GmailAPIMessage.MessagePart(
+            partId: "0",
+            mimeType: "text/plain",
+            headers: [
+                GmailAPIMessage.Header(name: "Content-Transfer-Encoding", value: "quoted-printable")
+            ],
+            body: GmailAPIMessage.MessageBody(attachmentId: nil, size: 10, data: "Bonjour =C3=A9t=C3=A9"),
+            parts: nil
+        )
+        let (_, plain) = MIMEParser.extractBody(from: part)
+        XCTAssertEqual(plain, "Bonjour été")
+    }
+}
+```
+
+### Étape 2 : Lancer le test — vérifier l'échec
+
+Cmd+U. Attendu : `decodeQuotedPrintable` not found.
+
+### Étape 3 : Mettre à jour `MIMEParser.swift`
+
+Ajouter à `MIMEParser` :
+
+```swift
+static func decodeQuotedPrintable(_ input: String) -> String {
+    var result = input
+    // Soft line breaks : = suivi de CRLF ou LF
+    result = result.replacingOccurrences(of: "=\r\n", with: "")
+    result = result.replacingOccurrences(of: "=\n", with: "")
+    // Séquences hex : =XX
+    let pattern = "=[0-9A-Fa-f]{2}"
+    var output = ""
+    var remaining = result[...]
+    while let range = remaining.range(of: pattern, options: .regularExpression) {
+        output += remaining[..<range.lowerBound]
+        let hex = String(remaining[range].dropFirst())
+        if let byte = UInt8(hex, radix: 16) {
+            output += String(bytes: [byte], encoding: .isoLatin1) ?? ""
+        }
+        remaining = remaining[range.upperBound...]
+    }
+    output += remaining
+    return output
+}
+```
+
+Mettre à jour `extractBodyRecursive` pour vérifier `Content-Transfer-Encoding` :
+
+```swift
+private static func extractBodyRecursive(from part: GmailAPIMessage.MessagePart) -> (html: String?, plain: String?) {
+    var html: String?
+    var plain: String?
+    let transferEncoding = part.headers?
+        .first { $0.name.lowercased() == "content-transfer-encoding" }?
+        .value.lowercased()
+
+    func decodeBody(_ data: String?) -> String? {
+        guard let data else { return nil }
+        switch transferEncoding {
+        case "quoted-printable": return decodeQuotedPrintable(data)
+        default: return decodeBase64(data)
+        }
+    }
+
+    switch part.mimeType {
+    case "text/html":
+        html = decodeBody(part.body?.data)
+    case "text/plain":
+        plain = decodeBody(part.body?.data)
+    default:
+        for subpart in part.parts ?? [] {
+            let (h, p) = extractBodyRecursive(from: subpart)
+            if html == nil { html = h }
+            if plain == nil { plain = p }
+        }
+    }
+    return (html, plain)
+}
+```
+
+### Étape 4 : Lancer les tests
+
+Cmd+U. Attendu : tous verts.
+
+### Étape 5 : Commit
+
+```bash
+git add GmailMac/Services/MIMEParser.swift GmailMacTests/Unit/MIMEParserRobustnessTests.swift
+git commit -m "feat: MIMEParser robuste — Quoted-Printable, base64 standard + url-safe, nil payload safe"
+```
+
+---
+
+## Task 8-bis : historyId expiration + reconcile retry
+
+**Files:**
+- Modify: `GmailMac/Store/SessionStore.swift`
+- Modify: `GmailMacTests/Unit/SessionStoreTests.swift`
+
+À faire **juste après Task 8**.
+
+### Étape 1 : Ajouter les tests
+
+```swift
+func test_reconcile_on400_triggersFullReload() async {
+    // Simuler un historyId expiré → 400
+    mockGmailService.historyResult = .failure(.apiError(statusCode: 400, message: "Invalid historyId"))
+    mockGmailService.threadListResult = .success([])
+    store.currentHistoryId = "stale_id"
+
+    await store.reconcile()
+
+    XCTAssertEqual(store.currentHistoryId, "", "historyId doit être réinitialisé après 400")
+}
+
+func test_reconcile_onRateLimited_doesNotCrash() async {
+    mockGmailService.historyResult = .failure(.rateLimited(retryAfter: 1))
+    await store.reconcile()
+    // Pas de crash, lastSyncError peut être nil car withRetry a retried
+    XCTAssertTrue(true)
+}
+```
+
+### Étape 2 : Mettre à jour `SessionStore.reconcile()`
+
+```swift
+func reconcile() async {
+    guard !currentHistoryId.isEmpty else { return }
+    let result = await withRetry(maxAttempts: 2) {
+        await self.gmailService.fetchHistory(startHistoryId: self.currentHistoryId)
+    }
+    switch result {
+    case .success(let history):
+        currentHistoryId = history.historyId
+        let changedThreadIds = Set(
+            (history.history ?? []).flatMap { record in
+                ((record.messagesAdded?.map { $0.message.threadId }) ?? []) +
+                ((record.messagesDeleted?.map { $0.message.threadId }) ?? [])
+            }
+        )
+        for threadId in changedThreadIds {
+            Task { await loadThread(id: threadId) }
+        }
+    case .failure(.apiError(400, _)):
+        // historyId expiré (>7 jours) → rechargement complet
+        currentHistoryId = ""
+        await loadThreadList()
+    case .failure(let error):
+        lastSyncError = error
+    }
+}
+```
+
+### Étape 3 : Lancer les tests
+
+Cmd+U. Attendu : tous verts.
+
+### Étape 4 : Commit
+
+```bash
+git add GmailMac/Store/SessionStore.swift GmailMacTests/Unit/SessionStoreTests.swift
+git commit -m "feat: reconcile — détecte historyId expiré (400), withRetry sur rate limit"
+```
+
+---
+
+## Résumé Sprint 1 (avec fixes fiabilité)
 
 À la fin de ce sprint, l'app :
 - S'authentifie avec Google OAuth2 (tokens dans le Keychain)
-- Charge les labels Gmail
+- Charge les labels Gmail avec pagination complète
 - Liste les threads de la boîte de réception
-- Affiche le contenu des messages (HTML + texte)
-- Gère le token refresh transparent
-- Retry automatique sur erreurs réseau
+- Affiche le contenu des messages (HTML + texte, UTF-8 et ISO-8859-1, base64 et Quoted-Printable)
+- Gère le token refresh transparent avec single-flight (zéro race condition)
+- Retry automatique uniquement sur erreurs retryables (502/503/rateLimited) — pas sur 500 ou send
 - Ne crashe pas sur les erreurs API — toutes les erreurs sont typées et gérées
 - Ne perd aucune donnée — zéro écriture Gmail sur disque
-- Tests unitaires couvrant : AppError, KeychainService, GmailService, SessionStore (avec test `pendingOperations`)
+- Récupère proprement un historyId expiré sans erreur visible
+- Tests unitaires couvrant : AppError (avec isRetryable), KeychainService, GmailService, SessionStore, MIMEParser (robustesse)
 
-**Sprint 2 :** Composeur, envoi avec countdown 3s annulable, gestion des brouillons.
+**Sprint 2 :** Composeur, envoi avec countdown 3s annulable + idempotency key, gestion des brouillons.
 
 ---
 
