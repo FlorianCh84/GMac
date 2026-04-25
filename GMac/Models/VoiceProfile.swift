@@ -7,6 +7,8 @@ final class VoiceProfile {
     var sentenceStructure: String = ""
     var greetingPatterns: [String] = []
     var closingPatterns: [String] = []
+    var vocabulary: String = ""
+    var paragraphStyle: String = ""
     var specificExpressions: [String] = []
     var thingsToAvoid: [String] = []
     var userDescription: String = ""

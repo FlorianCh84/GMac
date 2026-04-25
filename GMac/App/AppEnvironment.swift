@@ -10,6 +10,7 @@ final class AppEnvironment {
     let sessionStore: SessionStore
     let driveService: DriveService
     let aiSettings: AISettingsViewModel
+    let voiceProfileAnalyzer: VoiceProfileAnalyzer
 
     init() {
         let keychain = KeychainService()
@@ -27,5 +28,6 @@ final class AppEnvironment {
         self.sessionStore = SessionStore(gmailService: service)
         self.driveService = DriveService(httpClient: client)
         self.aiSettings = AISettingsViewModel(keychain: keychain)
+        self.voiceProfileAnalyzer = VoiceProfileAnalyzer(provider: aiSettings.activeProvider())
     }
 }
