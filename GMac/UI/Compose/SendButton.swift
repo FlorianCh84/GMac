@@ -18,18 +18,21 @@ struct SendButton: View {
             HStack(spacing: 8) {
                 Button("Annuler", action: onCancel)
                     .buttonStyle(.bordered)
-                ZStack(alignment: .leading) {
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.accentColor.opacity(0.2))
-                        .frame(width: 140, height: 28)
-                    RoundedRectangle(cornerRadius: 6)
-                        .fill(Color.accentColor)
-                        .frame(width: max(0, 140 * progress), height: 28)
-                        .animation(.linear(duration: 0.1), value: progress)
+                ZStack {
+                    RoundedRectangle(cornerRadius: 8)
+                        .fill(.ultraThinMaterial)
+                        .frame(width: 140, height: 32)
+                    GeometryReader { geo in
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(Color.accentColor.gradient)
+                            .frame(width: max(0, geo.size.width * progress), height: 32)
+                            .animation(.linear(duration: 0.1), value: progress)
+                    }
+                    .frame(width: 140, height: 32)
+                    .clipShape(RoundedRectangle(cornerRadius: 8))
                     Text("Envoi dans \(max(0, Int(ceil(3 * (1 - progress)))))s")
                         .font(.caption.bold())
-                        .foregroundStyle(.white)
-                        .frame(width: 140)
+                        .foregroundStyle(.primary)
                 }
             }
 

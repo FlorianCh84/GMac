@@ -30,6 +30,7 @@ struct AIAssistantPanel: View {
                 .padding()
             }
         }
+        .background(.regularMaterial)
         .frame(minWidth: 300, maxWidth: 400)
     }
 
