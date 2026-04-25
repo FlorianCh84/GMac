@@ -15,15 +15,16 @@ enum MIMEBuilder {
             lines.append("Cc: \(message.cc.joined(separator: ", "))")
         }
 
-        lines.append("Subject: \(encodeSubject(message.subject))")
-        lines.append("MIME-Version: 1.0")
-        lines.append("Content-Type: text/plain; charset=utf-8")
-        lines.append("Content-Transfer-Encoding: quoted-printable")
+        lines.append("Subject: \(try encodeSubject(message.subject))")
 
         if let replyToId = message.replyToMessageId {
             lines.append("In-Reply-To: \(replyToId)")
             lines.append("References: \(replyToId)")
         }
+
+        lines.append("MIME-Version: 1.0")
+        lines.append("Content-Type: text/plain; charset=utf-8")
+        lines.append("Content-Transfer-Encoding: 8bit")
 
         lines.append("")  // ligne vide séparant headers et body (RFC 2822)
         lines.append(message.body)
@@ -39,10 +40,12 @@ enum MIMEBuilder {
             .replacingOccurrences(of: "=", with: "")
     }
 
-    private static func encodeSubject(_ subject: String) -> String {
+    private static func encodeSubject(_ subject: String) throws -> String {
         let isAllAscii = subject.unicodeScalars.allSatisfy { $0.value < 128 }
         if isAllAscii { return subject }
-        guard let data = subject.data(using: .utf8) else { return subject }
+        guard let data = subject.data(using: .utf8) else {
+            throw MIMEBuilderError.encodingFailed
+        }
         return "=?utf-8?b?\(data.base64EncodedString())?="
     }
 }

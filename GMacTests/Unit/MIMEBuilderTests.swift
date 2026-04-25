@@ -46,8 +46,7 @@ final class MIMEBuilderTests: XCTestCase {
         let message = OutgoingMessage(to: ["bob@example.com"], subject: "No CC", body: "Body")
         let raw = try MIMEBuilder.buildRaw(message: message, from: "alice@example.com")
         let decoded = decodeBase64url(raw)
-        XCTAssertFalse(decoded.hasPrefix("Cc:"))
-        XCTAssertFalse(decoded.contains("\nCc:"))
+        XCTAssertFalse(decoded.contains("Cc:"))
     }
 
     func test_build_reply_includesInReplyToAndReferences() throws {
@@ -92,9 +91,8 @@ final class MIMEBuilderTests: XCTestCase {
         )
         let raw = try MIMEBuilder.buildRaw(message: message, from: "alice@example.com")
         XCTAssertFalse(raw.isEmpty)
-        // Le raw doit être valide base64url (pas de + ou /)
-        XCTAssertFalse(raw.contains("+"))
-        XCTAssertFalse(raw.contains("/"))
+        let decoded = decodeBase64url(raw)
+        XCTAssertTrue(decoded.contains("=?utf-8?b?"), "Le sujet non-ASCII doit être encodé RFC 2047")
     }
 
     func test_build_outputIsValidBase64url() throws {
