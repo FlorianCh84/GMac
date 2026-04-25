@@ -1,6 +1,44 @@
 import Foundation
 
 enum Endpoints {
+    private static let driveBase = "https://www.googleapis.com/drive/v3"
+    private static let driveUploadBase = "https://www.googleapis.com/upload/drive/v3"
+
+    static func driveFilesList() -> URL {
+        var c = URLComponents(string: "\(driveBase)/files")!
+        c.queryItems = [
+            URLQueryItem(name: "orderBy", value: "modifiedTime desc"),
+            URLQueryItem(name: "pageSize", value: "30"),
+            URLQueryItem(name: "fields", value: "files(id,name,mimeType,size,modifiedTime),nextPageToken")
+        ]
+        guard let url = c.url else { preconditionFailure("driveFilesList URL invalide") }
+        return url
+    }
+
+    static func driveFilesUpload() -> URL {
+        var c = URLComponents(string: "\(driveUploadBase)/files")!
+        c.queryItems = [URLQueryItem(name: "uploadType", value: "multipart")]
+        guard let url = c.url else { preconditionFailure("driveFilesUpload URL invalide") }
+        return url
+    }
+
+    static func driveFileDownload(id: String) -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "www.googleapis.com"
+        c.path = "/drive/v3/files/\(id)"
+        c.queryItems = [URLQueryItem(name: "alt", value: "media")]
+        guard let url = c.url else { preconditionFailure("driveFileDownload URL invalide") }
+        return url
+    }
+
+    static func gmailAttachment(userId: String = "me", messageId: String, attachmentId: String) -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/messages/\(messageId)/attachments/\(attachmentId)"
+        guard let url = c.url else { preconditionFailure("gmailAttachment URL invalide") }
+        return url
+    }
+
     private static let gmailBaseURL: URL = {
         guard let url = URL(string: "https://gmail.googleapis.com/gmail/v1") else {
             preconditionFailure("gmailBaseURL invalide — erreur de programmation")
