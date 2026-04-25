@@ -79,4 +79,20 @@ final class AppErrorTests: XCTestCase {
     func test_isNotRetryable_dnsError() {
         XCTAssertFalse(AppError.dnsError.isRetryable)
     }
+
+    func test_isNotRetryable_emptyResponse() {
+        XCTAssertFalse(AppError.emptyResponse.isRetryable)
+    }
+
+    func test_isNotRetryable_decodingError() {
+        XCTAssertFalse(AppError.decodingError("err").isRetryable)
+    }
+
+    func test_isNotRetryable_unknown() {
+        XCTAssertFalse(AppError.unknown.isRetryable)
+    }
+
+    func test_isNotRetryable_networkCancelled() {
+        XCTAssertFalse(AppError.network(URLError(.cancelled)).isRetryable)
+    }
 }
