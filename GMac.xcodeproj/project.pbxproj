@@ -11,9 +11,13 @@
 		54876A699A968CABE7EC3DE2 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBF2E71F285C3763EE08B1 /* AppError.swift */; };
 		581F1F09CF0A4CCD5A394765 /* AppErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */; };
 		66DEB6B16F450F0EEF162151 /* OutgoingMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */; };
+		9253B40B90AE629088156010 /* MockHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A0D16CA13CF34E661D77BD3 /* MockHTTPClient.swift */; };
+		ACA792171BEFA01189E1B2DA /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BDD3C3D0FC5CB5AC8AC1AF /* Endpoints.swift */; };
 		AD746A1C335904BF1E11375E /* EmailThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589B0B871783B9C7CF631905 /* EmailThread.swift */; };
 		CD56D6495D7DD75C6171AEC5 /* EmailMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7523CAA5C20E3D3CCB447D1 /* EmailMessage.swift */; };
+		DBE44C0002379740A26E871D /* HTTPClientProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8C454277712723E96E459AC8 /* HTTPClientProtocol.swift */; };
 		EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */; };
+		FEB7E1C798A5927AB82EBF50 /* RetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA451C3B519EC23D6ACDA3F9 /* RetryTests.swift */; };
 		FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC274167317AB7D94C8453 /* GMacApp.swift */; };
 /* End PBXBuildFile section */
 
@@ -29,11 +33,15 @@
 
 /* Begin PBXFileReference section */
 		0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
+		0A0D16CA13CF34E661D77BD3 /* MockHTTPClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockHTTPClient.swift; sourceTree = "<group>"; };
 		1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppErrorTests.swift; sourceTree = "<group>"; };
+		30BDD3C3D0FC5CB5AC8AC1AF /* Endpoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Endpoints.swift; sourceTree = "<group>"; };
 		36E5759BB4EBA36A77548FBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingMessage.swift; sourceTree = "<group>"; };
 		589B0B871783B9C7CF631905 /* EmailThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailThread.swift; sourceTree = "<group>"; };
+		8C454277712723E96E459AC8 /* HTTPClientProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HTTPClientProtocol.swift; sourceTree = "<group>"; };
 		A9DBA09CBC16025E54A40C2A /* GMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CA451C3B519EC23D6ACDA3F9 /* RetryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryTests.swift; sourceTree = "<group>"; };
 		CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BC274167317AB7D94C8453 /* GMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMacApp.swift; sourceTree = "<group>"; };
 		E7523CAA5C20E3D3CCB447D1 /* EmailMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailMessage.swift; sourceTree = "<group>"; };
@@ -47,6 +55,7 @@
 			children = (
 				1270B3E4384B0CEEB91246FA /* App */,
 				EEE76AAD95857BB27595BC86 /* Models */,
+				FEE6CA1E223B9D84CF087BCF /* Network */,
 				B76C3187F89DFFFDA61AF65B /* Resources */,
 				E7EB77004FA57616BF877620 /* Services */,
 				ADB1E8ACFB4F52D00413AA7B /* UI */,
@@ -67,6 +76,7 @@
 			children = (
 				1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */,
 				0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */,
+				CA451C3B519EC23D6ACDA3F9 /* RetryTests.swift */,
 			);
 			path = Unit;
 			sourceTree = "<group>";
@@ -78,6 +88,14 @@
 				CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		9FDFCCE27389AACDDF44F7B6 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				0A0D16CA13CF34E661D77BD3 /* MockHTTPClient.swift */,
+			);
+			path = Mocks;
 			sourceTree = "<group>";
 		};
 		ADB1E8ACFB4F52D00413AA7B /* UI */ = {
@@ -114,6 +132,7 @@
 		BEEC690835D91709BDF1C393 /* GMacTests */ = {
 			isa = PBXGroup;
 			children = (
+				9FDFCCE27389AACDDF44F7B6 /* Mocks */,
 				361BB46384F90B5E759D0D24 /* Unit */,
 			);
 			path = GMacTests;
@@ -137,6 +156,15 @@
 				46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */,
 			);
 			path = Models;
+			sourceTree = "<group>";
+		};
+		FEE6CA1E223B9D84CF087BCF /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				30BDD3C3D0FC5CB5AC8AC1AF /* Endpoints.swift */,
+				8C454277712723E96E459AC8 /* HTTPClientProtocol.swift */,
+			);
+			path = Network;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -244,8 +272,10 @@
 				54876A699A968CABE7EC3DE2 /* AppError.swift in Sources */,
 				CD56D6495D7DD75C6171AEC5 /* EmailMessage.swift in Sources */,
 				AD746A1C335904BF1E11375E /* EmailThread.swift in Sources */,
+				ACA792171BEFA01189E1B2DA /* Endpoints.swift in Sources */,
 				FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */,
 				4105ACD60853405A3505A77D /* GmailLabel.swift in Sources */,
+				DBE44C0002379740A26E871D /* HTTPClientProtocol.swift in Sources */,
 				66DEB6B16F450F0EEF162151 /* OutgoingMessage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -255,7 +285,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				581F1F09CF0A4CCD5A394765 /* AppErrorTests.swift in Sources */,
+				9253B40B90AE629088156010 /* MockHTTPClient.swift in Sources */,
 				EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */,
+				FEB7E1C798A5927AB82EBF50 /* RetryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
