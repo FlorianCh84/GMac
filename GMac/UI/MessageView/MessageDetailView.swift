@@ -3,6 +3,7 @@ import WebKit
 
 struct MessageDetailView: View {
     @Environment(SessionStore.self) var store
+    let onReply: (EmailThread, EmailMessage) -> Void
 
     var selectedThread: EmailThread? {
         store.threads.first { $0.id == store.selectedThreadId }
@@ -19,7 +20,7 @@ struct MessageDetailView: View {
                     Divider()
 
                     ForEach(thread.messages) { message in
-                        MessageBubble(message: message)
+                        MessageBubble(message: message, thread: thread, onReply: onReply)
                         Divider()
                     }
                 }
@@ -37,6 +38,8 @@ struct MessageDetailView: View {
 
 private struct MessageBubble: View {
     let message: EmailMessage
+    let thread: EmailThread
+    let onReply: (EmailThread, EmailMessage) -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -67,6 +70,17 @@ private struct MessageBubble: View {
                     .padding(.horizontal)
                     .padding(.bottom, 12)
             }
+
+            HStack {
+                Spacer()
+                Button("Répondre") {
+                    onReply(thread, message)
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
+            }
+            .padding(.horizontal)
+            .padding(.bottom, 12)
         }
     }
 }

@@ -15,7 +15,9 @@ final class SessionStore {
     var isLoading: Bool = false
     var lastSyncError: AppError? = nil
 
-    private let gmailService: any GmailServiceProtocol
+    var senderEmail: String = ""
+
+    let gmailService: any GmailServiceProtocol
     private var loadThreadTasks: [String: Task<Void, Never>] = [:]
 
     init(gmailService: any GmailServiceProtocol) {
