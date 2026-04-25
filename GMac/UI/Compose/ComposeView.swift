@@ -1,8 +1,13 @@
 import SwiftUI
 
 struct ComposeView: View {
-    @State var vm: ComposeViewModel
+    @State private var vm: ComposeViewModel
     let onDismiss: () -> Void
+
+    init(vm: ComposeViewModel, onDismiss: @escaping () -> Void) {
+        self._vm = State(initialValue: vm)
+        self.onDismiss = onDismiss
+    }
 
     var body: some View {
         VStack(spacing: 0) {
@@ -26,7 +31,7 @@ struct ComposeView: View {
             SendButton(
                 sendState: vm.sendState,
                 isValid: vm.isValid,
-                onSend: { Task { await vm.startSend() } },
+                onSend: { Task { @MainActor in await vm.startSend() } },
                 onCancel: { vm.cancelSend() }
             )
         }
