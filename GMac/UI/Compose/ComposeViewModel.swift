@@ -26,6 +26,9 @@ final class ComposeViewModel {
     var availableSenders: [SendAsAlias] = []
     var selectedSenderEmail: String = ""
 
+    var aiProvider: (any LLMProvider)? = nil
+    var contextThread: EmailThread? = nil  // thread original si réponse
+
     var sendState: SendState = .idle
 
     var isValid: Bool {

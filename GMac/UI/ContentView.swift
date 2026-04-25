@@ -50,6 +50,8 @@ struct ContentView: View {
                 gmailService: store.gmailService,
                 driveService: appEnv.driveService,
                 settingsService: appEnv.settingsService,
+                aiProvider: appEnv.aiSettings.activeProvider(),
+                contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
                 onDismiss: { isComposing = false }
             )
         }

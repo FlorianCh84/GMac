@@ -3,6 +3,7 @@ import SwiftUI
 struct ComposeView: View {
     @State private var vm: ComposeViewModel
     @State private var isShowingDrivePicker = false
+    @State private var isAIOpen = false
     let driveService: any DriveServiceProtocol
     let onDismiss: () -> Void
 
@@ -35,6 +36,57 @@ struct ComposeView: View {
                 onDismiss: { isShowingDrivePicker = false }
             )
         }
+        .sheet(isPresented: $isAIOpen) {
+            aiSheet
+        }
+    }
+
+    @ViewBuilder
+    private var aiSheet: some View {
+        if let provider = vm.aiProvider {
+            let thread = vm.contextThread ?? makeContextThread()
+            AIAssistantPanel(
+                vm: AIAssistantViewModel(provider: provider),
+                thread: thread,
+                senderEmail: vm.selectedSenderEmail.isEmpty ? vm.senderEmail : vm.selectedSenderEmail,
+                sentMessages: [],
+                onInject: { text in
+                    // Injecter le texte généré dans le corps du mail
+                    // Préserver la signature si présente
+                    let signature = extractSignature(from: vm.bodyHTML)
+                    vm.bodyHTML = text + (signature.isEmpty ? "" : "<br><br>\(signature)")
+                    vm.body = vm.bodyHTML
+                    isAIOpen = false
+                }
+            )
+            .frame(minWidth: 380, minHeight: 500)
+        }
+    }
+
+    private func makeContextThread() -> EmailThread {
+        // Crée un thread minimal depuis le contenu du composeur (pour nouveau message)
+        let msg = EmailMessage(
+            id: "draft", threadId: "draft",
+            snippet: vm.body.isEmpty ? vm.subject : String(vm.body.prefix(100)),
+            subject: vm.subject,
+            from: vm.selectedSenderEmail.isEmpty ? vm.senderEmail : vm.selectedSenderEmail,
+            to: [vm.to],
+            date: Date(),
+            bodyHTML: vm.bodyHTML.isEmpty ? nil : vm.bodyHTML,
+            bodyPlain: vm.body.isEmpty ? nil : vm.body,
+            labelIds: [],
+            isUnread: false,
+            attachmentRefs: []
+        )
+        return EmailThread(id: "draft", snippet: vm.subject, historyId: "", messages: [msg])
+    }
+
+    private func extractSignature(from html: String) -> String {
+        // Extrait la signature après <hr> si elle existe
+        if let hrRange = html.range(of: "<hr>") {
+            return String(html[hrRange.lowerBound...])
+        }
+        return ""
     }
 
     private var headerBar: some View {
@@ -45,6 +97,11 @@ struct ComposeView: View {
             Text(vm.replyToThreadId != nil ? "Répondre" : "Nouveau message")
                 .font(.headline)
             Spacer()
+            Button(action: { isAIOpen = true }) {
+                Label("IA", systemImage: "sparkles")
+            }
+            .buttonStyle(.bordered)
+            .disabled(vm.aiProvider == nil)
             SendButton(
                 sendState: vm.sendState,
                 isValid: vm.isValid,

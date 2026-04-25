@@ -19,12 +19,8 @@ struct RichTextEditor: NSViewRepresentable {
     }
 
     func updateNSView(_ webView: WKWebView, context: Context) {
-        // Injecter uniquement si le contenu passe de vide à non-vide (ex: signature chargée)
-        // → évite de réinitialiser le curseur pendant la frappe
         guard context.coordinator.loadedHTML != html else { return }
-        guard (context.coordinator.loadedHTML ?? "").isEmpty, !html.isEmpty else { return }
         context.coordinator.loadedHTML = html
-        // Encoder en JSON pour un escape sûr de tous les caractères spéciaux
         if let jsonData = try? JSONEncoder().encode(html),
            let jsonString = String(data: jsonData, encoding: .utf8) {
             webView.evaluateJavaScript("setContent(\(jsonString));") { _, _ in }
@@ -160,6 +156,7 @@ struct RichTextEditor: NSViewRepresentable {
             if message.name == "contentChanged", let body = message.body as? String {
                 DispatchQueue.main.async {
                     self.html = body
+                    self.loadedHTML = body  // sync — évite la re-injection pendant la frappe
                 }
             }
         }
