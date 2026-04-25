@@ -22,9 +22,13 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
     }
 
     func downloadFile(id: String) async -> Result<Data, AppError> {
-        // Drive retourne du contenu brut, pas JSON — non supporté par HTTPClientProtocol générique
-        // Implémentation directe URLSession nécessaire pour les binaires
-        return .failure(.unknown)
+        // Drive download nécessite une réponse binaire, pas JSON
+        // On utilise le httpClient sous-jacent si c'est un AuthenticatedHTTPClient
+        guard let authenticatedClient = httpClient as? AuthenticatedHTTPClient else {
+            return .failure(.unknown)
+        }
+        let request = URLRequest(url: Endpoints.driveFileDownload(id: id))
+        return await authenticatedClient.downloadRaw(request)
     }
 
     private func buildMultipartBody(data: Data, filename: String, mimeType: String, boundary: String) -> Data {

@@ -29,7 +29,7 @@ struct DrivePickerView: View {
                         .foregroundStyle(.secondary)
                     Text("Aucun fichier Drive")
                         .font(.headline)
-                    Text("GMac accède uniquement aux fichiers qu'il a lui-même créés (scope drive.file). Pour voir vos fichiers existants, glissez-déposez une pièce jointe depuis le composeur pour l'uploader vers Drive.")
+                    Text("Aucun fichier Drive trouvé. Si vous venez de mettre à jour l'app, déconnectez-vous et reconnectez-vous pour accorder les nouveaux droits d'accès Drive.")
                         .font(.caption)
                         .foregroundStyle(.secondary)
                         .multilineTextAlignment(.center)
