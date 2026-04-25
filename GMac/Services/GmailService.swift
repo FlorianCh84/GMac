@@ -8,20 +8,9 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
     }
 
     func fetchLabels() async -> Result<[GmailLabel], AppError> {
-        var allLabels: [GmailLabel] = []
-        var pageToken: String? = nil
-        repeat {
-            let request = URLRequest(url: Endpoints.labelsList(pageToken: pageToken))
-            let result: Result<GmailLabelListResponse, AppError> = await httpClient.send(request)
-            switch result {
-            case .success(let response):
-                allLabels += response.labels.map { mapLabel($0) }
-                pageToken = response.nextPageToken
-            case .failure(let error):
-                return .failure(error)
-            }
-        } while pageToken != nil
-        return .success(allLabels)
+        let request = URLRequest(url: Endpoints.labelsList())
+        let result: Result<GmailLabelListResponse, AppError> = await httpClient.send(request)
+        return result.map { $0.labels.map { mapLabel($0) } }
     }
 
     func fetchThreadList(labelId: String, pageToken: String? = nil) async -> Result<[GmailThreadRef], AppError> {

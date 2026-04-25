@@ -49,7 +49,6 @@ struct GmailAPIMessage: Decodable, Sendable {
 
 struct GmailLabelListResponse: Decodable, Sendable {
     let labels: [GmailAPILabel]
-    let nextPageToken: String?
 }
 
 struct GmailAPILabel: Decodable, Sendable {

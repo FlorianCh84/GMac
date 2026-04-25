@@ -5,11 +5,11 @@ protocol HTTPClientProtocol: Sendable {
 }
 
 func withRetry<T: Sendable>(
-    maxAttempts: Int = 3,
+    maxRetries: Int = 3,
     delay: TimeInterval = -1,
     operation: @Sendable () async -> Result<T, AppError>
 ) async -> Result<T, AppError> {
-    for attempt in 0..<maxAttempts {
+    for attempt in 0..<maxRetries {
         let result = await operation()
         switch result {
         case .success:

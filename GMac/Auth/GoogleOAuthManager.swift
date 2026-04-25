@@ -88,14 +88,14 @@ final class GoogleOAuthManager: NSObject {
     }
 
     func startOAuthFlow() async throws {
-        let state = UUID().uuidString
+        let expectedState = UUID().uuidString
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientId),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
             URLQueryItem(name: "response_type", value: "code"),
             URLQueryItem(name: "scope", value: scopes.joined(separator: " ")),
-            URLQueryItem(name: "state", value: state),
+            URLQueryItem(name: "state", value: expectedState),
             URLQueryItem(name: "access_type", value: "offline"),
             URLQueryItem(name: "prompt", value: "consent")
         ]
@@ -119,8 +119,12 @@ final class GoogleOAuthManager: NSObject {
             session.start()
         }
 
-        guard let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
-            .queryItems?.first(where: { $0.name == "code" })?.value else {
+        let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems
+        guard let returnedState = queryItems?.first(where: { $0.name == "state" })?.value,
+              returnedState == expectedState else {
+            throw AppError.unknown
+        }
+        guard let code = queryItems?.first(where: { $0.name == "code" })?.value else {
             throw AppError.unknown
         }
         try await exchangeCode(code)

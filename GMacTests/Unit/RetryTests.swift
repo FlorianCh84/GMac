@@ -13,7 +13,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_succeedsOnFirstAttempt() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 3) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 3) {
             counter.increment()
             return .success("ok")
         }
@@ -23,7 +23,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_retriesOnNetworkConnectionLost() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 3, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 3, delay: 0) {
             counter.increment()
             if counter.value < 3 {
                 return .failure(.network(URLError(.networkConnectionLost)))
@@ -36,7 +36,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_retriesOnGatewayError() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 2, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 2, delay: 0) {
             counter.increment()
             if counter.value < 2 {
                 return .failure(.gatewayError(statusCode: 502))
@@ -49,7 +49,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_doesNotRetryServerError500() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 3, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 3, delay: 0) {
             counter.increment()
             return .failure(.serverError(statusCode: 500))
         }
@@ -61,7 +61,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_doesNotRetryForbidden() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 3, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 3, delay: 0) {
             counter.increment()
             return .failure(.apiError(statusCode: 403, message: "Forbidden"))
         }
@@ -73,7 +73,7 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_retriesOnRateLimited() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 3, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 3, delay: 0) {
             counter.increment()
             if counter.value < 2 {
                 return .failure(.rateLimited(retryAfter: 0))
@@ -86,11 +86,11 @@ final class RetryTests: XCTestCase {
 
     func test_withRetry_exhaustsAllAttempts_returnsLastError() async {
         let counter = Counter()
-        let result: Result<String, AppError> = await withRetry(maxAttempts: 2, delay: 0) {
+        let result: Result<String, AppError> = await withRetry(maxRetries: 2, delay: 0) {
             counter.increment()
             return .failure(.network(URLError(.networkConnectionLost)))
         }
-        XCTAssertEqual(counter.value, 3, "maxAttempts=2 → 2 tentatives + 1 dernière = 3 appels")
+        XCTAssertEqual(counter.value, 3, "maxRetries=2 → 2 retries après le premier = 3 appels au total")
         if case .failure(.network) = result { } else {
             XCTFail("Expected .network error")
         }

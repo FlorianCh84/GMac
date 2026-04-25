@@ -83,7 +83,7 @@ final class SessionStore {
 
     func reconcile() async {
         guard !currentHistoryId.isEmpty else { return }
-        let result = await withRetry(maxAttempts: 2) {
+        let result = await withRetry(maxRetries: 2) {
             await self.gmailService.fetchHistory(startHistoryId: self.currentHistoryId)
         }
         switch result {

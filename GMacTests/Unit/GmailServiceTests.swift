@@ -15,8 +15,7 @@ final class GmailServiceTests: XCTestCase {
             labels: [
                 GmailAPILabel(id: "INBOX", name: "INBOX", type: "system", messagesUnread: 3),
                 GmailAPILabel(id: "tag1", name: "Clients", type: "user", messagesUnread: nil)
-            ],
-            nextPageToken: nil
+            ]
         )
         mockClient.stub(response)
         let result = await service.fetchLabels()
