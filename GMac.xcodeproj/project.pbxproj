@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		4105ACD60853405A3505A77D /* GmailLabel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F36AA72FA650D88FCCCBA160 /* GmailLabel.swift */; };
+		54876A699A968CABE7EC3DE2 /* AppError.swift in Sources */ = {isa = PBXBuildFile; fileRef = FAFBF2E71F285C3763EE08B1 /* AppError.swift */; };
+		581F1F09CF0A4CCD5A394765 /* AppErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */; };
+		66DEB6B16F450F0EEF162151 /* OutgoingMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */; };
+		AD746A1C335904BF1E11375E /* EmailThread.swift in Sources */ = {isa = PBXBuildFile; fileRef = 589B0B871783B9C7CF631905 /* EmailThread.swift */; };
+		CD56D6495D7DD75C6171AEC5 /* EmailMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = E7523CAA5C20E3D3CCB447D1 /* EmailMessage.swift */; };
 		EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */; };
 		FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC274167317AB7D94C8453 /* GMacApp.swift */; };
 /* End PBXBuildFile section */
@@ -23,10 +29,16 @@
 
 /* Begin PBXFileReference section */
 		0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
+		1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppErrorTests.swift; sourceTree = "<group>"; };
 		36E5759BB4EBA36A77548FBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingMessage.swift; sourceTree = "<group>"; };
+		589B0B871783B9C7CF631905 /* EmailThread.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailThread.swift; sourceTree = "<group>"; };
 		A9DBA09CBC16025E54A40C2A /* GMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		D8BC274167317AB7D94C8453 /* GMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMacApp.swift; sourceTree = "<group>"; };
+		E7523CAA5C20E3D3CCB447D1 /* EmailMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmailMessage.swift; sourceTree = "<group>"; };
+		F36AA72FA650D88FCCCBA160 /* GmailLabel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailLabel.swift; sourceTree = "<group>"; };
+		FAFBF2E71F285C3763EE08B1 /* AppError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppError.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
@@ -34,6 +46,7 @@
 			isa = PBXGroup;
 			children = (
 				1270B3E4384B0CEEB91246FA /* App */,
+				EEE76AAD95857BB27595BC86 /* Models */,
 				B76C3187F89DFFFDA61AF65B /* Resources */,
 				E7EB77004FA57616BF877620 /* Services */,
 				ADB1E8ACFB4F52D00413AA7B /* UI */,
@@ -52,6 +65,7 @@
 		361BB46384F90B5E759D0D24 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
+				1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */,
 				0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */,
 			);
 			path = Unit;
@@ -111,6 +125,18 @@
 				AF2008230C6684C58053AD7B /* AI */,
 			);
 			path = Services;
+			sourceTree = "<group>";
+		};
+		EEE76AAD95857BB27595BC86 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FAFBF2E71F285C3763EE08B1 /* AppError.swift */,
+				E7523CAA5C20E3D3CCB447D1 /* EmailMessage.swift */,
+				589B0B871783B9C7CF631905 /* EmailThread.swift */,
+				F36AA72FA650D88FCCCBA160 /* GmailLabel.swift */,
+				46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */,
+			);
+			path = Models;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -215,7 +241,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				54876A699A968CABE7EC3DE2 /* AppError.swift in Sources */,
+				CD56D6495D7DD75C6171AEC5 /* EmailMessage.swift in Sources */,
+				AD746A1C335904BF1E11375E /* EmailThread.swift in Sources */,
 				FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */,
+				4105ACD60853405A3505A77D /* GmailLabel.swift in Sources */,
+				66DEB6B16F450F0EEF162151 /* OutgoingMessage.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -223,6 +254,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				581F1F09CF0A4CCD5A394765 /* AppErrorTests.swift in Sources */,
 				EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
