@@ -7,6 +7,7 @@ final class LabelsManagerViewModel {
     var labels: [GmailLabel] = []
     var newLabelName: String = ""
     var isLoading: Bool = false
+    var isCreating: Bool = false
     var lastError: AppError? = nil
 
     private let gmailService: any GmailServiceProtocol
@@ -29,7 +30,9 @@ final class LabelsManagerViewModel {
 
     func createLabel() async {
         let name = newLabelName.trimmingCharacters(in: .whitespaces)
-        guard !name.isEmpty else { return }
+        guard !name.isEmpty, !isCreating else { return }
+        isCreating = true
+        defer { isCreating = false }
         let result = await settingsService.createLabel(name: name)
         switch result {
         case .success(let label):

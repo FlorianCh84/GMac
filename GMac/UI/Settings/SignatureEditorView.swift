@@ -4,6 +4,7 @@ import WebKit
 struct SignatureEditorView: View {
     @State var vm: SignatureEditorViewModel
     @State private var showSavedConfirmation = false
+    @State private var confirmationTask: Task<Void, Never>?
 
     var body: some View {
         VStack(spacing: 0) {
@@ -22,12 +23,15 @@ struct SignatureEditorView: View {
             if vm.saveSuccess {
                 showSavedConfirmation = true
                 vm.saveSuccess = false
-                Task {
+                confirmationTask?.cancel()
+                confirmationTask = Task {
                     try? await Task.sleep(for: .seconds(2))
+                    guard !Task.isCancelled else { return }
                     showSavedConfirmation = false
                 }
             }
         }
+        .onDisappear { confirmationTask?.cancel() }
         .alert("Erreur", isPresented: Binding(
             get: { vm.lastError != nil },
             set: { if !$0 { vm.lastError = nil } }

@@ -54,5 +54,6 @@ final class SignatureEditorViewModelTests: XCTestCase {
         await vm.save()
         XCTAssertNotNil(vm.lastError)
         XCTAssertFalse(vm.saveSuccess)
+        XCTAssertFalse(vm.isSaving, "isSaving doit être false après echec (defer)")
     }
 }

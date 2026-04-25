@@ -47,6 +47,7 @@ final class VacationSettingsViewModelTests: XCTestCase {
         await vm.save()
         XCTAssertNotNil(vm.lastError)
         XCTAssertFalse(vm.saveSuccess)
+        XCTAssertFalse(vm.isSaving, "isSaving doit être false après echec (defer)")
     }
 
     func test_isLoading_falseAfterLoad() async {

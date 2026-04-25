@@ -32,7 +32,7 @@ struct LabelsManagerView: View {
                     Button("Créer") {
                         Task { @MainActor in await vm.createLabel() }
                     }
-                    .disabled(vm.newLabelName.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .disabled(vm.newLabelName.trimmingCharacters(in: .whitespaces).isEmpty || vm.isCreating)
                 }
             }
         }
