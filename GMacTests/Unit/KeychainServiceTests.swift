@@ -7,10 +7,12 @@ final class KeychainServiceTests: XCTestCase {
     override func setUp() {
         keychain = KeychainService(service: "fr.agence810.GMac.tests")
         try? keychain.delete(key: "test_token")
+        try? keychain.delete(key: "nonexistent_key_gmac_test")
     }
 
     override func tearDown() {
         try? keychain.delete(key: "test_token")
+        try? keychain.delete(key: "nonexistent_key_gmac_test")
     }
 
     func test_save_andRetrieve() throws {
@@ -29,11 +31,15 @@ final class KeychainServiceTests: XCTestCase {
     func test_delete_removesKey() throws {
         try keychain.save("token", key: "test_token")
         try keychain.delete(key: "test_token")
-        XCTAssertThrowsError(try keychain.retrieve(key: "test_token"))
+        XCTAssertThrowsError(try keychain.retrieve(key: "test_token")) { error in
+            XCTAssertEqual(error as? KeychainError, .notFound)
+        }
     }
 
     func test_retrieve_missingKey_throws() {
-        XCTAssertThrowsError(try keychain.retrieve(key: "nonexistent_key_gmac_test"))
+        XCTAssertThrowsError(try keychain.retrieve(key: "nonexistent_key_gmac_test")) { error in
+            XCTAssertEqual(error as? KeychainError, .notFound)
+        }
     }
 
     func test_delete_nonExistentKey_doesNotThrow() {

@@ -1,7 +1,7 @@
 import Security
 import Foundation
 
-enum KeychainError: Error {
+enum KeychainError: Error, Equatable {
     case saveFailed(OSStatus)
     case notFound
     case deleteFailed(OSStatus)
