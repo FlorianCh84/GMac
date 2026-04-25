@@ -33,6 +33,14 @@ enum Endpoints {
         return url
     }
 
+    static func driveFileExport(id: String, mimeType: String) -> URL? {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "www.googleapis.com"
+        c.path = "/drive/v3/files/\(id)/export"
+        c.queryItems = [URLQueryItem(name: "mimeType", value: mimeType)]
+        return c.url
+    }
+
     static func gmailAttachment(userId: String = "me", messageId: String, attachmentId: String) -> URL {
         var c = URLComponents()
         c.scheme = "https"; c.host = "gmail.googleapis.com"

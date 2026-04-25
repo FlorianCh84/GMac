@@ -14,4 +14,5 @@ final class MockDriveService: DriveServiceProtocol, @unchecked Sendable {
     func listFiles() async -> Result<[DriveFile], AppError> { lock.withLock { _listResult } }
     func uploadFile(data: Data, filename: String, mimeType: String) async -> Result<DriveFile, AppError> { lock.withLock { _uploadResult } }
     func downloadFile(id: String) async -> Result<Data, AppError> { lock.withLock { _downloadResult } }
+    func exportGoogleFile(id: String, mimeType: String) async -> Result<Data, AppError> { lock.withLock { _downloadResult } }
 }

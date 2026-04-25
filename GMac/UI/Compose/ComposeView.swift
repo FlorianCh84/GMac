@@ -4,6 +4,7 @@ struct ComposeView: View {
     @State private var vm: ComposeViewModel
     @State private var isShowingDrivePicker = false
     @State private var isAIOpen = false
+    @State private var driveDownloadError: String? = nil
     let driveService: any DriveServiceProtocol
     let onDismiss: () -> Void
 
@@ -28,8 +29,12 @@ struct ComposeView: View {
                 onSelect: { file in
                     isShowingDrivePicker = false
                     Task { @MainActor in
-                        if case .success(let data) = await driveService.downloadFile(id: file.id) {
+                        let result = await downloadDriveFile(file: file)
+                        switch result {
+                        case .success(let data):
                             vm.attachments.append(Attachment(id: UUID(), filename: file.name, mimeType: file.mimeType, data: data))
+                        case .failure(let error):
+                            driveDownloadError = "Impossible de télécharger \(file.name) : \(driveErrorDesc(error))"
                         }
                     }
                 },
@@ -38,6 +43,37 @@ struct ComposeView: View {
         }
         .sheet(isPresented: $isAIOpen) {
             aiSheet
+        }
+        .alert("Erreur Drive", isPresented: Binding(
+            get: { driveDownloadError != nil },
+            set: { if !$0 { driveDownloadError = nil } }
+        )) {
+            Button("OK") { driveDownloadError = nil }
+        } message: {
+            Text(driveDownloadError ?? "")
+        }
+    }
+
+    private func downloadDriveFile(file: DriveFile) async -> Result<Data, AppError> {
+        // Les fichiers Google Workspace (Docs, Sheets, Slides) nécessitent un export
+        let googleMimeTypes: [String: String] = [
+            "application/vnd.google-apps.document": "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+            "application/vnd.google-apps.spreadsheet": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "application/vnd.google-apps.presentation": "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+            "application/vnd.google-apps.drawing": "image/png"
+        ]
+        if let exportMime = googleMimeTypes[file.mimeType] {
+            return await driveService.exportGoogleFile(id: file.id, mimeType: exportMime)
+        }
+        return await driveService.downloadFile(id: file.id)
+    }
+
+    private func driveErrorDesc(_ error: AppError) -> String {
+        switch error {
+        case .apiError(let code, let msg): return "Erreur \(code): \(msg)"
+        case .offline: return "Pas de connexion"
+        case .tokenExpired: return "Session expirée"
+        default: return "\(error)"
         }
     }
 

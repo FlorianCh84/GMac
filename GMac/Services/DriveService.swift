@@ -31,13 +31,23 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
     }
 
     func downloadFile(id: String) async -> Result<Data, AppError> {
-        // Drive download nécessite une réponse binaire, pas JSON
-        // On utilise le httpClient sous-jacent si c'est un AuthenticatedHTTPClient
-        guard let authenticatedClient = httpClient as? AuthenticatedHTTPClient else {
+        let request = URLRequest(url: Endpoints.driveFileDownload(id: id))
+        let result = await httpClient.download(request)
+        switch result {
+        case .success(let data):
+            print("[GMac] Drive downloadFile \(id): \(data.count) bytes")
+            return .success(data)
+        case .failure(let error):
+            print("[GMac] Drive downloadFile \(id) error: \(error)")
+            return .failure(error)
+        }
+    }
+
+    func exportGoogleFile(id: String, mimeType: String) async -> Result<Data, AppError> {
+        guard let url = Endpoints.driveFileExport(id: id, mimeType: mimeType) else {
             return .failure(.unknown)
         }
-        let request = URLRequest(url: Endpoints.driveFileDownload(id: id))
-        return await authenticatedClient.downloadRaw(request)
+        return await httpClient.download(URLRequest(url: url))
     }
 
     private func buildMultipartBody(data: Data, filename: String, mimeType: String, boundary: String) -> Data {

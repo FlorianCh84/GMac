@@ -26,6 +26,10 @@ final class AuthenticatedHTTPClient: HTTPClientProtocol, @unchecked Sendable {
         return result
     }
 
+    func download(_ request: URLRequest) async -> Result<Data, AppError> {
+        await downloadRaw(request)
+    }
+
     func downloadRaw(_ request: URLRequest) async -> Result<Data, AppError> {
         let signed = await oauth.sign(request)
         return await performDownload(signed)

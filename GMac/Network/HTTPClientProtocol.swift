@@ -2,6 +2,7 @@ import Foundation
 
 protocol HTTPClientProtocol: Sendable {
     func send<T: Decodable & Sendable>(_ request: URLRequest) async -> Result<T, AppError>
+    func download(_ request: URLRequest) async -> Result<Data, AppError>
 }
 
 func withRetry<T: Sendable>(

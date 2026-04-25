@@ -15,6 +15,12 @@ final class MockHTTPClient: HTTPClientProtocol, @unchecked Sendable {
         return .failure(.unknown)
     }
 
+    func download(_ request: URLRequest) async -> Result<Data, AppError> {
+        lock.withLock { callCount += 1; lastRequest = request }
+        if let error = lock.withLock({ _stubbedError }) { return .failure(error) }
+        return .success(Data())
+    }
+
     func stub<T>(_ result: T) { lock.withLock { _stubbedResult = result; _stubbedError = nil } }
     func stubError(_ error: AppError) { lock.withLock { _stubbedError = error; _stubbedResult = nil } }
     func reset() { lock.withLock { _stubbedResult = nil; _stubbedError = nil; callCount = 0; lastRequest = nil } }
