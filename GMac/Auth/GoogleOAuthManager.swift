@@ -165,24 +165,27 @@ private final class OAuthSessionBridge: NSObject, ASWebAuthenticationPresentatio
     }
 
     func startSession(url: URL, callbackScheme: String) async throws -> URL {
-        // withUnsafeThrowingContinuation évite la vérification d'exécuteur Swift 6
-        // qui crashe quand ASWebAuthenticationSession rappelle via XPC (background thread macOS 26).
-        try await withUnsafeThrowingContinuation { [weak self] continuation in
-            guard let self else { continuation.resume(throwing: CancellationError()); return }
-            DispatchQueue.main.async { [weak self] in
-                guard let self else { continuation.resume(throwing: CancellationError()); return }
-                let s = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackScheme) {
-                    [weak self] url, error in
-                    self?.session = nil
-                    if let error { continuation.resume(throwing: error) }
-                    else if let url { continuation.resume(returning: url) }
-                    else { continuation.resume(throwing: CancellationError()) }
+        // Task.detached coupe complètement le contexte @MainActor hérité du caller.
+        // Les closures créées dans ce Task détaché ne reçoivent pas d'isolation actor,
+        // donc le callback XPC de Safari LaunchAgent peut les appeler depuis n'importe quel thread.
+        try await Task<URL, Error>.detached { [weak self] in
+            guard let self else { throw CancellationError() }
+            return try await withUnsafeThrowingContinuation { continuation in
+                DispatchQueue.main.async { [weak self] in
+                    guard let self else { continuation.resume(throwing: CancellationError()); return }
+                    let s = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackScheme) {
+                        [weak self] url, error in
+                        self?.session = nil
+                        if let error { continuation.resume(throwing: error) }
+                        else if let url { continuation.resume(returning: url) }
+                        else { continuation.resume(throwing: CancellationError()) }
+                    }
+                    s.presentationContextProvider = self
+                    s.prefersEphemeralWebBrowserSession = false
+                    self.session = s
+                    s.start()
                 }
-                s.presentationContextProvider = self
-                s.prefersEphemeralWebBrowserSession = false
-                self.session = s
-                s.start()
             }
-        }
+        }.value
     }
 }
