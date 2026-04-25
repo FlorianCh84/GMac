@@ -96,4 +96,53 @@ enum Endpoints {
         let components = URLComponents(url: gmailBaseURL.appendingPathComponent("users/\(userId)/threads/\(id)/modify"), resolvingAgainstBaseURL: false)!
         return components.url!
     }
+
+    static func sendAsList(userId: String = "me") -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/settings/sendAs"
+        guard let url = c.url else { preconditionFailure("sendAsList URL invalide") }
+        return url
+    }
+
+    static func sendAsUpdate(userId: String = "me", sendAsEmail: String) -> URL {
+        let encoded = sendAsEmail.addingPercentEncoding(withAllowedCharacters: .urlPathAllowed) ?? sendAsEmail
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/settings/sendAs/\(encoded)"
+        guard let url = c.url else { preconditionFailure("sendAsUpdate URL invalide") }
+        return url
+    }
+
+    static func vacationSettings(userId: String = "me") -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/settings/vacation"
+        guard let url = c.url else { preconditionFailure("vacationSettings URL invalide") }
+        return url
+    }
+
+    static func labelCreate(userId: String = "me") -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/labels"
+        guard let url = c.url else { preconditionFailure("labelCreate URL invalide") }
+        return url
+    }
+
+    private static func labelResourceURL(userId: String, id: String) -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/labels/\(id)"
+        guard let url = c.url else { preconditionFailure("labelResourceURL invalide") }
+        return url
+    }
+
+    static func labelUpdate(userId: String = "me", id: String) -> URL {
+        labelResourceURL(userId: userId, id: id)
+    }
+
+    static func labelDelete(userId: String = "me", id: String) -> URL {
+        labelResourceURL(userId: userId, id: id)
+    }
 }

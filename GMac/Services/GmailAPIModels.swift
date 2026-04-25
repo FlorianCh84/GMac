@@ -80,6 +80,9 @@ struct GmailHistoryListResponse: Decodable, Sendable {
     }
 }
 
+/// Type vide réutilisable pour les réponses sans corps (204, DELETE, PATCH void, etc.)
+struct EmptyResponse: Decodable, Sendable {}
+
 struct SendMessageRequest: Encodable, Sendable {
     let raw: String
     let threadId: String?

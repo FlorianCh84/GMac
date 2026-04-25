@@ -92,7 +92,6 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
     func deleteDraft(id: String) async -> Result<Void, AppError> {
         var request = URLRequest(url: Endpoints.draftDelete(id: id))
         request.httpMethod = "DELETE"
-        struct EmptyResponse: Decodable {}
         let result: Result<EmptyResponse, AppError> = await httpClient.send(request)
         return result.map { _ in () }
     }
