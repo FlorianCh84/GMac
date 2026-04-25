@@ -122,6 +122,36 @@ final class GmailServiceTests: XCTestCase {
         XCTAssertEqual(decoded.threadId, "original-thread-id")
     }
 
+    // MARK: - Task 8: envoi différé
+
+    func test_send_withScheduledDate_includesScheduleTimeInBody() async throws {
+        let response = SendMessageResponse(id: "msg1", threadId: "t1", labelIds: nil)
+        mockClient.stub(response)
+        let futureDate = Date(timeIntervalSince1970: 1800000000)
+        let message = OutgoingMessage(
+            to: ["bob@example.com"],
+            subject: "Later",
+            body: "Scheduled",
+            scheduledDate: futureDate
+        )
+        _ = await service.send(message: message, senderEmail: "alice@example.com")
+        let bodyData = mockClient.lastRequest?.httpBody ?? Data()
+        struct SendBody: Decodable { let raw: String; let scheduleTime: String? }
+        let decoded = try JSONDecoder().decode(SendBody.self, from: bodyData)
+        XCTAssertNotNil(decoded.scheduleTime, "scheduleTime doit être présent pour envoi différé")
+    }
+
+    func test_send_withoutScheduledDate_noScheduleTime() async throws {
+        let response = SendMessageResponse(id: "msg1", threadId: "t1", labelIds: nil)
+        mockClient.stub(response)
+        let message = OutgoingMessage(to: ["bob@example.com"], subject: "Now", body: "Immediate")
+        _ = await service.send(message: message, senderEmail: "alice@example.com")
+        let bodyData = mockClient.lastRequest?.httpBody ?? Data()
+        struct SendBody: Decodable { let raw: String; let scheduleTime: String? }
+        let decoded = try JSONDecoder().decode(SendBody.self, from: bodyData)
+        XCTAssertNil(decoded.scheduleTime, "scheduleTime doit être nil pour envoi immédiat")
+    }
+
     // MARK: - Task 4: drafts
 
     func test_createDraft_returnsId() async {

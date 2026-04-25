@@ -46,7 +46,7 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
 
         let bodyData: Data
         do {
-            let body = SendMessageRequest(raw: raw, threadId: message.replyToThreadId)
+            let body = SendMessageRequest(raw: raw, threadId: message.replyToThreadId, scheduledDate: message.scheduledDate)
             bodyData = try JSONEncoder().encode(body)
         } catch {
             // JSONEncoder ne devrait jamais échouer sur des types Encodable bien formés
