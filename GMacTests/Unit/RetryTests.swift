@@ -2,9 +2,11 @@ import XCTest
 @testable import GMac
 
 // Compteur thread-safe pour les closures @Sendable en Swift 6
-final class Counter: @unchecked Sendable {
-    private(set) var value = 0
-    func increment() { value += 1 }
+private final class Counter: @unchecked Sendable {
+    private let lock = NSLock()
+    private var _value = 0
+    var value: Int { lock.withLock { _value } }
+    func increment() { lock.withLock { _value += 1 } }
 }
 
 final class RetryTests: XCTestCase {
@@ -64,7 +66,9 @@ final class RetryTests: XCTestCase {
             return .failure(.apiError(statusCode: 403, message: "Forbidden"))
         }
         XCTAssertEqual(counter.value, 1, "403 ne doit pas être retryé")
-        _ = result
+        if case .failure(.apiError(403, _)) = result { } else {
+            XCTFail("Expected .apiError(403, _)")
+        }
     }
 
     func test_withRetry_retriesOnRateLimited() async {

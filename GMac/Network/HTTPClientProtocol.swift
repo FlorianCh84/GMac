@@ -19,7 +19,7 @@ func withRetry<T: Sendable>(
             if case .rateLimited(let retryAfter) = error {
                 waitTime = delay >= 0 ? delay : max(1, retryAfter)
             } else {
-                waitTime = delay >= 0 ? delay : pow(2.0, Double(attempt))
+                waitTime = delay >= 0 ? delay : pow(2.0, Double(attempt + 1))
             }
             if waitTime > 0 {
                 try? await Task.sleep(for: .seconds(waitTime))

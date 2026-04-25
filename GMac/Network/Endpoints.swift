@@ -21,11 +21,15 @@ enum Endpoints {
     }
 
     static func threadGet(userId: String = "me", id: String) -> URL {
-        URL(string: "\(gmailBase)/users/\(userId)/threads/\(id)?format=FULL")!
+        var components = URLComponents(string: "\(gmailBase)/users/\(userId)/threads/\(id)")!
+        components.queryItems = [URLQueryItem(name: "format", value: "FULL")]
+        return components.url!
     }
 
     static func messageGet(userId: String = "me", id: String) -> URL {
-        URL(string: "\(gmailBase)/users/\(userId)/messages/\(id)?format=FULL")!
+        var components = URLComponents(string: "\(gmailBase)/users/\(userId)/messages/\(id)")!
+        components.queryItems = [URLQueryItem(name: "format", value: "FULL")]
+        return components.url!
     }
 
     static func labelsList(userId: String = "me", pageToken: String? = nil) -> URL {
@@ -37,7 +41,15 @@ enum Endpoints {
     }
 
     static func historyList(userId: String = "me", startHistoryId: String) -> URL {
-        URL(string: "\(gmailBase)/users/\(userId)/history?startHistoryId=\(startHistoryId)&historyTypes=messageAdded&historyTypes=messageDeleted&historyTypes=labelAdded&historyTypes=labelRemoved")!
+        var components = URLComponents(string: "\(gmailBase)/users/\(userId)/history")!
+        components.queryItems = [
+            URLQueryItem(name: "startHistoryId", value: startHistoryId),
+            URLQueryItem(name: "historyTypes", value: "messageAdded"),
+            URLQueryItem(name: "historyTypes", value: "messageDeleted"),
+            URLQueryItem(name: "historyTypes", value: "labelAdded"),
+            URLQueryItem(name: "historyTypes", value: "labelRemoved")
+        ]
+        return components.url!
     }
 
     static func messageSend(userId: String = "me") -> URL {
@@ -45,6 +57,7 @@ enum Endpoints {
     }
 
     static func threadModify(userId: String = "me", id: String) -> URL {
-        URL(string: "\(gmailBase)/users/\(userId)/threads/\(id)/modify")!
+        var components = URLComponents(string: "\(gmailBase)/users/\(userId)/threads/\(id)/modify")!
+        return components.url!
     }
 }
