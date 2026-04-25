@@ -1,0 +1,89 @@
+import Foundation
+import Observation
+
+enum SendState: Sendable {
+    case idle
+    case countdown(progress: Double)
+    case sending
+    case failed(AppError)
+}
+
+@Observable
+@MainActor
+final class ComposeViewModel {
+    var to: String = ""
+    var cc: String = ""
+    var subject: String = ""
+    var body: String = ""
+    var replyToThreadId: String? = nil
+    var replyToMessageId: String? = nil
+
+    var sendState: SendState = .idle
+
+    var isValid: Bool {
+        !to.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !subject.trimmingCharacters(in: .whitespaces).isEmpty &&
+        !body.trimmingCharacters(in: .whitespaces).isEmpty
+    }
+
+    private let gmailService: any GmailServiceProtocol
+
+    init(gmailService: any GmailServiceProtocol) {
+        self.gmailService = gmailService
+    }
+
+    func startSend(countdownDuration: TimeInterval = 3.0) async {
+        guard isValid else { return }
+
+        let message = OutgoingMessage(
+            to: to.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
+            cc: cc.isEmpty ? [] : cc.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
+            subject: subject,
+            body: body,
+            replyToThreadId: replyToThreadId,
+            replyToMessageId: replyToMessageId
+        )
+
+        sendState = .countdown(progress: 0.0)
+
+        if countdownDuration > 0 {
+            let steps = 30
+            let stepDuration = countdownDuration / Double(steps)
+            for step in 1...steps {
+                if case .idle = sendState { return }
+                sendState = .countdown(progress: Double(step) / Double(steps))
+                try? await Task.sleep(for: .seconds(stepDuration))
+            }
+        }
+
+        if case .idle = sendState { return }
+
+        sendState = .sending
+        let result = await gmailService.send(message: message)
+
+        switch result {
+        case .success:
+            clearComposer()
+            sendState = .idle
+        case .failure(let error):
+            sendState = .failed(error)
+        }
+    }
+
+    func cancelSend() {
+        sendState = .idle
+    }
+
+    func resetAfterFailure() {
+        sendState = .idle
+    }
+
+    private func clearComposer() {
+        to = ""
+        cc = ""
+        subject = ""
+        body = ""
+        replyToThreadId = nil
+        replyToMessageId = nil
+    }
+}

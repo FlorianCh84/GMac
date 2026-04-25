@@ -2,16 +2,27 @@ import Foundation
 
 struct OutgoingMessage: Sendable {
     let to: [String]
+    let cc: [String]
     let subject: String
     let body: String
     let replyToThreadId: String?
+    let replyToMessageId: String?
     let idempotencyKey: UUID
 
-    init(to: [String], subject: String, body: String, replyToThreadId: String? = nil) {
+    init(
+        to: [String],
+        cc: [String] = [],
+        subject: String,
+        body: String,
+        replyToThreadId: String? = nil,
+        replyToMessageId: String? = nil
+    ) {
         self.to = to
+        self.cc = cc
         self.subject = subject
         self.body = body
         self.replyToThreadId = replyToThreadId
+        self.replyToMessageId = replyToMessageId
         self.idempotencyKey = UUID()
     }
 }
