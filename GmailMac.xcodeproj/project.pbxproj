@@ -1,0 +1,461 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		9ACBC719E761878EB735402E /* GmailMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950F4BE54169416BF2FF4266 /* GmailMacApp.swift */; };
+		CFB9471FE1C6FFD1C5C3026E /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		A46DFC64244FF8767B315BD5 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4C0A7BACD28E6E91C1A0D08C /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 8DD532946849D2DFE12898EE;
+			remoteInfo = GmailMac;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		1F7EC644DBCD03C302B462AD /* GmailMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GmailMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		46AE4DB28DC3097EBE8167DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		950F4BE54169416BF2FF4266 /* GmailMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailMacApp.swift; sourceTree = "<group>"; };
+		D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GmailMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		2980A0A86E3F74584CEB0720 /* GmailMac */ = {
+			isa = PBXGroup;
+			children = (
+				52099F8307DFEAD8699A55A3 /* App */,
+				D7E09870C6BF7E0915A789FC /* Resources */,
+				78B18FDA94013EA0997EA913 /* Services */,
+				6F3829BC73E5FB24C8C4DE32 /* UI */,
+			);
+			path = GmailMac;
+			sourceTree = "<group>";
+		};
+		3DFAB4E88EFD3453D94C393A /* AI */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
+		52099F8307DFEAD8699A55A3 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				950F4BE54169416BF2FF4266 /* GmailMacApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		6C5CAC7213016769E62814C8 = {
+			isa = PBXGroup;
+			children = (
+				2980A0A86E3F74584CEB0720 /* GmailMac */,
+				9F1CC1866083AC4435A5B296 /* GmailMacTests */,
+				85977E2F03DE3E41DE60ECB9 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		6F3829BC73E5FB24C8C4DE32 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
+		78B18FDA94013EA0997EA913 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				3DFAB4E88EFD3453D94C393A /* AI */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		80054616D28675FEB4E0EF8B /* Unit */ = {
+			isa = PBXGroup;
+			children = (
+				F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */,
+			);
+			path = Unit;
+			sourceTree = "<group>";
+		};
+		85977E2F03DE3E41DE60ECB9 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				1F7EC644DBCD03C302B462AD /* GmailMac.app */,
+				D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		9F1CC1866083AC4435A5B296 /* GmailMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				80054616D28675FEB4E0EF8B /* Unit */,
+			);
+			path = GmailMacTests;
+			sourceTree = "<group>";
+		};
+		D7E09870C6BF7E0915A789FC /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				46AE4DB28DC3097EBE8167DB /* Info.plist */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		7E62D9F5494D4C251558E5A2 /* GmailMacTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 6C533D8B1BD803EF7BF71DCB /* Build configuration list for PBXNativeTarget "GmailMacTests" */;
+			buildPhases = (
+				92ABD2AAFA7EC2EC56004C38 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				7E30797F6FEA1AC4A5203DAF /* PBXTargetDependency */,
+			);
+			name = GmailMacTests;
+			packageProductDependencies = (
+			);
+			productName = GmailMacTests;
+			productReference = D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		8DD532946849D2DFE12898EE /* GmailMac */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = EBF9FDE35CB53DC4D9DC6BFA /* Build configuration list for PBXNativeTarget "GmailMac" */;
+			buildPhases = (
+				FDBAA2C1C8876830CE0F0DC5 /* SwiftLint */,
+				E33F31E7686B80E38508A7FB /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = GmailMac;
+			packageProductDependencies = (
+			);
+			productName = GmailMac;
+			productReference = 1F7EC644DBCD03C302B462AD /* GmailMac.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		4C0A7BACD28E6E91C1A0D08C /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 2600;
+				TargetAttributes = {
+					7E62D9F5494D4C251558E5A2 = {
+						ProvisioningStyle = Automatic;
+					};
+					8DD532946849D2DFE12898EE = {
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 900B43AC52B8F89A144AE482 /* Build configuration list for PBXProject "GmailMac" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = 6C5CAC7213016769E62814C8;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = 85977E2F03DE3E41DE60ECB9 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				8DD532946849D2DFE12898EE /* GmailMac */,
+				7E62D9F5494D4C251558E5A2 /* GmailMacTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FDBAA2C1C8876830CE0F0DC5 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "if which swiftlint > /dev/null; then\n  swiftlint\nelse\n  echo \"warning: SwiftLint not installed\"\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		92ABD2AAFA7EC2EC56004C38 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CFB9471FE1C6FFD1C5C3026E /* PlaceholderTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E33F31E7686B80E38508A7FB /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				9ACBC719E761878EB735402E /* GmailMacApp.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		7E30797F6FEA1AC4A5203DAF /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 8DD532946849D2DFE12898EE /* GmailMac */;
+			targetProxy = A46DFC64244FF8767B315BD5 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		038361FF77ED0AF28E85A3B2 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = GmailMac/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		6234EBACAA622D130B7D577E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = GmailMac/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		6E936610F35BBB0470F333BD /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GmailMac.app/Contents/MacOS/GmailMac";
+			};
+			name = Release;
+		};
+		CAE13B21CE0A99AC7991A4A5 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Release;
+		};
+		D7028E1ABBBB2A882F73430C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GmailMac.app/Contents/MacOS/GmailMac";
+			};
+			name = Debug;
+		};
+		EB92E7BE3D74D6EBD9DB96CE /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				CODE_SIGN_STYLE = Automatic;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 6.0;
+			};
+			name = Debug;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		6C533D8B1BD803EF7BF71DCB /* Build configuration list for PBXNativeTarget "GmailMacTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				D7028E1ABBBB2A882F73430C /* Debug */,
+				6E936610F35BBB0470F333BD /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		900B43AC52B8F89A144AE482 /* Build configuration list for PBXProject "GmailMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				EB92E7BE3D74D6EBD9DB96CE /* Debug */,
+				CAE13B21CE0A99AC7991A4A5 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		EBF9FDE35CB53DC4D9DC6BFA /* Build configuration list for PBXNativeTarget "GmailMac" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				038361FF77ED0AF28E85A3B2 /* Debug */,
+				6234EBACAA622D130B7D577E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 4C0A7BACD28E6E91C1A0D08C /* Project object */;
+}

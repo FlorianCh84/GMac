@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>CFBundleName</key>
+    <string>GmailMac</string>
+    <key>CFBundleURLTypes</key>
+    <array>
+        <dict>
+            <key>CFBundleURLName</key>
+            <string>fr.agence810.gmailmac.oauth</string>
+            <key>CFBundleURLSchemes</key>
+            <array>
+                <string>fr.agence810.gmailmac</string>
+            </array>
+        </dict>
+    </array>
+    <key>NSContactsUsageDescription</key>
+    <string>Utilisé pour l'auto-complétion des destinataires</string>
+    <key>NSUserNotificationUsageDescription</key>
+    <string>Notifications pour les nouveaux emails</string>
+    <key>com.apple.security.network.client</key>
+    <true/>
+</dict>
+</plist>

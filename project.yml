@@ -1,0 +1,46 @@
+name: GmailMac
+options:
+  bundleIdPrefix: fr.agence810
+  deploymentTarget:
+    macOS: "26.0"
+  xcodeVersion: "26.0"
+  swift: "6.0"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    MACOSX_DEPLOYMENT_TARGET: "26.0"
+    ENABLE_HARDENED_RUNTIME: YES
+    CODE_SIGN_STYLE: Automatic
+
+targets:
+  GmailMac:
+    type: application
+    platform: macOS
+    sources:
+      - path: GmailMac
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.agence810.GmailMac
+        INFOPLIST_FILE: GmailMac/Resources/Info.plist
+    preBuildScripts:
+      - script: |
+          if which swiftlint > /dev/null; then
+            swiftlint
+          else
+            echo "warning: SwiftLint not installed"
+          fi
+        name: SwiftLint
+
+  GmailMacTests:
+    type: bundle.unit-test
+    platform: macOS
+    sources:
+      - path: GmailMacTests
+    dependencies:
+      - target: GmailMac
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: fr.agence810.GmailMacTests
+        GENERATE_INFOPLIST_FILE: YES
