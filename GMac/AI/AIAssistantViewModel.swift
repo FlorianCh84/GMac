@@ -66,12 +66,17 @@ final class AIAssistantViewModel {
     func refine(thread: EmailThread) async {
         guard case .done = state, !refinementText.isEmpty else { return }
         state = .generating
+        // Snapshot de l'instruction avant de la vider
+        let instruction = refinementText
         do {
-            let refined = try await provider.refine(conversation: conversation, instruction: refinementText)
-            conversation.append(role: .user, content: refinementText)
+            // Ajouter le tour user AVANT l'appel réseau
+            conversation.append(role: .user, content: instruction)
+            let refined = try await provider.refine(conversation: conversation, instruction: instruction)
             conversation.append(role: .assistant, content: refined)
             refinementText = ""
             state = .done(refined)
+        } catch LLMError.noAPIKey {
+            state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
         } catch {
             state = .failed(error.localizedDescription)
         }

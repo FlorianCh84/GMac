@@ -58,6 +58,9 @@ final class AIAssistantViewModelTests: XCTestCase {
         await vm.refine(thread: t)
         if case .done(let text) = vm.state { XCTAssertEqual(text, "Shorter") }
         else { XCTFail("Expected .done after refine") }
+        // Vérifier que le tour user du raffinement est dans la conversation
+        XCTAssertTrue(vm.conversation.messages.contains { $0.role == .user && $0.content == "Make it shorter" },
+            "L'instruction de raffinement doit être dans la conversation avant la réponse")
     }
 
     func test_isGenerating_trueWhileGenerating() { XCTAssertFalse(vm.isGenerating) }

@@ -41,6 +41,11 @@ struct AISettingsView: View {
                     .task { try? await Task.sleep(for: .seconds(2)); vm.saveSuccess = false }
             }
         }
+        .alert("Erreur", isPresented: Binding(get: { vm.saveError != nil }, set: { if !$0 { vm.saveError = nil } })) {
+            Button("OK") { vm.saveError = nil }
+        } message: {
+            Text(vm.saveError ?? "")
+        }
     }
 
     private func keyField(_ label: String, key: Binding<String>, hint: String) -> some View {

@@ -11,6 +11,7 @@ final class AISettingsViewModel {
     var mistralKey: String = ""
     var isSaving: Bool = false
     var saveSuccess: Bool = false
+    var saveError: String? = nil
 
     private let keychain: any KeychainServiceProtocol
 
@@ -27,6 +28,8 @@ final class AISettingsViewModel {
 
     func save() async {
         isSaving = true
+        saveSuccess = false
+        saveError = nil
         defer { isSaving = false }
         do {
             try keychain.save(claudeKey, key: "claude_api_key")
@@ -35,7 +38,9 @@ final class AISettingsViewModel {
             try keychain.save(mistralKey, key: "mistral_api_key")
             try keychain.save(selectedProvider.rawValue, key: "llm_selected_provider")
             saveSuccess = true
-        } catch { }
+        } catch {
+            saveError = error.localizedDescription
+        }
     }
 
     func activeProvider() -> any LLMProvider {

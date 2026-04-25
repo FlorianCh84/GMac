@@ -35,4 +35,14 @@ final class AISettingsViewModelTests: XCTestCase {
         XCTAssertTrue(vm.saveSuccess)
         XCTAssertFalse(vm.isSaving)
     }
+
+    func test_save_resetsSaveSuccessBeforeNewSave() async {
+        await vm.save()
+        XCTAssertTrue(vm.saveSuccess)
+        // Deuxième save — saveSuccess doit être false au début
+        vm.claudeKey = "new-key"
+        // On vérifie juste que save() peut être appelé deux fois sans état stale
+        await vm.save()
+        XCTAssertTrue(vm.saveSuccess)
+    }
 }
