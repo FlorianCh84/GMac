@@ -3,7 +3,9 @@ import SwiftUI
 struct ContentView: View {
     @Environment(SessionStore.self) var store
     @Environment(GoogleOAuthManager.self) var oauth
+    @Environment(AppEnvironment.self) var appEnv
     @State private var isComposing = false
+    @State private var isShowingSettings = false
     @State private var composeReplyToThreadId: String? = nil
     @State private var composeReplyToMessageId: String? = nil
     @State private var composePrefilledTo: String = ""
@@ -28,6 +30,14 @@ struct ContentView: View {
                     oauth.logout()
                 }
             }
+            ToolbarItem(placement: .navigation) {
+                Button("Paramètres", systemImage: "gear") {
+                    isShowingSettings = true
+                }
+            }
+        }
+        .sheet(isPresented: $isShowingSettings) {
+            settingsSheet
         }
         .sheet(isPresented: $isComposing, onDismiss: resetCompose) {
             ComposeViewShim(
@@ -65,5 +75,12 @@ struct ContentView: View {
     private func resetCompose() {
         composeReplyToThreadId = nil
         composeReplyToMessageId = nil
+    }
+
+    private var settingsSheet: some View {
+        SettingsView(
+            gmailService: store.gmailService,
+            settingsService: appEnv.settingsService
+        )
     }
 }

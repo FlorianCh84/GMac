@@ -6,6 +6,7 @@ final class AppEnvironment {
     let oauth: GoogleOAuthManager
     let httpClient: AuthenticatedHTTPClient
     let gmailService: GmailService
+    let settingsService: GmailSettingsService
     let sessionStore: SessionStore
 
     init() {
@@ -20,6 +21,7 @@ final class AppEnvironment {
         self.oauth = oauthInstance
         self.httpClient = client
         self.gmailService = service
+        self.settingsService = GmailSettingsService(httpClient: client)
         self.sessionStore = SessionStore(gmailService: service)
     }
 }

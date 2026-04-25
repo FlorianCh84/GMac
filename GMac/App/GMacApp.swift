@@ -10,6 +10,7 @@ struct GMacApp: App {
                 ContentView()
                     .environment(env.sessionStore)
                     .environment(env.oauth)
+                    .environment(env)
             } else {
                 LoginView()
                     .environment(env.oauth)
