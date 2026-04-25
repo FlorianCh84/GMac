@@ -26,6 +26,7 @@ targets:
         INFOPLIST_FILE: GMac/Resources/Info.plist
     preBuildScripts:
       - script: |
+          export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"
           if which swiftlint > /dev/null; then
             swiftlint
           else
