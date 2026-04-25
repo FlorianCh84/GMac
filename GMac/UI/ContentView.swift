@@ -109,7 +109,8 @@ struct ContentView: View {
     private var settingsSheet: some View {
         SettingsView(
             gmailService: store.gmailService,
-            settingsService: appEnv.settingsService
+            settingsService: appEnv.settingsService,
+            onDismiss: { isShowingSettings = false }
         )
     }
 }

@@ -51,7 +51,9 @@ struct AISettingsView: View {
     private func keyField(_ label: String, key: Binding<String>, hint: String) -> some View {
         HStack {
             Text(label).frame(width: 160, alignment: .leading)
-            SecureField(hint, text: key).textFieldStyle(.plain)
+            TextField(hint, text: key)
+                .textFieldStyle(.plain)
+                .font(.system(.body, design: .monospaced))
         }
     }
 }

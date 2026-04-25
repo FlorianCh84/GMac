@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     let gmailService: any GmailServiceProtocol
     let settingsService: any GmailSettingsServiceProtocol
+    let onDismiss: () -> Void
 
     var body: some View {
         NavigationSplitView {
@@ -32,6 +33,11 @@ struct SettingsView: View {
             }
             .navigationTitle("Paramètres")
             .listStyle(.sidebar)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("Fermer", action: onDismiss)
+                }
+            }
         } detail: {
             ContentUnavailableView("Choisissez une section", systemImage: "gear")
         }
