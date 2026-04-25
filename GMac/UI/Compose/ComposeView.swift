@@ -236,18 +236,39 @@ struct ComposeView: View {
         }
     }
 
+    private func pickLocalFile() {
+        let panel = NSOpenPanel()
+        panel.allowsMultipleSelection = true
+        panel.canChooseDirectories = false
+        panel.canChooseFiles = true
+        panel.title = "Choisir une pièce jointe"
+        if panel.runModal() == .OK {
+            for url in panel.urls {
+                guard let data = try? Data(contentsOf: url) else { continue }
+                let filename = url.lastPathComponent
+                let mimeType = Self.mimeType(for: url)
+                vm.attachments.append(Attachment(id: UUID(), filename: filename, mimeType: mimeType, data: data))
+            }
+        }
+    }
+
     private var bodySection: some View {
         VStack(spacing: 0) {
-            HStack {
+            HStack(spacing: 8) {
                 Spacer()
+                Button("Mac", systemImage: "paperclip") {
+                    pickLocalFile()
+                }
+                .buttonStyle(.bordered)
+                .controlSize(.small)
                 Button("Drive", systemImage: "externaldrive") {
                     isShowingDrivePicker = true
                 }
                 .buttonStyle(.bordered)
                 .controlSize(.small)
-                .padding(.horizontal, 12)
-                .padding(.top, 8)
             }
+            .padding(.horizontal, 12)
+            .padding(.top, 8)
             RichTextEditor(html: $vm.bodyHTML, placeholder: "Rédigez votre message…")
                 .frame(minHeight: 240)
                 .onChange(of: vm.bodyHTML) {

@@ -7,14 +7,18 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
         self.httpClient = httpClient
     }
 
-    func listFiles() async -> Result<[DriveFile], AppError> {
-        let request = URLRequest(url: Endpoints.driveFilesList())
+    func listFiles(parentId: String? = nil) async -> Result<[DriveFile], AppError> {
+        let request = URLRequest(url: Endpoints.driveFilesList(parentId: parentId))
         let result: Result<DriveFileListResponse, AppError> = await httpClient.send(request)
         switch result {
         case .success(let response):
             let files = response.files ?? []
-            print("[GMac] Drive listFiles: \(files.count) fichier(s) trouvé(s)")
-            return .success(files)
+            let sorted = files.sorted { a, b in
+                // Dossiers en premier, puis par nom
+                if a.isFolder != b.isFolder { return a.isFolder }
+                return a.name.localizedCaseInsensitiveCompare(b.name) == .orderedAscending
+            }
+            return .success(sorted)
         case .failure(let error):
             print("[GMac] Drive listFiles error: \(error)")
             return .failure(error)

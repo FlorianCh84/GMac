@@ -5,13 +5,15 @@ enum Endpoints {
     private static let driveBase = "https://www.googleapis.com/drive/v3"
     private static let driveUploadBase = "https://www.googleapis.com/upload/drive/v3"
 
-    static func driveFilesList() -> URL {
+    static func driveFilesList(parentId: String? = nil) -> URL {
         var c = URLComponents(string: "\(driveBase)/files")!
+        let parent = parentId ?? "root"
         c.queryItems = [
-            URLQueryItem(name: "pageSize", value: "50"),
+            URLQueryItem(name: "pageSize", value: "100"),
             URLQueryItem(name: "corpora", value: "user"),
             URLQueryItem(name: "spaces", value: "drive"),
-            URLQueryItem(name: "fields", value: "files(id,name,mimeType,size,modifiedTime)")
+            URLQueryItem(name: "q", value: "'\(parent)' in parents and trashed=false"),
+            URLQueryItem(name: "fields", value: "files(id,name,mimeType,size,modifiedTime,parents)")
         ]
         guard let url = c.url else { preconditionFailure("driveFilesList URL invalide") }
         return url
