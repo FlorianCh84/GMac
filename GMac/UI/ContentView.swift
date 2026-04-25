@@ -18,8 +18,33 @@ struct ContentView: View {
         } content: {
             ThreadListView()
         } detail: {
-            MessageDetailView(onReply: startReply, onSaveToDrive: saveToDrive)
+            if isComposing {
+                // Composition directement dans le panneau de détail
+                ComposeViewShim(
+                    replyToThreadId: composeReplyToThreadId,
+                    replyToMessageId: composeReplyToMessageId,
+                    prefilledTo: composePrefilledTo,
+                    prefilledSubject: composePrefilledSubject,
+                    senderEmail: store.senderEmail,
+                    gmailService: store.gmailService,
+                    driveService: appEnv.driveService,
+                    settingsService: appEnv.settingsService,
+                    aiProvider: appEnv.aiSettings.activeProvider(),
+                    contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
+                    onDismiss: {
+                        withAnimation(.easeInOut(duration: 0.2)) {
+                            resetCompose()
+                            isComposing = false
+                        }
+                    }
+                )
+                .transition(.opacity)
+            } else {
+                MessageDetailView(onReply: startReply, onSaveToDrive: saveToDrive)
+                    .transition(.opacity)
+            }
         }
+        .animation(.easeInOut(duration: 0.2), value: isComposing)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Button("Nouveau", systemImage: "square.and.pencil") {
@@ -39,21 +64,6 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isShowingSettings) {
             settingsSheet
-        }
-        .sheet(isPresented: $isComposing, onDismiss: resetCompose) {
-            ComposeViewShim(
-                replyToThreadId: composeReplyToThreadId,
-                replyToMessageId: composeReplyToMessageId,
-                prefilledTo: composePrefilledTo,
-                prefilledSubject: composePrefilledSubject,
-                senderEmail: store.senderEmail,
-                gmailService: store.gmailService,
-                driveService: appEnv.driveService,
-                settingsService: appEnv.settingsService,
-                aiProvider: appEnv.aiSettings.activeProvider(),
-                contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
-                onDismiss: { isComposing = false }
-            )
         }
         .overlay(alignment: .top) {
             if driveUploadSuccess {
@@ -127,7 +137,8 @@ struct ContentView: View {
         composeReplyToMessageId = nil
         composePrefilledTo = ""
         composePrefilledSubject = ""
-        isComposing = true
+        store.selectedThreadId = nil  // désélectionne le thread courant
+        withAnimation(.easeInOut(duration: 0.2)) { isComposing = true }
     }
 
     private func startReply(thread: EmailThread, message: EmailMessage) {
@@ -135,7 +146,7 @@ struct ContentView: View {
         composeReplyToMessageId = message.id
         composePrefilledTo = message.from
         composePrefilledSubject = message.subject.hasPrefix("Re:") ? message.subject : "Re: \(message.subject)"
-        isComposing = true
+        withAnimation(.easeInOut(duration: 0.2)) { isComposing = true }
     }
 
     private func resetCompose() {

@@ -24,7 +24,7 @@ struct ComposeView: View {
                 Divider()
                 bodySection
             }
-            .frame(minWidth: 560, idealWidth: 680)
+            .frame(minWidth: 420, maxWidth: .infinity)
 
             // --- Panneau IA : slide depuis la droite ---
             if isAIOpen, let provider = vm.aiProvider {
