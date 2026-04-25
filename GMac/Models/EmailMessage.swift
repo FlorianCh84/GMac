@@ -1,6 +1,6 @@
 import Foundation
 
-struct EmailMessage: Identifiable {
+struct EmailMessage: Identifiable, Sendable {
     let id: String
     let threadId: String
     let snippet: String

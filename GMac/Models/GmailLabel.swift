@@ -1,4 +1,4 @@
-struct GmailLabel: Identifiable, Hashable, Decodable {
+struct GmailLabel: Identifiable, Hashable, Decodable, Sendable {
     let id: String
     let name: String
     let type: LabelType

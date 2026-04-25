@@ -1,10 +1,10 @@
 import Foundation
 
-enum AppError: Error, Equatable {
+enum AppError: Error, Equatable, Sendable {
     case network(URLError)
     case apiError(statusCode: Int, message: String)
-    case serverError(statusCode: Int)    // 500 — non-retryable
-    case gatewayError(statusCode: Int)   // 502/503 — retryable
+    case serverError(statusCode: Int)
+    case gatewayError(statusCode: Int)
     case rateLimited(retryAfter: TimeInterval)
     case tokenExpired
     case offline

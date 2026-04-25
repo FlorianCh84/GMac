@@ -9,6 +9,7 @@ final class AppErrorTests: XCTestCase {
         XCTAssertEqual(AppError.dnsError, AppError.dnsError)
         XCTAssertEqual(AppError.emptyResponse, AppError.emptyResponse)
         XCTAssertNotEqual(AppError.offline, AppError.tokenExpired)
+        XCTAssertEqual(AppError.unknown, AppError.unknown)
     }
 
     func test_equality_apiError() {
@@ -40,6 +41,17 @@ final class AppErrorTests: XCTestCase {
     func test_equality_decodingError() {
         XCTAssertEqual(AppError.decodingError("field missing"), AppError.decodingError("field missing"))
         XCTAssertNotEqual(AppError.decodingError("a"), AppError.decodingError("b"))
+    }
+
+    func test_equality_network() {
+        XCTAssertEqual(
+            AppError.network(URLError(.timedOut)),
+            AppError.network(URLError(.timedOut))
+        )
+        XCTAssertNotEqual(
+            AppError.network(URLError(.timedOut)),
+            AppError.network(URLError(.cancelled))
+        )
     }
 
     // isRetryable tests
