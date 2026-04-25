@@ -31,6 +31,23 @@ struct VacationSettings: Codable, Sendable {
     var endTime: String?
     var restrictToContacts: Bool?
     var restrictToDomain: Bool?
+
+    enum CodingKeys: String, CodingKey {
+        case enableAutoReply, responseSubject, responseBodyPlainText, responseBodyHtml
+        case startTime, endTime, restrictToContacts, restrictToDomain
+    }
+
+    func encode(to encoder: any Encoder) throws {
+        var c = encoder.container(keyedBy: CodingKeys.self)
+        try c.encode(enableAutoReply, forKey: .enableAutoReply)
+        try c.encodeIfPresent(responseSubject, forKey: .responseSubject)
+        try c.encodeIfPresent(responseBodyPlainText, forKey: .responseBodyPlainText)
+        try c.encodeIfPresent(responseBodyHtml, forKey: .responseBodyHtml)
+        try c.encodeIfPresent(startTime, forKey: .startTime)
+        try c.encodeIfPresent(endTime, forKey: .endTime)
+        try c.encodeIfPresent(restrictToContacts, forKey: .restrictToContacts)
+        try c.encodeIfPresent(restrictToDomain, forKey: .restrictToDomain)
+    }
 }
 
 struct CreateLabelRequest: Encodable, Sendable {
@@ -43,4 +60,8 @@ struct CreateLabelRequest: Encodable, Sendable {
         self.labelListVisibility = "labelShow"
         self.messageListVisibility = "show"
     }
+}
+
+struct UpdateLabelRequest: Encodable, Sendable {
+    let name: String
 }

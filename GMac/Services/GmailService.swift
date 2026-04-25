@@ -31,7 +31,6 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try? JSONSerialization.data(withJSONObject: ["removeLabelIds": ["INBOX"]])
 
-        struct EmptyResponse: Decodable {}
         let result: Result<EmptyResponse, AppError> = await httpClient.send(request)
         return result.map { _ in () }
     }

@@ -54,7 +54,7 @@ final class GmailSettingsService: GmailSettingsServiceProtocol, @unchecked Senda
             var request = URLRequest(url: Endpoints.labelUpdate(id: id))
             request.httpMethod = "PUT"
             request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            request.httpBody = try JSONEncoder().encode(CreateLabelRequest(name: name))
+            request.httpBody = try JSONEncoder().encode(UpdateLabelRequest(name: name))
             let result: Result<GmailAPILabel, AppError> = await httpClient.send(request)
             return result.map { mapLabel($0) }
         } catch { return .failure(.unknown) }
