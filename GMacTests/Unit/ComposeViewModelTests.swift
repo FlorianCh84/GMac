@@ -27,6 +27,16 @@ final class ComposeViewModelTests: XCTestCase {
         XCTAssertTrue(vm.isValid)
     }
 
+    func test_send_parsesCommaSeparatedCC() async {
+        vm.to = "bob@example.com"
+        vm.cc = "carol@example.com, dave@example.com"
+        vm.subject = "Subject"
+        vm.body = "Body"
+        mockService.stubSend(.success(()))
+        await vm.startSend(countdownDuration: 0)
+        XCTAssertEqual(mockService.sendCallCount, 1)
+    }
+
     func test_send_withCountdownZero_callsAPI() async {
         vm.to = "bob@example.com"
         vm.subject = "Subject"
@@ -69,14 +79,11 @@ final class ComposeViewModelTests: XCTestCase {
         vm.body = "Body"
         mockService.stubSend(.success(()))
 
-        // startSend avec countdown court mais > 0
         let task = Task { await vm.startSend(countdownDuration: 10.0) }
         try? await Task.sleep(for: .milliseconds(50))
-        // Verifier qu'on est en countdown
         if case .countdown = vm.sendState { } else {
             XCTFail("Expected .countdown state, got \(vm.sendState)")
         }
-        // Annuler
         vm.cancelSend()
         try? await Task.sleep(for: .milliseconds(100))
         if case .idle = vm.sendState { } else {

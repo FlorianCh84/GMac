@@ -35,6 +35,8 @@ final class ComposeViewModel {
     func startSend(countdownDuration: TimeInterval = 3.0) async {
         guard isValid else { return }
 
+        // Snapshot avant le countdown — garantit que le mail envoyé correspond exactement
+        // à ce que l'utilisateur a confirmé en cliquant Envoyer, même s'il modifie le texte pendant les 3s.
         let message = OutgoingMessage(
             to: to.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
             cc: cc.isEmpty ? [] : cc.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
@@ -49,14 +51,19 @@ final class ComposeViewModel {
         if countdownDuration > 0 {
             let steps = 30
             let stepDuration = countdownDuration / Double(steps)
-            for step in 1...steps {
-                if case .idle = sendState { return }
-                sendState = .countdown(progress: Double(step) / Double(steps))
-                try? await Task.sleep(for: .seconds(stepDuration))
+            do {
+                for step in 1...steps {
+                    guard case .countdown = sendState else { return }
+                    sendState = .countdown(progress: Double(step) / Double(steps))
+                    try await Task.sleep(for: .seconds(stepDuration))
+                }
+            } catch {
+                sendState = .idle
+                return
             }
         }
 
-        if case .idle = sendState { return }
+        guard case .countdown = sendState else { return }
 
         sendState = .sending
         let result = await gmailService.send(message: message)
