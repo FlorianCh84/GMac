@@ -79,6 +79,15 @@ final class SessionStore {
         }
     }
 
+    func refreshIfNeeded() async {
+        if labels.isEmpty {
+            await loadLabels()
+        }
+        if threads.isEmpty {
+            await loadThreadList()
+        }
+    }
+
     func reconcile() async {
         guard !currentHistoryId.isEmpty else { return }
         let result = await withRetry(maxRetries: 2) {

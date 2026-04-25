@@ -8,7 +8,7 @@ struct GMacApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if env.oauth.isAuthenticated {
+                if env.oauth.isLoggedIn {
                     ContentView()
                         .environment(env.sessionStore)
                         .environment(env.oauth)

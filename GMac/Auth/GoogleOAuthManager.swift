@@ -32,6 +32,8 @@ final class GoogleOAuthManager: NSObject {
     private var pendingState: String?
     private var pendingContinuation: CheckedContinuation<Void, Error>?
 
+    var isLoggedIn: Bool = false
+
     var isAuthenticated: Bool {
         guard let expiry = storedExpiry else { return false }
         let hasAccess = (try? keychain.retrieve(key: "google_access_token")) != nil
@@ -49,6 +51,8 @@ final class GoogleOAuthManager: NSObject {
         self.clientId = clientId
         self.clientSecret = clientSecret
         self.keychain = keychain
+        super.init()
+        self.isLoggedIn = isAuthenticated
     }
 
     func sign(_ request: URLRequest) -> URLRequest {
@@ -66,6 +70,7 @@ final class GoogleOAuthManager: NSObject {
         pendingContinuation?.resume(throwing: CancellationError())
         pendingContinuation = nil
         pendingState = nil
+        isLoggedIn = false
     }
 
     func refresh() async throws {
@@ -167,5 +172,6 @@ final class GoogleOAuthManager: NSObject {
         try keychain.save(token.accessToken, key: "google_access_token")
         try keychain.save(refreshToken, key: "google_refresh_token")
         try keychain.save("\(expiry.timeIntervalSince1970)", key: "google_token_expiry")
+        isLoggedIn = true
     }
 }

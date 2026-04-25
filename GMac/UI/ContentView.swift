@@ -68,6 +68,33 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut, value: driveUploadSuccess)
+        .overlay(alignment: .top) {
+            if let error = store.lastSyncError, !store.isLoading {
+                VStack(spacing: 0) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "exclamationmark.triangle.fill")
+                            .foregroundStyle(.orange)
+                        Text(apiErrorMessage(error))
+                            .font(.caption)
+                            .foregroundStyle(.primary)
+                        Spacer()
+                        Button("Réessayer") {
+                            store.lastSyncError = nil
+                            Task { await store.loadLabels(); await store.loadThreadList() }
+                        }
+                        .buttonStyle(.bordered)
+                        .controlSize(.small)
+                        Button("×") { store.lastSyncError = nil }
+                            .buttonStyle(.plain)
+                            .foregroundStyle(.secondary)
+                    }
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+                    .background(.orange.opacity(0.15))
+                    Divider()
+                }
+            }
+        }
         .onAppear { appEnv.syncEngine.start() }
         .onDisappear { appEnv.syncEngine.stop() }
         .task {
@@ -112,5 +139,19 @@ struct ContentView: View {
             settingsService: appEnv.settingsService,
             onDismiss: { isShowingSettings = false }
         )
+    }
+
+    private func apiErrorMessage(_ error: AppError) -> String {
+        switch error {
+        case .apiError(let code, let msg):
+            if code == 403 { return "API non autorisée (403) — Activez Gmail API dans Google Cloud Console" }
+            if code == 401 { return "Session expirée — Déconnectez-vous et reconnectez-vous" }
+            if code == 400 { return "Requête invalide (\(code)): \(msg)" }
+            return "Erreur API \(code): \(msg)"
+        case .offline: return "Pas de connexion internet"
+        case .tokenExpired: return "Token expiré — Déconnectez-vous et reconnectez-vous"
+        case .dnsError: return "Erreur DNS — Vérifiez votre connexion internet"
+        default: return "Erreur: \(error)"
+        }
     }
 }
