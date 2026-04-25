@@ -2,10 +2,11 @@ import AuthenticationServices
 import Foundation
 
 @Observable
-final class GoogleOAuthManager: NSObject, Sendable {
+@MainActor
+final class GoogleOAuthManager: NSObject {
     private let clientId: String
     private let clientSecret: String
-    let keychain: KeychainService
+    let keychain: any KeychainServiceProtocol
     private let redirectURI = "fr.agence810.gmac:/oauth2callback"
     private let scopes = [
         "https://www.googleapis.com/auth/gmail.readonly",
@@ -17,7 +18,19 @@ final class GoogleOAuthManager: NSObject, Sendable {
 
     // Single-flight refresh : évite la race condition où deux 401 simultanés
     // déclenchent deux refreshes concurrents qui s'écrasent mutuellement
-    private nonisolated(unsafe) var refreshTask: Task<Void, Error>?
+    private actor RefreshCoordinator {
+        private var task: Task<Void, Error>?
+
+        func refresh(work: @escaping @Sendable () async throws -> Void) async throws {
+            if let existing = task { return try await existing.value }
+            let t = Task { try await work() }
+            task = t
+            defer { task = nil }
+            try await t.value
+        }
+    }
+
+    private let refreshCoordinator = RefreshCoordinator()
 
     var isAuthenticated: Bool {
         guard let expiry = storedExpiry else { return false }
@@ -32,7 +45,7 @@ final class GoogleOAuthManager: NSObject, Sendable {
         return Date(timeIntervalSince1970: ts)
     }
 
-    init(clientId: String, clientSecret: String, keychain: KeychainService = KeychainService()) {
+    init(clientId: String, clientSecret: String, keychain: any KeychainServiceProtocol = KeychainService()) {
         self.clientId = clientId
         self.clientSecret = clientSecret
         self.keychain = keychain
@@ -50,27 +63,21 @@ final class GoogleOAuthManager: NSObject, Sendable {
         try? keychain.delete(key: "google_access_token")
         try? keychain.delete(key: "google_refresh_token")
         try? keychain.delete(key: "google_token_expiry")
-        refreshTask = nil
     }
 
     func refresh() async throws {
-        if let existingTask = refreshTask {
-            return try await existingTask.value
-        }
-        let task = Task<Void, Error> { [weak self] in
+        try await refreshCoordinator.refresh { [weak self] in
             guard let self else { return }
             try await self._doRefresh()
         }
-        refreshTask = task
-        defer { refreshTask = nil }
-        try await task.value
     }
 
     private func _doRefresh() async throws {
         guard let refreshToken = try? keychain.retrieve(key: "google_refresh_token") else {
             throw AppError.tokenExpired
         }
-        var request = URLRequest(url: URL(string: Endpoints.tokenURL)!)
+        guard let url = URL(string: Endpoints.tokenURL) else { throw AppError.unknown }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)&client_secret=\(clientSecret)"
@@ -80,9 +87,6 @@ final class GoogleOAuthManager: NSObject, Sendable {
         try storeTokens(token, refreshToken: refreshToken)
     }
 
-    // @MainActor requis en Swift 6 : ASWebAuthenticationSession est un objet UI
-    // qui doit être créé et démarré sur le main thread
-    @MainActor
     func startOAuthFlow() async throws {
         let state = UUID().uuidString
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
@@ -123,7 +127,8 @@ final class GoogleOAuthManager: NSObject, Sendable {
     }
 
     private func exchangeCode(_ code: String) async throws {
-        var request = URLRequest(url: URL(string: Endpoints.tokenURL)!)
+        guard let url = URL(string: Endpoints.tokenURL) else { throw AppError.unknown }
+        var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         let body = "grant_type=authorization_code&code=\(code)&redirect_uri=\(redirectURI)&client_id=\(clientId)&client_secret=\(clientSecret)"
@@ -142,10 +147,7 @@ final class GoogleOAuthManager: NSObject, Sendable {
     }
 }
 
-// @MainActor requis en Swift 6 : presentationAnchor doit être appelé depuis le main thread
-// car il accède à NSApplication.shared.windows (propriété UI)
 extension GoogleOAuthManager: ASWebAuthenticationPresentationContextProviding {
-    @MainActor
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         NSApplication.shared.windows.first ?? ASPresentationAnchor()
     }

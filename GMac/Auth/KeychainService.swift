@@ -7,7 +7,7 @@ enum KeychainError: Error, Equatable {
     case deleteFailed(OSStatus)
 }
 
-final class KeychainService: Sendable {
+final class KeychainService: KeychainServiceProtocol, Sendable {
     private let service: String
 
     init(service: String = "fr.agence810.GMac") {

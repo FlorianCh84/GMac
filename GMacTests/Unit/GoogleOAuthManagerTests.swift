@@ -1,22 +1,18 @@
 import XCTest
 @testable import GMac
 
+@MainActor
 final class GoogleOAuthManagerTests: XCTestCase {
-    var keychain: KeychainService!
+    var keychain: MockKeychainService!
     var manager: GoogleOAuthManager!
 
     override func setUp() {
-        keychain = KeychainService(service: "fr.agence810.GMac.tests")
+        keychain = MockKeychainService()
         manager = GoogleOAuthManager(clientId: "test_client_id", clientSecret: "test_secret", keychain: keychain)
-        try? keychain.delete(key: "google_access_token")
-        try? keychain.delete(key: "google_refresh_token")
-        try? keychain.delete(key: "google_token_expiry")
     }
 
     override func tearDown() {
-        try? keychain.delete(key: "google_access_token")
-        try? keychain.delete(key: "google_refresh_token")
-        try? keychain.delete(key: "google_token_expiry")
+        // Pas de cleanup nécessaire — MockKeychainService est in-memory
     }
 
     func test_isAuthenticated_falseWhenNoTokens() {
@@ -62,7 +58,14 @@ final class GoogleOAuthManagerTests: XCTestCase {
         try keychain.save("12345", key: "google_token_expiry")
         manager.logout()
         XCTAssertFalse(manager.isAuthenticated)
-        XCTAssertThrowsError(try keychain.retrieve(key: "google_access_token"))
-        XCTAssertThrowsError(try keychain.retrieve(key: "google_refresh_token"))
+        XCTAssertThrowsError(try keychain.retrieve(key: "google_access_token")) { error in
+            XCTAssertEqual(error as? KeychainError, .notFound)
+        }
+        XCTAssertThrowsError(try keychain.retrieve(key: "google_refresh_token")) { error in
+            XCTAssertEqual(error as? KeychainError, .notFound)
+        }
+        XCTAssertThrowsError(try keychain.retrieve(key: "google_token_expiry")) { error in
+            XCTAssertEqual(error as? KeychainError, .notFound)
+        }
     }
 }
