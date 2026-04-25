@@ -165,7 +165,9 @@ private final class OAuthSessionBridge: NSObject, ASWebAuthenticationPresentatio
     }
 
     func startSession(url: URL, callbackScheme: String) async throws -> URL {
-        try await withCheckedThrowingContinuation { [weak self] continuation in
+        // withUnsafeThrowingContinuation évite la vérification d'exécuteur Swift 6
+        // qui crashe quand ASWebAuthenticationSession rappelle via XPC (background thread macOS 26).
+        try await withUnsafeThrowingContinuation { [weak self] continuation in
             guard let self else { continuation.resume(throwing: CancellationError()); return }
             DispatchQueue.main.async { [weak self] in
                 guard let self else { continuation.resume(throwing: CancellationError()); return }
