@@ -23,23 +23,21 @@ enum MIMEBuilder {
             .replacingOccurrences(of: "=", with: "")
     }
 
-    private static func buildSimpleMIME(message: OutgoingMessage, from senderEmail: String) throws -> String {
+    private static func buildCommonHeaders(message: OutgoingMessage, from senderEmail: String) throws -> [String] {
         var lines: [String] = []
-
         lines.append("From: \(senderEmail)")
         lines.append("To: \(message.to.joined(separator: ", "))")
-
-        if !message.cc.isEmpty {
-            lines.append("Cc: \(message.cc.joined(separator: ", "))")
-        }
-
+        if !message.cc.isEmpty { lines.append("Cc: \(message.cc.joined(separator: ", "))") }
         lines.append("Subject: \(try encodeSubject(message.subject))")
-
         if let replyToId = message.replyToMessageId {
             lines.append("In-Reply-To: \(replyToId)")
             lines.append("References: \(replyToId)")
         }
+        return lines
+    }
 
+    private static func buildSimpleMIME(message: OutgoingMessage, from senderEmail: String) throws -> String {
+        var lines = try buildCommonHeaders(message: message, from: senderEmail)
         lines.append("MIME-Version: 1.0")
         lines.append("Content-Type: text/plain; charset=utf-8")
         lines.append("Content-Transfer-Encoding: 8bit")
@@ -52,22 +50,7 @@ enum MIMEBuilder {
 
     private static func buildMultipartMIME(message: OutgoingMessage, from senderEmail: String) throws -> String {
         let boundary = "GMac_\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
-        var lines: [String] = []
-
-        lines.append("From: \(senderEmail)")
-        lines.append("To: \(message.to.joined(separator: ", "))")
-
-        if !message.cc.isEmpty {
-            lines.append("Cc: \(message.cc.joined(separator: ", "))")
-        }
-
-        lines.append("Subject: \(try encodeSubject(message.subject))")
-
-        if let replyToId = message.replyToMessageId {
-            lines.append("In-Reply-To: \(replyToId)")
-            lines.append("References: \(replyToId)")
-        }
-
+        var lines = try buildCommonHeaders(message: message, from: senderEmail)
         lines.append("MIME-Version: 1.0")
         lines.append("Content-Type: multipart/mixed; boundary=\"\(boundary)\"")
         lines.append("")

@@ -48,8 +48,7 @@ final class MIMEBuilderAttachmentTests: XCTestCase {
         let raw = try MIMEBuilder.buildRaw(message: message, from: "alice@example.com")
         let decoded = decodeBase64url(raw)
         // Le contenu de la PJ doit être encodé en base64 dans le MIME
-        let expectedBase64 = data.base64EncodedString()
-        XCTAssertTrue(decoded.contains(expectedBase64) || decoded.contains(expectedBase64.prefix(20)),
-                      "Les données de la PJ doivent être base64 dans le MIME")
+        let expectedBase64 = data.base64EncodedString(options: .lineLength76Characters)
+        XCTAssertTrue(decoded.contains(expectedBase64), "Les données de la PJ doivent être encodées en base64 avec sauts de ligne à 76 chars")
     }
 }

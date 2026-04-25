@@ -98,6 +98,13 @@ struct SendMessageRequest: Encodable, Sendable {
     enum CodingKeys: String, CodingKey {
         case raw, threadId, scheduleTime
     }
+
+    func encode(to encoder: any Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(raw, forKey: .raw)
+        try container.encodeIfPresent(threadId, forKey: .threadId)
+        try container.encodeIfPresent(scheduleTime, forKey: .scheduleTime)
+    }
 }
 
 struct SendMessageResponse: Decodable, Sendable {

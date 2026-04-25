@@ -99,5 +99,7 @@ final class ComposeViewModel {
         attachments = []
         replyToThreadId = nil
         replyToMessageId = nil
+        isScheduled = false
+        scheduledDate = Date().addingTimeInterval(3600)
     }
 }
