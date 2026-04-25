@@ -33,14 +33,14 @@ struct SettingsView: View {
             }
             .navigationTitle("Paramètres")
             .listStyle(.sidebar)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("Fermer", action: onDismiss)
-                }
-            }
         } detail: {
             ContentUnavailableView("Choisissez une section", systemImage: "gear")
         }
         .frame(minWidth: 640, minHeight: 420)
+        .toolbar {
+            ToolbarItem(placement: .cancellationAction) {
+                Button("Fermer", action: onDismiss)
+            }
+        }
     }
 }
