@@ -30,6 +30,7 @@ final class SessionStore {
             self.labels = labels
         case .failure(let error):
             lastSyncError = error
+            print("[GMac] loadLabels error: \(error)")
         }
     }
 
@@ -62,6 +63,7 @@ final class SessionStore {
             }
         case .failure(let error):
             lastSyncError = error
+            print("[GMac] loadThreadList error: \(error)")
         }
     }
 

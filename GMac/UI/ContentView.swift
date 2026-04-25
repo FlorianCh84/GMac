@@ -84,6 +84,13 @@ struct ContentView: View {
                         }
                         .buttonStyle(.bordered)
                         .controlSize(.small)
+                        Button("Copier") {
+                            NSPasteboard.general.clearContents()
+                            NSPasteboard.general.setString(apiErrorMessage(error), forType: .string)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                        .font(.caption)
                         Button("×") { store.lastSyncError = nil }
                             .buttonStyle(.plain)
                             .foregroundStyle(.secondary)
