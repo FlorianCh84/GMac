@@ -7,190 +7,190 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		9ACBC719E761878EB735402E /* GmailMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 950F4BE54169416BF2FF4266 /* GmailMacApp.swift */; };
-		CFB9471FE1C6FFD1C5C3026E /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */; };
+		EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */; };
+		FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC274167317AB7D94C8453 /* GMacApp.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
-		A46DFC64244FF8767B315BD5 /* PBXContainerItemProxy */ = {
+		2F429F7C18FAC451F3C126BA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
-			containerPortal = 4C0A7BACD28E6E91C1A0D08C /* Project object */;
+			containerPortal = A4B787ADFE8816705AD72C82 /* Project object */;
 			proxyType = 1;
-			remoteGlobalIDString = 8DD532946849D2DFE12898EE;
-			remoteInfo = GmailMac;
+			remoteGlobalIDString = F8E60BA75F6D9106D2006D2F;
+			remoteInfo = GMac;
 		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		1F7EC644DBCD03C302B462AD /* GmailMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GmailMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		46AE4DB28DC3097EBE8167DB /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
-		950F4BE54169416BF2FF4266 /* GmailMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailMacApp.swift; sourceTree = "<group>"; };
-		D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GmailMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
+		0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlaceholderTests.swift; sourceTree = "<group>"; };
+		36E5759BB4EBA36A77548FBD /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A9DBA09CBC16025E54A40C2A /* GMac.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = GMac.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		D8BC274167317AB7D94C8453 /* GMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMacApp.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXGroup section */
-		2980A0A86E3F74584CEB0720 /* GmailMac */ = {
+		09BFFE4F0D471E29FCBE466E /* GMac */ = {
 			isa = PBXGroup;
 			children = (
-				52099F8307DFEAD8699A55A3 /* App */,
-				D7E09870C6BF7E0915A789FC /* Resources */,
-				78B18FDA94013EA0997EA913 /* Services */,
-				6F3829BC73E5FB24C8C4DE32 /* UI */,
+				1270B3E4384B0CEEB91246FA /* App */,
+				B76C3187F89DFFFDA61AF65B /* Resources */,
+				E7EB77004FA57616BF877620 /* Services */,
+				ADB1E8ACFB4F52D00413AA7B /* UI */,
 			);
-			path = GmailMac;
+			path = GMac;
 			sourceTree = "<group>";
 		};
-		3DFAB4E88EFD3453D94C393A /* AI */ = {
+		1270B3E4384B0CEEB91246FA /* App */ = {
 			isa = PBXGroup;
 			children = (
-			);
-			path = AI;
-			sourceTree = "<group>";
-		};
-		52099F8307DFEAD8699A55A3 /* App */ = {
-			isa = PBXGroup;
-			children = (
-				950F4BE54169416BF2FF4266 /* GmailMacApp.swift */,
+				D8BC274167317AB7D94C8453 /* GMacApp.swift */,
 			);
 			path = App;
 			sourceTree = "<group>";
 		};
-		6C5CAC7213016769E62814C8 = {
+		361BB46384F90B5E759D0D24 /* Unit */ = {
 			isa = PBXGroup;
 			children = (
-				2980A0A86E3F74584CEB0720 /* GmailMac */,
-				9F1CC1866083AC4435A5B296 /* GmailMacTests */,
-				85977E2F03DE3E41DE60ECB9 /* Products */,
+				0275C41F7F3E5A52E2ADBA15 /* PlaceholderTests.swift */,
 			);
+			path = Unit;
 			sourceTree = "<group>";
 		};
-		6F3829BC73E5FB24C8C4DE32 /* UI */ = {
+		82504CF1FA32C170148CEEB4 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				A9DBA09CBC16025E54A40C2A /* GMac.app */,
+				CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		ADB1E8ACFB4F52D00413AA7B /* UI */ = {
 			isa = PBXGroup;
 			children = (
 			);
 			path = UI;
 			sourceTree = "<group>";
 		};
-		78B18FDA94013EA0997EA913 /* Services */ = {
+		AE007DC87C6719E485D769A8 = {
 			isa = PBXGroup;
 			children = (
-				3DFAB4E88EFD3453D94C393A /* AI */,
+				09BFFE4F0D471E29FCBE466E /* GMac */,
+				BEEC690835D91709BDF1C393 /* GMacTests */,
+				82504CF1FA32C170148CEEB4 /* Products */,
 			);
-			path = Services;
 			sourceTree = "<group>";
 		};
-		80054616D28675FEB4E0EF8B /* Unit */ = {
+		AF2008230C6684C58053AD7B /* AI */ = {
 			isa = PBXGroup;
 			children = (
-				F55539BD6B64C2BE6395910B /* PlaceholderTests.swift */,
 			);
-			path = Unit;
+			path = AI;
 			sourceTree = "<group>";
 		};
-		85977E2F03DE3E41DE60ECB9 /* Products */ = {
+		B76C3187F89DFFFDA61AF65B /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				1F7EC644DBCD03C302B462AD /* GmailMac.app */,
-				D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
-		9F1CC1866083AC4435A5B296 /* GmailMacTests */ = {
-			isa = PBXGroup;
-			children = (
-				80054616D28675FEB4E0EF8B /* Unit */,
-			);
-			path = GmailMacTests;
-			sourceTree = "<group>";
-		};
-		D7E09870C6BF7E0915A789FC /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				46AE4DB28DC3097EBE8167DB /* Info.plist */,
+				36E5759BB4EBA36A77548FBD /* Info.plist */,
 			);
 			path = Resources;
+			sourceTree = "<group>";
+		};
+		BEEC690835D91709BDF1C393 /* GMacTests */ = {
+			isa = PBXGroup;
+			children = (
+				361BB46384F90B5E759D0D24 /* Unit */,
+			);
+			path = GMacTests;
+			sourceTree = "<group>";
+		};
+		E7EB77004FA57616BF877620 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				AF2008230C6684C58053AD7B /* AI */,
+			);
+			path = Services;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		7E62D9F5494D4C251558E5A2 /* GmailMacTests */ = {
+		9D5A95880051A5CEBC91E514 /* GMacTests */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 6C533D8B1BD803EF7BF71DCB /* Build configuration list for PBXNativeTarget "GmailMacTests" */;
+			buildConfigurationList = DFED7AF41716C37B0289D9C4 /* Build configuration list for PBXNativeTarget "GMacTests" */;
 			buildPhases = (
-				92ABD2AAFA7EC2EC56004C38 /* Sources */,
+				46AE2BE418E377216270B79C /* Sources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
-				7E30797F6FEA1AC4A5203DAF /* PBXTargetDependency */,
+				6F73C4F9BB85B34F8582CE62 /* PBXTargetDependency */,
 			);
-			name = GmailMacTests;
+			name = GMacTests;
 			packageProductDependencies = (
 			);
-			productName = GmailMacTests;
-			productReference = D8960D844BE2C6165F77D522 /* GmailMacTests.xctest */;
+			productName = GMacTests;
+			productReference = CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
-		8DD532946849D2DFE12898EE /* GmailMac */ = {
+		F8E60BA75F6D9106D2006D2F /* GMac */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = EBF9FDE35CB53DC4D9DC6BFA /* Build configuration list for PBXNativeTarget "GmailMac" */;
+			buildConfigurationList = 718FD7DB23111121C42E74F8 /* Build configuration list for PBXNativeTarget "GMac" */;
 			buildPhases = (
-				FDBAA2C1C8876830CE0F0DC5 /* SwiftLint */,
-				E33F31E7686B80E38508A7FB /* Sources */,
+				D864F9F53F51D8653100EDB9 /* SwiftLint */,
+				14DE64DC4AF7F62572A69493 /* Sources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
-			name = GmailMac;
+			name = GMac;
 			packageProductDependencies = (
 			);
-			productName = GmailMac;
-			productReference = 1F7EC644DBCD03C302B462AD /* GmailMac.app */;
+			productName = GMac;
+			productReference = A9DBA09CBC16025E54A40C2A /* GMac.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
-		4C0A7BACD28E6E91C1A0D08C /* Project object */ = {
+		A4B787ADFE8816705AD72C82 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					7E62D9F5494D4C251558E5A2 = {
+					9D5A95880051A5CEBC91E514 = {
 						ProvisioningStyle = Automatic;
 					};
-					8DD532946849D2DFE12898EE = {
+					F8E60BA75F6D9106D2006D2F = {
 						ProvisioningStyle = Automatic;
 					};
 				};
 			};
-			buildConfigurationList = 900B43AC52B8F89A144AE482 /* Build configuration list for PBXProject "GmailMac" */;
+			buildConfigurationList = BFEDA3EDB73E8E06EE411BBB /* Build configuration list for PBXProject "GMac" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				Base,
 				en,
 			);
-			mainGroup = 6C5CAC7213016769E62814C8;
+			mainGroup = AE007DC87C6719E485D769A8;
 			minimizedProjectReferenceProxies = 1;
 			preferredProjectObjectVersion = 77;
-			productRefGroup = 85977E2F03DE3E41DE60ECB9 /* Products */;
+			productRefGroup = 82504CF1FA32C170148CEEB4 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				8DD532946849D2DFE12898EE /* GmailMac */,
-				7E62D9F5494D4C251558E5A2 /* GmailMacTests */,
+				F8E60BA75F6D9106D2006D2F /* GMac */,
+				9D5A95880051A5CEBC91E514 /* GMacTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXShellScriptBuildPhase section */
-		FDBAA2C1C8876830CE0F0DC5 /* SwiftLint */ = {
+		D864F9F53F51D8653100EDB9 /* SwiftLint */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -211,81 +211,34 @@
 /* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		92ABD2AAFA7EC2EC56004C38 /* Sources */ = {
+		14DE64DC4AF7F62572A69493 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				CFB9471FE1C6FFD1C5C3026E /* PlaceholderTests.swift in Sources */,
+				FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
-		E33F31E7686B80E38508A7FB /* Sources */ = {
+		46AE2BE418E377216270B79C /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9ACBC719E761878EB735402E /* GmailMacApp.swift in Sources */,
+				EA1088E656A2699F6089FE06 /* PlaceholderTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
-		7E30797F6FEA1AC4A5203DAF /* PBXTargetDependency */ = {
+		6F73C4F9BB85B34F8582CE62 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
-			target = 8DD532946849D2DFE12898EE /* GmailMac */;
-			targetProxy = A46DFC64244FF8767B315BD5 /* PBXContainerItemProxy */;
+			target = F8E60BA75F6D9106D2006D2F /* GMac */;
+			targetProxy = 2F429F7C18FAC451F3C126BA /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
-		038361FF77ED0AF28E85A3B2 /* Debug */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = GmailMac/Resources/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMac;
-				SDKROOT = macosx;
-			};
-			name = Debug;
-		};
-		6234EBACAA622D130B7D577E /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				COMBINE_HIDPI_IMAGES = YES;
-				INFOPLIST_FILE = GmailMac/Resources/Info.plist;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMac;
-				SDKROOT = macosx;
-			};
-			name = Release;
-		};
-		6E936610F35BBB0470F333BD /* Release */ = {
-			isa = XCBuildConfiguration;
-			buildSettings = {
-				BUNDLE_LOADER = "$(TEST_HOST)";
-				COMBINE_HIDPI_IMAGES = YES;
-				GENERATE_INFOPLIST_FILE = YES;
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/../Frameworks",
-					"@loader_path/../Frameworks",
-				);
-				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMacTests;
-				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GmailMac.app/Contents/MacOS/GmailMac";
-			};
-			name = Release;
-		};
-		CAE13B21CE0A99AC7991A4A5 /* Release */ = {
+		0E1C2042EBDB29F90737E993 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -343,7 +296,37 @@
 			};
 			name = Release;
 		};
-		D7028E1ABBBB2A882F73430C /* Debug */ = {
+		621B8BB2765A621E2E6675E9 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = GMac/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GMac;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		7971E976511992893F3DBE11 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				INFOPLIST_FILE = GMac/Resources/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GMac;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		9B3E28163DAB9B2C907C1EC5 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
@@ -354,13 +337,13 @@
 					"@executable_path/../Frameworks",
 					"@loader_path/../Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GmailMacTests;
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GMacTests;
 				SDKROOT = macosx;
-				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GmailMac.app/Contents/MacOS/GmailMac";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GMac.app/Contents/MacOS/GMac";
 			};
-			name = Debug;
+			name = Release;
 		};
-		EB92E7BE3D74D6EBD9DB96CE /* Debug */ = {
+		B240FD51D90FD969054DF7BD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
@@ -425,37 +408,54 @@
 			};
 			name = Debug;
 		};
+		D9E23174EBAEBB25F5BDF989 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+					"@loader_path/../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = fr.agence810.GMacTests;
+				SDKROOT = macosx;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/GMac.app/Contents/MacOS/GMac";
+			};
+			name = Debug;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		6C533D8B1BD803EF7BF71DCB /* Build configuration list for PBXNativeTarget "GmailMacTests" */ = {
+		718FD7DB23111121C42E74F8 /* Build configuration list for PBXNativeTarget "GMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				D7028E1ABBBB2A882F73430C /* Debug */,
-				6E936610F35BBB0470F333BD /* Release */,
+				7971E976511992893F3DBE11 /* Debug */,
+				621B8BB2765A621E2E6675E9 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		900B43AC52B8F89A144AE482 /* Build configuration list for PBXProject "GmailMac" */ = {
+		BFEDA3EDB73E8E06EE411BBB /* Build configuration list for PBXProject "GMac" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				EB92E7BE3D74D6EBD9DB96CE /* Debug */,
-				CAE13B21CE0A99AC7991A4A5 /* Release */,
+				B240FD51D90FD969054DF7BD /* Debug */,
+				0E1C2042EBDB29F90737E993 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
-		EBF9FDE35CB53DC4D9DC6BFA /* Build configuration list for PBXNativeTarget "GmailMac" */ = {
+		DFED7AF41716C37B0289D9C4 /* Build configuration list for PBXNativeTarget "GMacTests" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
-				038361FF77ED0AF28E85A3B2 /* Debug */,
-				6234EBACAA622D130B7D577E /* Release */,
+				D9E23174EBAEBB25F5BDF989 /* Debug */,
+				9B3E28163DAB9B2C907C1EC5 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
 		};
 /* End XCConfigurationList section */
 	};
-	rootObject = 4C0A7BACD28E6E91C1A0D08C /* Project object */;
+	rootObject = A4B787ADFE8816705AD72C82 /* Project object */;
 }

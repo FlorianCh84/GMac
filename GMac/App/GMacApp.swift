@@ -1,10 +1,10 @@
 import SwiftUI
 
 @main
-struct GmailMacApp: App {
+struct GMacApp: App {
     var body: some Scene {
         WindowGroup {
-            Text("GmailMac")
+            Text("GMac")
         }
     }
 }
