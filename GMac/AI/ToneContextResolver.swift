@@ -56,7 +56,7 @@ enum ToneContextResolver {
         // Priority 4 : sujet similaire (mots > 3 chars en commun)
         let subjectWords = Set(thread.subject.lowercased().components(separatedBy: .whitespacesAndNewlines).filter { $0.count > 3 })
         let similar = sentMessages.filter { msg in
-            let words = Set(msg.subject.lowercased().components(separatedBy: .whitespacesAndNewlines))
+            let words = Set(msg.subject.lowercased().components(separatedBy: .whitespacesAndNewlines).filter { $0.count > 3 })
             return !subjectWords.intersection(words).isEmpty
         }
         if !similar.isEmpty { return .similarSubject(Array(similar.prefix(5))) }

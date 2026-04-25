@@ -39,6 +39,19 @@ final class ToneContextResolverTests: XCTestCase {
         } else { XCTFail("Expected .sameDomain, got \(source.label)") }
     }
 
+    func test_priority4_similarSubject() {
+        let thread = EmailThread(id: "t1", snippet: "", historyId: "1", messages: [
+            msg(from: "stranger@newdomain.xyz", to: ["me@example.com"], subject: "Budget 2026 réunion")
+        ])
+        let sent = msg(from: "me@example.com", to: ["other@otherdomain.com"], subject: "Budget 2025 planning", labels: ["SENT"])
+        let source = ToneContextResolver.resolve(thread: thread, sentMessages: [sent])
+        if case .similarSubject(let msgs) = source {
+            XCTAssertFalse(msgs.isEmpty)
+        } else {
+            XCTFail("Expected .similarSubject (mot 'budget' en commun), got \(source.label)")
+        }
+    }
+
     func test_priority5_globalProfile_noMatch() {
         let thread = EmailThread(id: "t1", snippet: "", historyId: "1", messages: [
             msg(from: "unknown@xyz999.io", to: ["me@example.com"], subject: "Zxqwerty unique")
