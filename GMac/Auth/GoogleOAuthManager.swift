@@ -1,4 +1,4 @@
-import AuthenticationServices
+import AppKit
 import Foundation
 
 @Observable
@@ -16,11 +16,8 @@ final class GoogleOAuthManager: NSObject {
         "https://www.googleapis.com/auth/drive.file"
     ]
 
-    // Single-flight refresh : évite la race condition où deux 401 simultanés
-    // déclenchent deux refreshes concurrents qui s'écrasent mutuellement
     private actor RefreshCoordinator {
         private var task: Task<Void, Error>?
-
         func refresh(work: @escaping @Sendable () async throws -> Void) async throws {
             if let existing = task { return try await existing.value }
             let t = Task { try await work() }
@@ -29,8 +26,11 @@ final class GoogleOAuthManager: NSObject {
             try await t.value
         }
     }
-
     private let refreshCoordinator = RefreshCoordinator()
+
+    // OAuth flow state — stocké sur @MainActor, aucun callback XPC
+    private var pendingState: String?
+    private var pendingContinuation: CheckedContinuation<Void, Error>?
 
     var isAuthenticated: Bool {
         guard let expiry = storedExpiry else { return false }
@@ -63,6 +63,9 @@ final class GoogleOAuthManager: NSObject {
         try? keychain.delete(key: "google_access_token")
         try? keychain.delete(key: "google_refresh_token")
         try? keychain.delete(key: "google_token_expiry")
+        pendingContinuation?.resume(throwing: CancellationError())
+        pendingContinuation = nil
+        pendingState = nil
     }
 
     func refresh() async throws {
@@ -82,13 +85,14 @@ final class GoogleOAuthManager: NSObject {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var params = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)"
         if !clientSecret.isEmpty { params += "&client_secret=\(clientSecret)" }
-        let body = params
-        request.httpBody = Data(body.utf8)
+        request.httpBody = Data(params.utf8)
         let (data, _) = try await URLSession.shared.data(for: request)
         let token = try JSONDecoder().decode(TokenResponse.self, from: data)
         try storeTokens(token, refreshToken: refreshToken)
     }
 
+    // Ouvre le browser système et suspend jusqu'au callback onOpenURL.
+    // Aucun callback XPC — entièrement @MainActor, aucune assertion d'isolation possible.
     func startOAuthFlow() async throws {
         let expectedState = UUID().uuidString
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
@@ -103,23 +107,45 @@ final class GoogleOAuthManager: NSObject {
         ]
         guard let authURL = components.url else { throw AppError.unknown }
 
-        // ASWebAuthenticationSession est rappelé via XPC sur un thread background sur macOS 26.
-        // OAuthSessionBridge est non-@MainActor — son callback ne déclenche pas l'assertion Swift 6.
-        let bridge = OAuthSessionBridge()
-        let callbackURL = try await bridge.startSession(
-            url: authURL,
-            callbackScheme: "com.googleusercontent.apps.1003757919116-ieidrg2o2cm450t06aeds8vebrm027f1"
-        )
+        pendingState = expectedState
 
-        let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems
+        try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
+            pendingContinuation = continuation
+            // Ouvre Safari — synchrone, fire-and-forget, aucun callback
+            NSWorkspace.shared.open(authURL)
+        }
+    }
+
+    // Appelé par GMacApp.onOpenURL — garanti @MainActor par SwiftUI.
+    func handleCallbackURL(_ url: URL) async {
+        let queryItems = URLComponents(url: url, resolvingAgainstBaseURL: false)?.queryItems
         guard let returnedState = queryItems?.first(where: { $0.name == "state" })?.value,
-              returnedState == expectedState else {
-            throw AppError.unknown
+              returnedState == pendingState else {
+            pendingContinuation?.resume(throwing: AppError.unknown)
+            pendingContinuation = nil
+            pendingState = nil
+            return
         }
         guard let code = queryItems?.first(where: { $0.name == "code" })?.value else {
-            throw AppError.unknown
+            pendingContinuation?.resume(throwing: AppError.unknown)
+            pendingContinuation = nil
+            pendingState = nil
+            return
         }
-        try await exchangeCode(code)
+        pendingState = nil
+        do {
+            try await exchangeCode(code)
+            pendingContinuation?.resume()
+        } catch {
+            pendingContinuation?.resume(throwing: error)
+        }
+        pendingContinuation = nil
+    }
+
+    func cancelOAuthFlow() {
+        pendingContinuation?.resume(throwing: CancellationError())
+        pendingContinuation = nil
+        pendingState = nil
     }
 
     private func exchangeCode(_ code: String) async throws {
@@ -129,8 +155,7 @@ final class GoogleOAuthManager: NSObject {
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
         var params = "grant_type=authorization_code&code=\(code)&redirect_uri=\(redirectURI)&client_id=\(clientId)"
         if !clientSecret.isEmpty { params += "&client_secret=\(clientSecret)" }
-        let body = params
-        request.httpBody = Data(body.utf8)
+        request.httpBody = Data(params.utf8)
         let (data, _) = try await URLSession.shared.data(for: request)
         let token = try JSONDecoder().decode(TokenResponse.self, from: data)
         guard let refreshToken = token.refreshToken else { throw AppError.unknown }
@@ -142,50 +167,5 @@ final class GoogleOAuthManager: NSObject {
         try keychain.save(token.accessToken, key: "google_access_token")
         try keychain.save(refreshToken, key: "google_refresh_token")
         try keychain.save("\(expiry.timeIntervalSince1970)", key: "google_token_expiry")
-    }
-}
-
-extension GoogleOAuthManager: ASWebAuthenticationPresentationContextProviding {
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        NSApplication.shared.windows.first ?? ASPresentationAnchor()
-    }
-}
-
-// Helper non-@MainActor pour ASWebAuthenticationSession.
-// Sur macOS 26, le callback OAuth est appelé via XPC sur un background thread.
-// En isolant la session dans cette classe non-@MainActor, le closure du callback
-// ne reçoit pas l'annotation @MainActor de Swift 6 et peut s'exécuter sur n'importe quel thread.
-private final class OAuthSessionBridge: NSObject, ASWebAuthenticationPresentationContextProviding, @unchecked Sendable {
-    private var session: ASWebAuthenticationSession?
-
-    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-        MainActor.assumeIsolated {
-            NSApplication.shared.windows.first ?? ASPresentationAnchor()
-        }
-    }
-
-    func startSession(url: URL, callbackScheme: String) async throws -> URL {
-        // Task.detached coupe complètement le contexte @MainActor hérité du caller.
-        // Les closures créées dans ce Task détaché ne reçoivent pas d'isolation actor,
-        // donc le callback XPC de Safari LaunchAgent peut les appeler depuis n'importe quel thread.
-        try await Task<URL, Error>.detached { [weak self] in
-            guard let self else { throw CancellationError() }
-            return try await withUnsafeThrowingContinuation { continuation in
-                DispatchQueue.main.async { [weak self] in
-                    guard let self else { continuation.resume(throwing: CancellationError()); return }
-                    let s = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackScheme) {
-                        [weak self] url, error in
-                        self?.session = nil
-                        if let error { continuation.resume(throwing: error) }
-                        else if let url { continuation.resume(returning: url) }
-                        else { continuation.resume(throwing: CancellationError()) }
-                    }
-                    s.presentationContextProvider = self
-                    s.prefersEphemeralWebBrowserSession = false
-                    self.session = s
-                    s.start()
-                }
-            }
-        }.value
     }
 }

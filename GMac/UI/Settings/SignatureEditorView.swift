@@ -121,7 +121,9 @@ struct SignatureWebEditor: NSViewRepresentable {
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "signatureChanged", let body = message.body as? String {
-                html = body
+                DispatchQueue.main.async {
+                    self.html = body
+                }
             }
         }
     }

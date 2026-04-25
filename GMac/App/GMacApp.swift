@@ -7,14 +7,20 @@ struct GMacApp: App {
 
     var body: some Scene {
         WindowGroup {
-            if env.oauth.isAuthenticated {
-                ContentView()
-                    .environment(env.sessionStore)
-                    .environment(env.oauth)
-                    .environment(env)
-            } else {
-                LoginView()
-                    .environment(env.oauth)
+            Group {
+                if env.oauth.isAuthenticated {
+                    ContentView()
+                        .environment(env.sessionStore)
+                        .environment(env.oauth)
+                        .environment(env)
+                } else {
+                    LoginView()
+                        .environment(env.oauth)
+                }
+            }
+            .onOpenURL { url in
+                // Garanti @MainActor par SwiftUI — aucun problème d'isolation
+                Task { await env.oauth.handleCallbackURL(url) }
             }
         }
         .modelContainer(for: VoiceProfile.self)

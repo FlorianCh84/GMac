@@ -45,6 +45,7 @@ struct LoginView: View {
             .background(.regularMaterial, in: RoundedRectangle(cornerRadius: 20))
             .shadow(color: .black.opacity(0.08), radius: 20, y: 8)
             .frame(width: 420)
+            .onDisappear { oauth.cancelOAuthFlow() }
         }
         .frame(width: 520, height: 380)
     }
