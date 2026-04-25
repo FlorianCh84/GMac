@@ -1,12 +1,10 @@
 import Foundation
 
 enum MIMEParser {
-    // Extrait la valeur d'un header MIME par nom (insensible a la casse)
     static func header(_ name: String, from headers: [GmailAPIMessage.Header]?) -> String? {
         headers?.first { $0.name.lowercased() == name.lowercased() }?.value
     }
 
-    // Decode base64 standard ET base64url (RFC 4648)
     static func decodeBase64(_ encoded: String) -> String? {
         var base64 = encoded
             .replacingOccurrences(of: "-", with: "+")
@@ -17,7 +15,6 @@ enum MIMEParser {
             ?? String(data: data, encoding: .isoLatin1)
     }
 
-    // Decode Quoted-Printable (RFC 2045 §6.7)
     static func decodeQuotedPrintable(_ input: String) -> String {
         var result = input
         result = result.replacingOccurrences(of: "=\r\n", with: "")
@@ -38,13 +35,11 @@ enum MIMEParser {
         return output
     }
 
-    // Extrait le corps HTML et texte brut d'un message MIME
     static func extractBody(from part: GmailAPIMessage.MessagePart?) -> (html: String?, plain: String?) {
         guard let part else { return (nil, nil) }
         return extractBodyRecursive(from: part)
     }
 
-    // Convertit internalDate Gmail (millisecondes epoch) en Date
     static func parseDate(_ internalDate: String?) -> Date {
         guard let raw = internalDate, let ms = Double(raw) else { return Date() }
         return Date(timeIntervalSince1970: ms / 1000)

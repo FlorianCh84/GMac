@@ -48,7 +48,6 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
     }
 
     func send(message: OutgoingMessage) async -> Result<Void, AppError> {
-        // Implemente au Sprint 2
         return .failure(.unknown)
     }
 
