@@ -103,23 +103,13 @@ final class GoogleOAuthManager: NSObject {
         ]
         guard let authURL = components.url else { throw AppError.unknown }
 
-        let callbackURL: URL = try await withCheckedThrowingContinuation { continuation in
-            let session = ASWebAuthenticationSession(
-                url: authURL,
-                callbackURLScheme: "com.googleusercontent.apps.1003757919116-ieidrg2o2cm450t06aeds8vebrm027f1"
-            ) { url, error in
-                if let error {
-                    continuation.resume(throwing: error)
-                } else if let url {
-                    continuation.resume(returning: url)
-                } else {
-                    continuation.resume(throwing: AppError.unknown)
-                }
-            }
-            session.presentationContextProvider = self
-            session.prefersEphemeralWebBrowserSession = false
-            session.start()
-        }
+        // ASWebAuthenticationSession est rappelé via XPC sur un thread background sur macOS 26.
+        // OAuthSessionBridge est non-@MainActor — son callback ne déclenche pas l'assertion Swift 6.
+        let bridge = OAuthSessionBridge()
+        let callbackURL = try await bridge.startSession(
+            url: authURL,
+            callbackScheme: "com.googleusercontent.apps.1003757919116-ieidrg2o2cm450t06aeds8vebrm027f1"
+        )
 
         let queryItems = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?.queryItems
         guard let returnedState = queryItems?.first(where: { $0.name == "state" })?.value,
@@ -158,5 +148,39 @@ final class GoogleOAuthManager: NSObject {
 extension GoogleOAuthManager: ASWebAuthenticationPresentationContextProviding {
     func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
         NSApplication.shared.windows.first ?? ASPresentationAnchor()
+    }
+}
+
+// Helper non-@MainActor pour ASWebAuthenticationSession.
+// Sur macOS 26, le callback OAuth est appelé via XPC sur un background thread.
+// En isolant la session dans cette classe non-@MainActor, le closure du callback
+// ne reçoit pas l'annotation @MainActor de Swift 6 et peut s'exécuter sur n'importe quel thread.
+private final class OAuthSessionBridge: NSObject, ASWebAuthenticationPresentationContextProviding, @unchecked Sendable {
+    private var session: ASWebAuthenticationSession?
+
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        MainActor.assumeIsolated {
+            NSApplication.shared.windows.first ?? ASPresentationAnchor()
+        }
+    }
+
+    func startSession(url: URL, callbackScheme: String) async throws -> URL {
+        try await withCheckedThrowingContinuation { [weak self] continuation in
+            guard let self else { continuation.resume(throwing: CancellationError()); return }
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { continuation.resume(throwing: CancellationError()); return }
+                let s = ASWebAuthenticationSession(url: url, callbackURLScheme: callbackScheme) {
+                    [weak self] url, error in
+                    self?.session = nil
+                    if let error { continuation.resume(throwing: error) }
+                    else if let url { continuation.resume(returning: url) }
+                    else { continuation.resume(throwing: CancellationError()) }
+                }
+                s.presentationContextProvider = self
+                s.prefersEphemeralWebBrowserSession = false
+                self.session = s
+                s.start()
+            }
+        }
     }
 }
