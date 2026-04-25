@@ -11,6 +11,9 @@ final class MockGmailService: GmailServiceProtocol, @unchecked Sendable {
     private var _historyResult: Result<GmailHistoryListResponse, AppError> = .success(
         GmailHistoryListResponse(history: nil, historyId: "0", nextPageToken: nil)
     )
+    private var _threadListCallCount = 0
+
+    var threadListCallCount: Int { lock.withLock { _threadListCallCount } }
 
     func stubLabels(_ result: Result<[GmailLabel], AppError>) { lock.withLock { _labelsResult = result } }
     func stubThreadList(_ result: Result<[GmailThreadRef], AppError>) { lock.withLock { _threadListResult = result } }
@@ -19,7 +22,7 @@ final class MockGmailService: GmailServiceProtocol, @unchecked Sendable {
     func stubHistory(_ result: Result<GmailHistoryListResponse, AppError>) { lock.withLock { _historyResult = result } }
 
     func fetchLabels() async -> Result<[GmailLabel], AppError> { lock.withLock { _labelsResult } }
-    func fetchThreadList(labelId: String, pageToken: String?) async -> Result<[GmailThreadRef], AppError> { lock.withLock { _threadListResult } }
+    func fetchThreadList(labelId: String, pageToken: String?) async -> Result<[GmailThreadRef], AppError> { lock.withLock { _threadListCallCount += 1; return _threadListResult } }
     func fetchThread(id: String) async -> Result<EmailThread, AppError> { lock.withLock { _threadResult } }
     func archiveThread(id: String) async -> Result<Void, AppError> { lock.withLock { _archiveResult } }
     func send(message: OutgoingMessage) async -> Result<Void, AppError> { lock.withLock { _sendResult } }

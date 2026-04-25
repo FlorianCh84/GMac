@@ -38,8 +38,10 @@ final class SessionStore {
         let result = await gmailService.fetchThreadList(labelId: selectedLabelId, pageToken: nil)
         switch result {
         case .success(let refs):
-            for ref in refs.prefix(20) {
-                Task { await loadThread(id: ref.id) }
+            await withTaskGroup(of: Void.self) { group in
+                for ref in refs.prefix(20) {
+                    group.addTask { await self.loadThread(id: ref.id) }
+                }
             }
         case .failure(let error):
             lastSyncError = error
@@ -93,8 +95,10 @@ final class SessionStore {
                     ((record.messagesDeleted?.map { $0.message.threadId }) ?? [])
                 }
             )
-            for threadId in changedIds {
-                Task { await loadThread(id: threadId) }
+            await withTaskGroup(of: Void.self) { group in
+                for threadId in changedIds {
+                    group.addTask { await self.loadThread(id: threadId) }
+                }
             }
         case .failure(.apiError(400, _)):
             currentHistoryId = ""

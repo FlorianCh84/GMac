@@ -76,11 +76,13 @@ final class SessionStoreTests: XCTestCase {
         await store.reconcile()
         XCTAssertEqual(store.currentHistoryId, "",
                        "currentHistoryId doit être réinitialisé après 400")
+        XCTAssertGreaterThanOrEqual(mockService.threadListCallCount, 1,
+            "loadThreadList doit être appelé après un historyId expiré (400)")
     }
 
-    func test_loadLabels_isLoading_false_after_completion() async {
-        mockService.stubLabels(.success([]))
-        await store.loadLabels()
+    func test_loadThreadList_isLoading_falseAfterCompletion() async {
+        mockService.stubThreadList(.success([]))
+        await store.loadThreadList()
         XCTAssertFalse(store.isLoading)
     }
 }
