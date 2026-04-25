@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import Foundation
 
 final class GeminiProvider: LLMProvider, Sendable {

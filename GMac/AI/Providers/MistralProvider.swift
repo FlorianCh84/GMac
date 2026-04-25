@@ -1,3 +1,4 @@
+// swiftlint:disable force_unwrapping
 import Foundation
 
 final class MistralProvider: LLMProvider, Sendable {

@@ -26,7 +26,13 @@ enum PromptBuilder {
 
     static func buildOpinionPrompt(thread: EmailThread) -> LLMConversation {
         var c = LLMConversation()
-        c.append(role: .system, content: "Tu analyses des échanges email de façon objective et stratégique. Identifie : le ton et l'intention de l'interlocuteur, les points de tension ou ambiguïtés, les enjeux sous-jacents, ce que l'interlocuteur attend réellement, et des recommandations stratégiques pour la suite. Sois direct et concis.")
+        let opinionSystem = """
+        Tu analyses des échanges email de façon objective et stratégique. \
+        Identifie : le ton et l'intention de l'interlocuteur, les points de tension ou ambiguïtés, \
+        les enjeux sous-jacents, ce que l'interlocuteur attend réellement, \
+        et des recommandations stratégiques pour la suite. Sois direct et concis.
+        """
+        c.append(role: .system, content: opinionSystem)
         c.append(role: .user, content: "Analyse cet échange :\n\n\(buildThreadContext(thread))")
         return c
     }

@@ -1,12 +1,33 @@
 disabled_rules:
   - trailing_whitespace
+  - todo
 
 opt_in_rules:
   - force_unwrapping
-  - implicitly_unwrapped_optional
 
 force_unwrapping: error
+
+line_length:
+  warning: 160
+  error: 250
+  ignores_comments: true
+  ignores_urls: true
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  excluded:
+    - id
+    - vm
+    - db
+    - ok
+    - qp
+
+# Règles plus souples pour les fichiers de test
+custom_rules: {}
 
 excluded:
   - .build
   - DerivedData
+  - GMacTests

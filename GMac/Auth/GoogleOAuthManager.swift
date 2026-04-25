@@ -95,7 +95,7 @@ final class GoogleOAuthManager: NSObject {
     // Aucun callback XPC — entièrement @MainActor, aucune assertion d'isolation possible.
     func startOAuthFlow() async throws {
         let expectedState = UUID().uuidString
-        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
+        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")! // swiftlint:disable:this force_unwrapping
         components.queryItems = [
             URLQueryItem(name: "client_id", value: clientId),
             URLQueryItem(name: "redirect_uri", value: redirectURI),
