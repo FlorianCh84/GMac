@@ -68,6 +68,8 @@ struct ContentView: View {
             }
         }
         .animation(.easeInOut, value: driveUploadSuccess)
+        .onAppear { appEnv.syncEngine.start() }
+        .onDisappear { appEnv.syncEngine.stop() }
         .task {
             await store.loadLabels()
             await store.loadThreadList()

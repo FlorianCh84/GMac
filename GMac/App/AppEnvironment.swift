@@ -11,6 +11,7 @@ final class AppEnvironment {
     let driveService: DriveService
     let aiSettings: AISettingsViewModel
     let voiceProfileAnalyzer: VoiceProfileAnalyzer
+    let syncEngine: SyncEngine
 
     init() {
         let keychain = KeychainService()
@@ -29,5 +30,6 @@ final class AppEnvironment {
         self.driveService = DriveService(httpClient: client)
         self.aiSettings = AISettingsViewModel(keychain: keychain)
         self.voiceProfileAnalyzer = VoiceProfileAnalyzer(provider: aiSettings.activeProvider())
+        self.syncEngine = SyncEngine(store: sessionStore)
     }
 }
