@@ -129,8 +129,8 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
     private func mapThread(_ api: GmailAPIThread) -> EmailThread {
         EmailThread(
             id: api.id,
-            snippet: api.snippet,
-            historyId: api.historyId,
+            snippet: api.snippet ?? "",
+            historyId: api.historyId ?? "",
             messages: (api.messages ?? []).map { mapMessage($0) }
         )
     }

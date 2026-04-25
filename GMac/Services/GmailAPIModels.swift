@@ -8,14 +8,14 @@ struct GmailThreadListResponse: Decodable, Sendable {
 
 struct GmailThreadRef: Decodable, Sendable, Equatable {
     let id: String
-    let snippet: String
-    let historyId: String
+    let snippet: String?   // optionnel : absent sur certaines réponses Gmail API
+    let historyId: String? // optionnel : absent dans threads.list
 }
 
 struct GmailAPIThread: Decodable, Sendable {
     let id: String
-    let snippet: String
-    let historyId: String
+    let snippet: String?   // optionnel
+    let historyId: String? // optionnel
     let messages: [GmailAPIMessage]?
 }
 
