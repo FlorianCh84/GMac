@@ -1,4 +1,4 @@
-# GmailMac Sprint 1 — Fondations
+# GMac Sprint 1 — Fondations
 
 > **For Claude:** REQUIRED SUB-SKILL: Use superpowers:executing-plans to implement this plan task-by-task.
 
@@ -23,17 +23,17 @@
 ## Task 1 : Initialisation du projet Xcode
 
 **Files:**
-- Create: `GmailMac.xcodeproj` (via Xcode)
+- Create: `GMac.xcodeproj` (via Xcode)
 - Create: `.swiftlint.yml`
 - Create: `.gitignore`
-- Create: `GmailMac/App/GmailMacApp.swift`
+- Create: `GMac/App/GMacApp.swift`
 
 ### Étape 1 : Créer le projet dans Xcode
 
 1. Ouvrir Xcode → File → New → Project
 2. Choisir **macOS → App**
 3. Remplir :
-   - Product Name: `GmailMac`
+   - Product Name: `GMac`
    - Team: ton compte développeur (ou None)
    - Organization Identifier: `fr.agence810`
    - Interface: **SwiftUI**
@@ -46,7 +46,7 @@
 Dans Xcode, créer ces groupes (clic droit → New Group) :
 
 ```
-GmailMac/
+GMac/
 ├── App/
 ├── Network/
 ├── Auth/
@@ -56,7 +56,7 @@ GmailMac/
 ├── UI/
 └── Resources/Fixtures/
 
-GmailMacTests/
+GMacTests/
 ├── Unit/
 ├── Integration/
 └── Mocks/
@@ -87,7 +87,7 @@ excluded:
 
 ### Étape 5 : Ajouter SwiftLint comme Build Phase
 
-Dans Xcode → Target GmailMac → Build Phases → + → New Run Script Phase :
+Dans Xcode → Target GMac → Build Phases → + → New Run Script Phase :
 
 ```bash
 if which swiftlint > /dev/null; then
@@ -115,7 +115,7 @@ xcuserdata/
 cd ~/Bureau/GMac
 git init
 git add .
-git commit -m "feat: init projet Xcode GmailMac"
+git commit -m "feat: init projet Xcode GMac"
 ```
 
 ---
@@ -123,19 +123,19 @@ git commit -m "feat: init projet Xcode GmailMac"
 ## Task 2 : Modèles core
 
 **Files:**
-- Create: `GmailMac/Models/AppError.swift`
-- Create: `GmailMac/Models/GmailLabel.swift`
-- Create: `GmailMac/Models/EmailMessage.swift`
-- Create: `GmailMac/Models/EmailThread.swift`
-- Create: `GmailMacTests/Unit/AppErrorTests.swift`
+- Create: `GMac/Models/AppError.swift`
+- Create: `GMac/Models/GmailLabel.swift`
+- Create: `GMac/Models/EmailMessage.swift`
+- Create: `GMac/Models/EmailThread.swift`
+- Create: `GMacTests/Unit/AppErrorTests.swift`
 
 ### Étape 1 : Écrire le test AppError en premier
 
-Dans `GmailMacTests/Unit/AppErrorTests.swift` :
+Dans `GMacTests/Unit/AppErrorTests.swift` :
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class AppErrorTests: XCTestCase {
     func test_appError_isEquatable() {
@@ -247,7 +247,7 @@ Attendu : tous les tests passent (vert).
 ### Étape 8 : Commit
 
 ```bash
-git add GmailMac/Models/ GmailMacTests/Unit/AppErrorTests.swift
+git add GMac/Models/ GMacTests/Unit/AppErrorTests.swift
 git commit -m "feat: modèles core AppError, GmailLabel, EmailMessage, EmailThread"
 ```
 
@@ -256,10 +256,10 @@ git commit -m "feat: modèles core AppError, GmailLabel, EmailMessage, EmailThre
 ## Task 3 : Couche réseau — HTTPClientProtocol + MockHTTPClient
 
 **Files:**
-- Create: `GmailMac/Network/HTTPClientProtocol.swift`
-- Create: `GmailMac/Network/Endpoints.swift`
-- Create: `GmailMacTests/Mocks/MockHTTPClient.swift`
-- Create: `GmailMacTests/Unit/RetryTests.swift`
+- Create: `GMac/Network/HTTPClientProtocol.swift`
+- Create: `GMac/Network/Endpoints.swift`
+- Create: `GMacTests/Mocks/MockHTTPClient.swift`
+- Create: `GMacTests/Unit/RetryTests.swift`
 
 ### Étape 1 : Implémenter `HTTPClientProtocol.swift`
 
@@ -310,7 +310,7 @@ enum Endpoints {
 
 ```swift
 import Foundation
-@testable import GmailMac
+@testable import GMac
 
 final class MockHTTPClient: HTTPClientProtocol {
     var stubbedResult: Any?
@@ -339,11 +339,11 @@ final class MockHTTPClient: HTTPClientProtocol {
 
 ### Étape 4 : Écrire les tests de retry
 
-Dans `GmailMacTests/Unit/RetryTests.swift` :
+Dans `GMacTests/Unit/RetryTests.swift` :
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class RetryTests: XCTestCase {
     func test_withRetry_succeedsOnFirstAttempt() async {
@@ -420,7 +420,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 8 : Commit
 
 ```bash
-git add GmailMac/Network/ GmailMacTests/Mocks/ GmailMacTests/Unit/RetryTests.swift
+git add GMac/Network/ GMacTests/Mocks/ GMacTests/Unit/RetryTests.swift
 git commit -m "feat: HTTPClientProtocol, Endpoints, MockHTTPClient, withRetry"
 ```
 
@@ -429,20 +429,20 @@ git commit -m "feat: HTTPClientProtocol, Endpoints, MockHTTPClient, withRetry"
 ## Task 4 : KeychainService
 
 **Files:**
-- Create: `GmailMac/Auth/KeychainService.swift`
-- Create: `GmailMacTests/Unit/KeychainServiceTests.swift`
+- Create: `GMac/Auth/KeychainService.swift`
+- Create: `GMacTests/Unit/KeychainServiceTests.swift`
 
 ### Étape 1 : Écrire le test
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class KeychainServiceTests: XCTestCase {
     var keychain: KeychainService!
 
     override func setUp() {
-        keychain = KeychainService(service: "fr.agence810.GmailMac.tests")
+        keychain = KeychainService(service: "fr.agence810.GMac.tests")
         try? keychain.delete(key: "test_token")
     }
 
@@ -488,7 +488,7 @@ import Foundation
 final class KeychainService {
     private let service: String
 
-    init(service: String = "fr.agence810.GmailMac") {
+    init(service: String = "fr.agence810.GMac") {
         self.service = service
     }
 
@@ -552,7 +552,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 5 : Commit
 
 ```bash
-git add GmailMac/Auth/KeychainService.swift GmailMacTests/Unit/KeychainServiceTests.swift
+git add GMac/Auth/KeychainService.swift GMacTests/Unit/KeychainServiceTests.swift
 git commit -m "feat: KeychainService — stockage sécurisé des tokens"
 ```
 
@@ -561,9 +561,9 @@ git commit -m "feat: KeychainService — stockage sécurisé des tokens"
 ## Task 5 : GoogleOAuthManager
 
 **Files:**
-- Create: `GmailMac/Auth/GoogleOAuthManager.swift`
-- Create: `GmailMac/Auth/TokenResponse.swift`
-- Create: `GmailMacTests/Unit/GoogleOAuthManagerTests.swift`
+- Create: `GMac/Auth/GoogleOAuthManager.swift`
+- Create: `GMac/Auth/TokenResponse.swift`
+- Create: `GMacTests/Unit/GoogleOAuthManagerTests.swift`
 
 ### Étape 1 : Implémenter `TokenResponse.swift`
 
@@ -594,14 +594,14 @@ struct StoredTokens {
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class GoogleOAuthManagerTests: XCTestCase {
     var keychain: KeychainService!
     var manager: GoogleOAuthManager!
 
     override func setUp() {
-        keychain = KeychainService(service: "fr.agence810.GmailMac.tests")
+        keychain = KeychainService(service: "fr.agence810.GMac.tests")
         manager = GoogleOAuthManager(
             clientId: "test_client_id",
             clientSecret: "test_client_secret",
@@ -659,7 +659,7 @@ final class GoogleOAuthManager: NSObject {
     private let clientId: String
     private let clientSecret: String
     private let keychain: KeychainService
-    private let redirectURI = "fr.agence810.gmailmac:/oauth2callback"
+    private let redirectURI = "fr.agence810.gmac:/oauth2callback"
     private let scopes = [
         "https://www.googleapis.com/auth/gmail.readonly",
         "https://www.googleapis.com/auth/gmail.send",
@@ -718,7 +718,7 @@ final class GoogleOAuthManager: NSObject {
         let callbackURL = try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(
                 url: authURL,
-                callbackURLScheme: "fr.agence810.gmailmac"
+                callbackURLScheme: "fr.agence810.gmac"
             ) { url, error in
                 if let error = error { continuation.resume(throwing: error) }
                 else if let url = url { continuation.resume(returning: url) }
@@ -787,7 +787,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 6 : Commit
 
 ```bash
-git add GmailMac/Auth/ GmailMacTests/Unit/GoogleOAuthManagerTests.swift
+git add GMac/Auth/ GMacTests/Unit/GoogleOAuthManagerTests.swift
 git commit -m "feat: GoogleOAuthManager — OAuth2 + Keychain + token refresh"
 ```
 
@@ -796,20 +796,20 @@ git commit -m "feat: GoogleOAuthManager — OAuth2 + Keychain + token refresh"
 ## Task 6 : AuthenticatedHTTPClient
 
 **Files:**
-- Create: `GmailMac/Network/AuthenticatedHTTPClient.swift`
-- Create: `GmailMacTests/Unit/AuthenticatedHTTPClientTests.swift`
+- Create: `GMac/Network/AuthenticatedHTTPClient.swift`
+- Create: `GMacTests/Unit/AuthenticatedHTTPClientTests.swift`
 
 ### Étape 1 : Écrire les tests
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class AuthenticatedHTTPClientTests: XCTestCase {
     struct TestResponse: Decodable, Equatable { let value: String }
 
     func test_send_addsAuthorizationHeader() async {
-        let keychain = KeychainService(service: "fr.agence810.GmailMac.tests")
+        let keychain = KeychainService(service: "fr.agence810.GMac.tests")
         let oauth = GoogleOAuthManager(clientId: "id", clientSecret: "secret", keychain: keychain)
         try? keychain.save("test_token", key: "google_access_token")
         try? keychain.save("refresh", key: "google_refresh_token")
@@ -939,7 +939,7 @@ Cmd+U. Attendu : verts.
 ### Étape 5 : Commit
 
 ```bash
-git add GmailMac/Network/AuthenticatedHTTPClient.swift GmailMacTests/Unit/AuthenticatedHTTPClientTests.swift
+git add GMac/Network/AuthenticatedHTTPClient.swift GMacTests/Unit/AuthenticatedHTTPClientTests.swift
 git commit -m "feat: AuthenticatedHTTPClient — token refresh auto + mapping erreurs HTTP"
 ```
 
@@ -948,12 +948,12 @@ git commit -m "feat: AuthenticatedHTTPClient — token refresh auto + mapping er
 ## Task 7 : GmailService — lecture
 
 **Files:**
-- Create: `GmailMac/Services/GmailService.swift`
-- Create: `GmailMac/Services/MIMEParser.swift`
-- Create: `GmailMacTests/Unit/GmailServiceTests.swift`
-- Create: `GmailMacTests/Unit/MIMEParserTests.swift`
-- Create: `GmailMac/Resources/Fixtures/thread_list_response.json`
-- Create: `GmailMac/Resources/Fixtures/message_response.json`
+- Create: `GMac/Services/GmailService.swift`
+- Create: `GMac/Services/MIMEParser.swift`
+- Create: `GMacTests/Unit/GmailServiceTests.swift`
+- Create: `GMacTests/Unit/MIMEParserTests.swift`
+- Create: `GMac/Resources/Fixtures/thread_list_response.json`
+- Create: `GMac/Resources/Fixtures/message_response.json`
 
 ### Étape 1 : Sauvegarder les fixtures JSON
 
@@ -963,14 +963,14 @@ Faire un vrai appel à l'API Gmail (via curl ou Insomnia) et sauvegarder les ré
 # Exemple avec curl (remplacer ACCESS_TOKEN)
 curl -H "Authorization: Bearer ACCESS_TOKEN" \
   "https://gmail.googleapis.com/gmail/v1/users/me/threads?maxResults=1" \
-  > ~/Bureau/GMac/GmailMac/Resources/Fixtures/thread_list_response.json
+  > ~/Bureau/GMac/GMac/Resources/Fixtures/thread_list_response.json
 ```
 
 ### Étape 2 : Écrire les tests MIMEParser
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class MIMEParserTests: XCTestCase {
     func test_extractHeader_fromMessagePart() {
@@ -1132,7 +1132,7 @@ enum MIMEParser {
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class GmailServiceTests: XCTestCase {
     var mockClient: MockHTTPClient!
@@ -1286,7 +1286,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 8 : Commit
 
 ```bash
-git add GmailMac/Services/ GmailMacTests/Unit/GmailServiceTests.swift GmailMacTests/Unit/MIMEParserTests.swift
+git add GMac/Services/ GMacTests/Unit/GmailServiceTests.swift GMacTests/Unit/MIMEParserTests.swift
 git commit -m "feat: GmailService — lecture threads, labels, historyId + MIMEParser"
 ```
 
@@ -1295,14 +1295,14 @@ git commit -m "feat: GmailService — lecture threads, labels, historyId + MIMEP
 ## Task 8 : SessionStore
 
 **Files:**
-- Create: `GmailMac/Store/SessionStore.swift`
-- Create: `GmailMacTests/Unit/SessionStoreTests.swift`
+- Create: `GMac/Store/SessionStore.swift`
+- Create: `GMacTests/Unit/SessionStoreTests.swift`
 
 ### Étape 1 : Écrire les tests — priorité sur pendingOperations
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 @MainActor
 final class SessionStoreTests: XCTestCase {
@@ -1366,10 +1366,10 @@ final class SessionStoreTests: XCTestCase {
 
 ### Étape 2 : Créer `MockGmailService`
 
-Dans `GmailMacTests/Mocks/MockGmailService.swift` :
+Dans `GMacTests/Mocks/MockGmailService.swift` :
 
 ```swift
-@testable import GmailMac
+@testable import GMac
 
 final class MockGmailService {
     var labelsResult: Result<[GmailLabel], AppError> = .success([])
@@ -1550,7 +1550,7 @@ Cmd+U. Attendu : tous verts — en particulier les deux tests `pendingOperations
 ### Étape 7 : Commit
 
 ```bash
-git add GmailMac/Store/ GmailMacTests/Unit/SessionStoreTests.swift GmailMacTests/Mocks/MockGmailService.swift
+git add GMac/Store/ GMacTests/Unit/SessionStoreTests.swift GMacTests/Mocks/MockGmailService.swift
 git commit -m "feat: SessionStore — source de vérité in-memory, pendingOperations, reconcile historyId"
 ```
 
@@ -1559,8 +1559,8 @@ git commit -m "feat: SessionStore — source de vérité in-memory, pendingOpera
 ## Task 9 : AppEnvironment (DI root)
 
 **Files:**
-- Create: `GmailMac/App/AppEnvironment.swift`
-- Modify: `GmailMac/App/GmailMacApp.swift`
+- Create: `GMac/App/AppEnvironment.swift`
+- Modify: `GMac/App/GMacApp.swift`
 
 ### Étape 1 : Implémenter `AppEnvironment.swift`
 
@@ -1589,13 +1589,13 @@ final class AppEnvironment {
 }
 ```
 
-### Étape 2 : Modifier `GmailMacApp.swift`
+### Étape 2 : Modifier `GMacApp.swift`
 
 ```swift
 import SwiftUI
 
 @main
-struct GmailMacApp: App {
+struct GMacApp: App {
     @State private var env = AppEnvironment()
 
     var body: some Scene {
@@ -1614,15 +1614,15 @@ struct GmailMacApp: App {
 
 ### Étape 3 : Ajouter `GOOGLE_CLIENT_ID` à Info.plist
 
-Dans Xcode → GmailMac → Info → ajouter :
+Dans Xcode → GMac → Info → ajouter :
 - Key: `GOOGLE_CLIENT_ID` → Value: (ton client ID)
 - Key: `GOOGLE_CLIENT_SECRET` → Value: (ton client secret)
-- Key: `CFBundleURLTypes` → URL Scheme: `fr.agence810.gmailmac`
+- Key: `CFBundleURLTypes` → URL Scheme: `fr.agence810.gmac`
 
 ### Étape 4 : Commit
 
 ```bash
-git add GmailMac/App/
+git add GMac/App/
 git commit -m "feat: AppEnvironment — DI root, assemblage des dépendances"
 ```
 
@@ -1631,11 +1631,11 @@ git commit -m "feat: AppEnvironment — DI root, assemblage des dépendances"
 ## Task 10 : UI skeleton — NavigationSplitView + LoginView
 
 **Files:**
-- Create: `GmailMac/UI/LoginView.swift`
-- Create: `GmailMac/UI/ContentView.swift`
-- Create: `GmailMac/UI/Sidebar/SidebarView.swift`
-- Create: `GmailMac/UI/ThreadList/ThreadListView.swift`
-- Create: `GmailMac/UI/MessageView/MessageView.swift`
+- Create: `GMac/UI/LoginView.swift`
+- Create: `GMac/UI/ContentView.swift`
+- Create: `GMac/UI/Sidebar/SidebarView.swift`
+- Create: `GMac/UI/ThreadList/ThreadListView.swift`
+- Create: `GMac/UI/MessageView/MessageView.swift`
 
 > Note UI : toute l'interface utilisera le langage visuel **Liquid Glass** (macOS 26 Tahoe). L'implémentation détaillée des composants visuels sera faite via le skill `frontend-design`. Ce sprint pose le skeleton fonctionnel uniquement.
 
@@ -1655,7 +1655,7 @@ struct LoginView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.blue)
 
-            Text("GmailMac")
+            Text("GMac")
                 .font(.largeTitle.bold())
 
             Text("Client Gmail natif macOS")
@@ -1926,7 +1926,7 @@ Cmd+B pour builder. Cmd+R pour lancer l'app. Vérifier :
 ### Étape 7 : Commit
 
 ```bash
-git add GmailMac/UI/ GmailMac/App/
+git add GMac/UI/ GMac/App/
 git commit -m "feat: UI skeleton — LoginView, NavigationSplitView, Sidebar, ThreadList, MessageView"
 ```
 
@@ -1937,8 +1937,8 @@ git commit -m "feat: UI skeleton — LoginView, NavigationSplitView, Sidebar, Th
 ## Task 2-bis : AppError enrichi (fiabilité réseau)
 
 **Files:**
-- Modify: `GmailMac/Models/AppError.swift`
-- Modify: `GmailMacTests/Unit/AppErrorTests.swift`
+- Modify: `GMac/Models/AppError.swift`
+- Modify: `GMacTests/Unit/AppErrorTests.swift`
 
 À faire **juste après Task 2**. Enrichir `AppError` pour distinguer les erreurs retryables des non-retryables.
 
@@ -2082,7 +2082,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 6 : Commit
 
 ```bash
-git add GmailMac/Models/AppError.swift GmailMac/Network/ GmailMacTests/Unit/AppErrorTests.swift
+git add GMac/Models/AppError.swift GMac/Network/ GMacTests/Unit/AppErrorTests.swift
 git commit -m "feat: AppError enrichi — serverError/gatewayError/dnsError/emptyResponse, withRetry basé sur isRetryable"
 ```
 
@@ -2091,8 +2091,8 @@ git commit -m "feat: AppError enrichi — serverError/gatewayError/dnsError/empt
 ## Task 5-bis : Single-flight OAuth refresh
 
 **Files:**
-- Modify: `GmailMac/Auth/GoogleOAuthManager.swift`
-- Modify: `GmailMacTests/Unit/GoogleOAuthManagerTests.swift`
+- Modify: `GMac/Auth/GoogleOAuthManager.swift`
+- Modify: `GMacTests/Unit/GoogleOAuthManagerTests.swift`
 
 À faire **juste après Task 5**. Éviter la race condition quand deux requêtes arrivent avec 401 simultanément.
 
@@ -2159,7 +2159,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 4 : Commit
 
 ```bash
-git add GmailMac/Auth/GoogleOAuthManager.swift GmailMacTests/Unit/GoogleOAuthManagerTests.swift
+git add GMac/Auth/GoogleOAuthManager.swift GMacTests/Unit/GoogleOAuthManagerTests.swift
 git commit -m "feat: OAuth single-flight refresh — coalescence des 401 simultanés"
 ```
 
@@ -2168,8 +2168,8 @@ git commit -m "feat: OAuth single-flight refresh — coalescence des 401 simulta
 ## Task 7-bis : MIME robustesse (charset + Quoted-Printable)
 
 **Files:**
-- Modify: `GmailMac/Services/MIMEParser.swift`
-- Create: `GmailMacTests/Unit/MIMEParserRobustnessTests.swift`
+- Modify: `GMac/Services/MIMEParser.swift`
+- Create: `GMacTests/Unit/MIMEParserRobustnessTests.swift`
 
 À faire **juste après Task 7**.
 
@@ -2177,7 +2177,7 @@ git commit -m "feat: OAuth single-flight refresh — coalescence des 401 simulta
 
 ```swift
 import XCTest
-@testable import GmailMac
+@testable import GMac
 
 final class MIMEParserRobustnessTests: XCTestCase {
 
@@ -2298,7 +2298,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 5 : Commit
 
 ```bash
-git add GmailMac/Services/MIMEParser.swift GmailMacTests/Unit/MIMEParserRobustnessTests.swift
+git add GMac/Services/MIMEParser.swift GMacTests/Unit/MIMEParserRobustnessTests.swift
 git commit -m "feat: MIMEParser robuste — Quoted-Printable, base64 standard + url-safe, nil payload safe"
 ```
 
@@ -2307,8 +2307,8 @@ git commit -m "feat: MIMEParser robuste — Quoted-Printable, base64 standard + 
 ## Task 8-bis : historyId expiration + reconcile retry
 
 **Files:**
-- Modify: `GmailMac/Store/SessionStore.swift`
-- Modify: `GmailMacTests/Unit/SessionStoreTests.swift`
+- Modify: `GMac/Store/SessionStore.swift`
+- Modify: `GMacTests/Unit/SessionStoreTests.swift`
 
 À faire **juste après Task 8**.
 
@@ -2371,7 +2371,7 @@ Cmd+U. Attendu : tous verts.
 ### Étape 4 : Commit
 
 ```bash
-git add GmailMac/Store/SessionStore.swift GmailMacTests/Unit/SessionStoreTests.swift
+git add GMac/Store/SessionStore.swift GMacTests/Unit/SessionStoreTests.swift
 git commit -m "feat: reconcile — détecte historyId expiré (400), withRetry sur rate limit"
 ```
 
@@ -2395,4 +2395,4 @@ git commit -m "feat: reconcile — détecte historyId expiré (400), withRetry s
 
 ---
 
-*Plan Sprint 1 — GmailMac — 25 avril 2026*
+*Plan Sprint 1 — GMac — 25 avril 2026*
