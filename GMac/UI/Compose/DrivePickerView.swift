@@ -18,7 +18,11 @@ struct DrivePickerView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 4) {
                         ForEach(Array(vm.breadcrumbs.enumerated()), id: \.offset) { idx, crumb in
-                            if idx > 0 { Text("›").foregroundStyle(.secondary) }
+                            if idx > 0 {
+                                Image(systemName: "chevron.right")
+                                    .font(.caption2)
+                                    .foregroundStyle(.tertiary)
+                            }
                             Button(crumb.name) {
                                 Task { @MainActor in await vm.navigateTo(breadcrumb: crumb) }
                             }

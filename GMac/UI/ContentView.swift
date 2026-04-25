@@ -104,9 +104,12 @@ struct ContentView: View {
                         .buttonStyle(.plain)
                         .foregroundStyle(.secondary)
                         .font(.caption)
-                        Button("×") { store.lastSyncError = nil }
-                            .buttonStyle(.plain)
-                            .foregroundStyle(.secondary)
+                        Button(action: { store.lastSyncError = nil }) {
+                            Image(systemName: "xmark")
+                                .font(.caption)
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, 12)
                     .padding(.vertical, 8)

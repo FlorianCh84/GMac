@@ -75,31 +75,52 @@ struct RichTextEditor: NSViewRepresentable {
         </head>
         <body>
         <div id="toolbar">
-          <button class="btn" onclick="fmt('bold')" title="Gras (cmdb)"><b>B</b></button>
-          <button class="btn" onclick="fmt('italic')" title="Italique (cmdi)"><i>I</i></button>
-          <button class="btn" onclick="fmt('underline')" title="Souligne (cmdu)"><u>U</u></button>
-          <button class="btn" onclick="fmt('strikeThrough')" title="Barre"><s>S</s></button>
+          <!-- Lucide-style SVG icons -->
+          <button class="btn" onclick="fmt('bold')" title="Gras (⌘B)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/><path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('italic')" title="Italique (⌘I)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="4" x2="10" y2="4"/><line x1="14" y1="20" x2="5" y2="20"/><line x1="15" y1="4" x2="9" y2="20"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('underline')" title="Souligne (⌘U)">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/><line x1="4" y1="21" x2="20" y2="21"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('strikeThrough')" title="Barré">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><path d="M16 6c0 0-1.5-2-4-2s-5 1.5-5 4c0 2 1.5 3 5 4"/><path d="M8 18c0 0 1.5 2 4 2s5-1.5 5-4c0-2-1.5-3-5-4"/></svg>
+          </button>
           <div class="sep"></div>
-          <select class="font-size" onchange="setFontSize(this.value)" title="Taille">
+          <select class="font-size" onchange="setFontSize(this.value)" title="Taille de police">
             <option value="">Taille</option>
             <option value="1">Petit</option>
             <option value="3" selected>Normal</option>
             <option value="5">Grand</option>
-            <option value="7">Tres grand</option>
+            <option value="7">Très grand</option>
           </select>
           <div class="sep"></div>
-          <button class="btn" onclick="fmt('insertUnorderedList')" title="Liste a puces">list</button>
-          <button class="btn" onclick="fmt('insertOrderedList')" title="Liste numerotee">1.</button>
+          <button class="btn" onclick="fmt('insertUnorderedList')" title="Liste à puces">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="9" y1="6" x2="20" y2="6"/><line x1="9" y1="12" x2="20" y2="12"/><line x1="9" y1="18" x2="20" y2="18"/><circle cx="4" cy="6" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="12" r="1.5" fill="currentColor" stroke="none"/><circle cx="4" cy="18" r="1.5" fill="currentColor" stroke="none"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('insertOrderedList')" title="Liste numérotée">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="10" y1="6" x2="21" y2="6"/><line x1="10" y1="12" x2="21" y2="12"/><line x1="10" y1="18" x2="21" y2="18"/><path d="M4 6h1v4"/><path d="M4 10h2"/><path d="M3 14h2a1 1 0 0 1 1 1v1a1 1 0 0 1-1 1H3"/><path d="M3 18h2"/></svg>
+          </button>
           <div class="sep"></div>
-          <button class="btn" onclick="fmt('justifyLeft')" title="Gauche">L</button>
-          <button class="btn" onclick="fmt('justifyCenter')" title="Centre">C</button>
-          <button class="btn" onclick="fmt('justifyRight')" title="Droite">R</button>
+          <button class="btn" onclick="fmt('justifyLeft')" title="Aligner à gauche">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="15" y2="12"/><line x1="3" y1="18" x2="18" y2="18"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('justifyCenter')" title="Centrer">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="6" y1="12" x2="18" y2="12"/><line x1="4" y1="18" x2="20" y2="18"/></svg>
+          </button>
+          <button class="btn" onclick="fmt('justifyRight')" title="Aligner à droite">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="9" y1="12" x2="21" y2="12"/><line x1="6" y1="18" x2="21" y2="18"/></svg>
+          </button>
           <div class="sep"></div>
           <input type="color" onchange="setColor(this.value)" title="Couleur du texte" value="#000000">
           <div class="sep"></div>
-          <button class="btn" onclick="fmt('removeFormat')" title="Effacer le formatage">X</button>
+          <button class="btn" onclick="fmt('removeFormat')" title="Effacer le formatage">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+          </button>
         </div>
-        <div id="editor" contenteditable="true" data-placeholder="Redigez votre message"></div>
+        <div id="editor" contenteditable="true" data-placeholder="Rédigez votre message…"></div>
 
         <script>
         const editor = document.getElementById('editor');
