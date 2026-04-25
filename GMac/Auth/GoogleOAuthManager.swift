@@ -80,7 +80,9 @@ final class GoogleOAuthManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)&client_secret=\(clientSecret)"
+        var params = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)"
+        if !clientSecret.isEmpty { params += "&client_secret=\(clientSecret)" }
+        let body = params
         request.httpBody = Data(body.utf8)
         let (data, _) = try await URLSession.shared.data(for: request)
         let token = try JSONDecoder().decode(TokenResponse.self, from: data)
@@ -135,7 +137,9 @@ final class GoogleOAuthManager: NSObject {
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
-        let body = "grant_type=authorization_code&code=\(code)&redirect_uri=\(redirectURI)&client_id=\(clientId)&client_secret=\(clientSecret)"
+        var params = "grant_type=authorization_code&code=\(code)&redirect_uri=\(redirectURI)&client_id=\(clientId)"
+        if !clientSecret.isEmpty { params += "&client_secret=\(clientSecret)" }
+        let body = params
         request.httpBody = Data(body.utf8)
         let (data, _) = try await URLSession.shared.data(for: request)
         let token = try JSONDecoder().decode(TokenResponse.self, from: data)
