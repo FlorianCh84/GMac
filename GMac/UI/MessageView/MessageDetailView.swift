@@ -4,6 +4,12 @@ import WebKit
 struct MessageDetailView: View {
     @Environment(SessionStore.self) var store
     let onReply: (EmailThread, EmailMessage) -> Void
+    let onSaveToDrive: ((String, MessageAttachmentRef) -> Void)?
+
+    init(onReply: @escaping (EmailThread, EmailMessage) -> Void, onSaveToDrive: ((String, MessageAttachmentRef) -> Void)? = nil) {
+        self.onReply = onReply
+        self.onSaveToDrive = onSaveToDrive
+    }
 
     var selectedThread: EmailThread? {
         store.threads.first { $0.id == store.selectedThreadId }
@@ -20,7 +26,7 @@ struct MessageDetailView: View {
                     Divider()
 
                     ForEach(thread.messages) { message in
-                        MessageBubble(message: message, thread: thread, onReply: onReply)
+                        MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                         Divider()
                     }
                 }
@@ -40,6 +46,7 @@ private struct MessageBubble: View {
     let message: EmailMessage
     let thread: EmailThread
     let onReply: (EmailThread, EmailMessage) -> Void
+    let onSaveToDrive: ((String, MessageAttachmentRef) -> Void)?
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -69,6 +76,27 @@ private struct MessageBubble: View {
                     .foregroundStyle(.secondary)
                     .padding(.horizontal)
                     .padding(.bottom, 12)
+            }
+
+            if !message.attachmentRefs.isEmpty {
+                VStack(alignment: .leading, spacing: 4) {
+                    ForEach(message.attachmentRefs, id: \.attachmentId) { ref in
+                        HStack {
+                            Image(systemName: "paperclip").foregroundStyle(.secondary)
+                            Text(ref.filename).font(.caption)
+                            Text(ByteCountFormatter.string(fromByteCount: Int64(ref.size), countStyle: .file))
+                                .font(.caption2).foregroundStyle(.secondary)
+                            Spacer()
+                            Button("Drive") {
+                                onSaveToDrive?(message.id, ref)
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.mini)
+                        }
+                    }
+                }
+                .padding(.horizontal)
+                .padding(.bottom, 8)
             }
 
             HStack {

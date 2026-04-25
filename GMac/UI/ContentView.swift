@@ -10,6 +10,7 @@ struct ContentView: View {
     @State private var composeReplyToMessageId: String? = nil
     @State private var composePrefilledTo: String = ""
     @State private var composePrefilledSubject: String = ""
+    @State private var driveUploadSuccess = false
 
     var body: some View {
         NavigationSplitView {
@@ -17,7 +18,7 @@ struct ContentView: View {
         } content: {
             ThreadListView()
         } detail: {
-            MessageDetailView(onReply: startReply)
+            MessageDetailView(onReply: startReply, onSaveToDrive: saveToDrive)
         }
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
@@ -47,12 +48,38 @@ struct ContentView: View {
                 prefilledSubject: composePrefilledSubject,
                 senderEmail: store.senderEmail,
                 gmailService: store.gmailService,
+                driveService: appEnv.driveService,
                 onDismiss: { isComposing = false }
             )
         }
+        .overlay(alignment: .top) {
+            if driveUploadSuccess {
+                Label("Sauvegardé dans Drive", systemImage: "checkmark.circle.fill")
+                    .font(.caption.bold())
+                    .foregroundStyle(.white)
+                    .padding(8)
+                    .background(.green.opacity(0.9), in: .capsule)
+                    .padding(.top, 8)
+                    .transition(.move(edge: .top).combined(with: .opacity))
+                    .task {
+                        try? await Task.sleep(for: .seconds(2))
+                        driveUploadSuccess = false
+                    }
+            }
+        }
+        .animation(.easeInOut, value: driveUploadSuccess)
         .task {
             await store.loadLabels()
             await store.loadThreadList()
+        }
+    }
+
+    private func saveToDrive(messageId: String, ref: MessageAttachmentRef) {
+        Task { @MainActor in
+            let fetch = await store.gmailService.fetchAttachment(messageId: messageId, attachmentId: ref.attachmentId)
+            guard case .success(let data) = fetch else { return }
+            let upload = await appEnv.driveService.uploadFile(data: data, filename: ref.filename, mimeType: ref.mimeType)
+            if case .success = upload { driveUploadSuccess = true }
         }
     }
 

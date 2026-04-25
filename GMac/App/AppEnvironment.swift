@@ -8,6 +8,7 @@ final class AppEnvironment {
     let gmailService: GmailService
     let settingsService: GmailSettingsService
     let sessionStore: SessionStore
+    let driveService: DriveService
 
     init() {
         let keychain = KeychainService()
@@ -23,5 +24,6 @@ final class AppEnvironment {
         self.gmailService = service
         self.settingsService = GmailSettingsService(httpClient: client)
         self.sessionStore = SessionStore(gmailService: service)
+        self.driveService = DriveService(httpClient: client)
     }
 }
