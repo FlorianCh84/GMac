@@ -29,4 +29,8 @@ protocol LLMProvider: Sendable {
     func generateReply(thread: EmailThread, instruction: UserInstruction) async throws -> String
     func requestOpinion(thread: EmailThread) async throws -> String
     func refine(conversation: LLMConversation, instruction: String) async throws -> String
+    func generateReplyStream(
+        thread: EmailThread,
+        instruction: UserInstruction
+    ) -> AsyncThrowingStream<String, Error>
 }
