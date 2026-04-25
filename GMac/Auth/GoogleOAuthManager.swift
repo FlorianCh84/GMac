@@ -7,7 +7,7 @@ final class GoogleOAuthManager: NSObject {
     private let clientId: String
     private let clientSecret: String
     let keychain: any KeychainServiceProtocol
-    private let redirectURI = "fr.agence810.gmac:/oauth2callback"
+    private let redirectURI = "com.googleusercontent.apps.1003757919116-ieidrg2o2cm450t06aeds8vebrm027f1:/oauth2callback"
     private let scopes = [
         "https://www.googleapis.com/auth/gmail.readonly",
         "https://www.googleapis.com/auth/gmail.send",
@@ -106,7 +106,7 @@ final class GoogleOAuthManager: NSObject {
         let callbackURL: URL = try await withCheckedThrowingContinuation { continuation in
             let session = ASWebAuthenticationSession(
                 url: authURL,
-                callbackURLScheme: "fr.agence810.gmac"
+                callbackURLScheme: "com.googleusercontent.apps.1003757919116-ieidrg2o2cm450t06aeds8vebrm027f1"
             ) { url, error in
                 if let error {
                     continuation.resume(throwing: error)
