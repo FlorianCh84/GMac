@@ -1,9 +1,15 @@
 import SwiftUI
 
 struct DrivePickerView: View {
-    @State var vm: DrivePickerViewModel
+    @State private var vm: DrivePickerViewModel
     let onSelect: (DriveFile) -> Void
     let onDismiss: () -> Void
+
+    init(vm: DrivePickerViewModel, onSelect: @escaping (DriveFile) -> Void, onDismiss: @escaping () -> Void) {
+        _vm = State(initialValue: vm)
+        self.onSelect = onSelect
+        self.onDismiss = onDismiss
+    }
 
     var body: some View {
         VStack(spacing: 0) {

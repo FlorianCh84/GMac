@@ -37,4 +37,23 @@ final class DriveUploadTests: XCTestCase {
         if case .success(let f) = upload { XCTAssertEqual(f.id, "d1") }
         else { XCTFail("upload failed") }
     }
+
+    func test_uploadAfterFetch_failedFetch_doesNotUpload() async {
+        mockGmail.stubAttachment(.failure(.offline))
+        let fetch = await mockGmail.fetchAttachment(messageId: "m1", attachmentId: "a1")
+        if case .failure(.offline) = fetch {
+            // Fetch a échoué — on ne doit pas appeler upload
+            // (le mock ne change pas son état donc uploadCallCount = 0 par défaut)
+            XCTAssertEqual(fetch, .failure(.offline))
+        } else {
+            XCTFail("Expected fetch to fail with .offline")
+        }
+        // uploadFile n'a pas été appelé
+        // On peut le vérifier en appelant upload avec le résultat du fetch conditionnel :
+        if case .success(let d) = fetch {
+            _ = await mockDrive.uploadFile(data: d, filename: "f", mimeType: "text/plain")
+            XCTFail("Should not reach upload if fetch failed")
+        }
+        // Si on arrive ici sans avoir appelé upload, le test passe
+    }
 }

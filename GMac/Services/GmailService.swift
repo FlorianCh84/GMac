@@ -160,18 +160,24 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
 
     private func extractAttachmentRefs(from part: GmailAPIMessage.MessagePart?) -> [MessageAttachmentRef] {
         guard let part else { return [] }
+        return extractAttachmentRefsRecursive(from: part)
+    }
+
+    private func extractAttachmentRefsRecursive(from part: GmailAPIMessage.MessagePart) -> [MessageAttachmentRef] {
         var refs: [MessageAttachmentRef] = []
-        for subpart in part.parts ?? [] {
-            guard let attId = subpart.body?.attachmentId else { continue }
-            let cd = MIMEParser.header("Content-Disposition", from: subpart.headers) ?? ""
-            let ct = MIMEParser.header("Content-Type", from: subpart.headers) ?? ""
+        if let attId = part.body?.attachmentId {
+            let cd = MIMEParser.header("Content-Disposition", from: part.headers) ?? ""
+            let ct = MIMEParser.header("Content-Type", from: part.headers) ?? ""
             let filename = parseFilename(from: cd) ?? extractNameFromContentType(ct) ?? "attachment"
             refs.append(MessageAttachmentRef(
                 attachmentId: attId,
                 filename: filename,
-                mimeType: subpart.mimeType ?? "application/octet-stream",
-                size: subpart.body?.size ?? 0
+                mimeType: part.mimeType ?? "application/octet-stream",
+                size: part.body?.size ?? 0
             ))
+        }
+        for subpart in part.parts ?? [] {
+            refs += extractAttachmentRefsRecursive(from: subpart)
         }
         return refs
     }
