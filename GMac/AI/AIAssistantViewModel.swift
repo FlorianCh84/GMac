@@ -48,7 +48,7 @@ final class AIAssistantViewModel {
             conversation.append(role: .assistant, content: response)
             state = .done(response)
         } catch LLMError.noAPIKey {
-            state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
+            state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
         } catch {
             state = .failed(error.localizedDescription)
         }
@@ -71,7 +71,7 @@ final class AIAssistantViewModel {
             conversation.append(role: .assistant, content: accumulated)
             if accumulated.isEmpty { state = .failed("Réponse vide reçue.") }
         } catch LLMError.noAPIKey {
-            state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
+            state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
         } catch {
             state = .failed(error.localizedDescription)
         }
@@ -101,7 +101,7 @@ final class AIAssistantViewModel {
             refinementText = ""
             state = .done(refined)
         } catch LLMError.noAPIKey {
-            state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
+            state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
         } catch {
             state = .failed(error.localizedDescription)
         }

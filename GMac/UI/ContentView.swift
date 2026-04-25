@@ -147,6 +147,7 @@ struct ContentView: View {
         SettingsView(
             gmailService: store.gmailService,
             settingsService: appEnv.settingsService,
+            aiSettings: appEnv.aiSettings,
             onDismiss: { isShowingSettings = false }
         )
     }

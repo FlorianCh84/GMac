@@ -3,6 +3,7 @@ import SwiftUI
 struct SettingsView: View {
     let gmailService: any GmailServiceProtocol
     let settingsService: any GmailSettingsServiceProtocol
+    let aiSettings: AISettingsViewModel   // instance partagée depuis AppEnvironment
     let onDismiss: () -> Void
 
     var body: some View {
@@ -27,7 +28,7 @@ struct SettingsView: View {
                     .navigationTitle("Labels")
                 }
                 NavigationLink("Assistant IA") {
-                    AISettingsView(vm: AISettingsViewModel())
+                    AISettingsView(vm: aiSettings)
                         .navigationTitle("Assistant IA")
                 }
             }
