@@ -20,7 +20,7 @@ struct ComposeView: View {
             Divider()
             bodySection
         }
-        .frame(minWidth: 560, minHeight: 420)
+        .frame(minWidth: 680, idealWidth: 720, minHeight: 520, idealHeight: 580)
         .sheet(isPresented: $isShowingDrivePicker) {
             DrivePickerView(
                 vm: DrivePickerViewModel(driveService: driveService),
@@ -96,10 +96,12 @@ struct ComposeView: View {
                 .padding(.horizontal, 12)
                 .padding(.top, 8)
             }
-            TextEditor(text: $vm.body)
-                .font(.body)
-                .padding(12)
-                .frame(minHeight: 200)
+            RichTextEditor(html: $vm.bodyHTML, placeholder: "Rédigez votre message…")
+                .frame(minHeight: 240)
+                .onChange(of: vm.bodyHTML) {
+                    // Synchroniser bodyHTML → body (texte brut pour les previews)
+                    vm.body = vm.bodyHTML
+                }
                 .dropDestination(for: URL.self) { urls, _ in
                     for url in urls {
                         guard url.isFileURL,

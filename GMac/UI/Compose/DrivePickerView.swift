@@ -23,11 +23,19 @@ struct DrivePickerView: View {
             if vm.isLoading {
                 ProgressView("Chargement…").frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if vm.files.isEmpty {
-                ContentUnavailableView(
-                    "Aucun fichier Drive",
-                    systemImage: "externaldrive",
-                    description: Text("Uploader des fichiers vers Drive pour les retrouver ici")
-                )
+                VStack(spacing: 12) {
+                    Image(systemName: "externaldrive.badge.questionmark")
+                        .font(.largeTitle)
+                        .foregroundStyle(.secondary)
+                    Text("Aucun fichier Drive")
+                        .font(.headline)
+                    Text("GMac accède uniquement aux fichiers qu'il a lui-même créés (scope drive.file). Pour voir vos fichiers existants, glissez-déposez une pièce jointe depuis le composeur pour l'uploader vers Drive.")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(vm.files) { file in
                     Button(action: { onSelect(file) }) {

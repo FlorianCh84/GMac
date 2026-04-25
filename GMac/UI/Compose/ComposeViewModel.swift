@@ -15,6 +15,7 @@ final class ComposeViewModel {
     var cc: String = ""
     var subject: String = ""
     var body: String = ""
+    var bodyHTML: String = ""
     var replyToThreadId: String? = nil
     var replyToMessageId: String? = nil
     var senderEmail: String = ""
@@ -27,7 +28,7 @@ final class ComposeViewModel {
     var isValid: Bool {
         !to.trimmingCharacters(in: .whitespaces).isEmpty &&
         !subject.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !body.trimmingCharacters(in: .whitespaces).isEmpty
+        (!body.trimmingCharacters(in: .whitespaces).isEmpty || !bodyHTML.trimmingCharacters(in: .whitespaces).isEmpty)
     }
 
     private let gmailService: any GmailServiceProtocol
@@ -45,7 +46,7 @@ final class ComposeViewModel {
             to: to.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
             cc: cc.isEmpty ? [] : cc.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
             subject: subject,
-            body: body,
+            body: bodyHTML.isEmpty ? body : bodyHTML,
             replyToThreadId: replyToThreadId,
             replyToMessageId: replyToMessageId,
             scheduledDate: isScheduled ? scheduledDate : nil,
@@ -96,6 +97,7 @@ final class ComposeViewModel {
         cc = ""
         subject = ""
         body = ""
+        bodyHTML = ""
         attachments = []
         replyToThreadId = nil
         replyToMessageId = nil
