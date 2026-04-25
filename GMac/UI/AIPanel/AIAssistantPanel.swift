@@ -73,7 +73,7 @@ struct AIAssistantPanel: View {
 
     private var actionRow: some View {
         HStack {
-            Button(action: { Task { @MainActor in await vm.generate(thread: thread, senderEmail: senderEmail, sentMessages: sentMessages) } }) {
+            Button(action: { Task { @MainActor in await vm.generateStreaming(thread: thread, senderEmail: senderEmail, sentMessages: sentMessages) } }) {
                 if vm.isGenerating { ProgressView().controlSize(.small) }
                 else { Label("Générer", systemImage: "arrow.trianglehead.2.clockwise") }
             }

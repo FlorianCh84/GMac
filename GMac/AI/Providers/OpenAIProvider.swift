@@ -16,6 +16,33 @@ final class OpenAIProvider: LLMProvider, Sendable {
     func requestOpinion(thread: EmailThread) async throws -> String { try await complete(conversation: PromptBuilder.buildOpinionPrompt(thread: thread)) }
     func refine(conversation: LLMConversation, instruction: String) async throws -> String { try await complete(conversation: PromptBuilder.buildRefinementPrompt(existing: conversation, instruction: instruction)) }
 
+    func generateReplyStream(thread: EmailThread, instruction: UserInstruction) -> AsyncThrowingStream<String, Error> {
+        AsyncThrowingStream { continuation in
+            Task {
+                do {
+                    guard let apiKey = try? keychain.retrieve(key: "openai_api_key"), !apiKey.isEmpty else {
+                        continuation.finish(throwing: LLMError.noAPIKey); return
+                    }
+                    let toneSource = ToneContextResolver.resolve(thread: thread, sentMessages: instruction.toneExamples)
+                    let conversation = PromptBuilder.buildReplyPrompt(thread: thread, instruction: instruction, toneSource: toneSource)
+                    struct Msg: Encodable { let role: String; let content: String }
+                    struct Req: Encodable { let model: String; let stream: Bool; let messages: [Msg] }
+                    let body = Req(model: model, stream: true, messages: conversation.messages.map { Msg(role: $0.role.rawValue, content: $0.content) })
+                    var request = URLRequest(url: URL(string: "https://api.openai.com/v1/chat/completions")!)
+                    request.httpMethod = "POST"
+                    request.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    request.httpBody = try JSONEncoder().encode(body)
+                    let (bytes, _) = try await URLSession.shared.bytes(for: request)
+                    for try await line in bytes.lines {
+                        if let chunk = SSEParser.parseOpenAIDelta(line) { continuation.yield(chunk) }
+                    }
+                    continuation.finish()
+                } catch { continuation.finish(throwing: error) }
+            }
+        }
+    }
+
     private func complete(conversation: LLMConversation) async throws -> String {
         guard let apiKey = try? keychain.retrieve(key: "openai_api_key"), !apiKey.isEmpty else { throw LLMError.noAPIKey }
         struct Msg: Encodable { let role: String; let content: String }

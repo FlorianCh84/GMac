@@ -21,6 +21,8 @@ final class AIAssistantViewModel {
     var toneSource: ToneSource = .globalProfile
     private(set) var conversation: LLMConversation = LLMConversation()
 
+    var streamingText: String = ""
+
     private let provider: any LLMProvider
 
     init(provider: any LLMProvider) { self.provider = provider }
@@ -45,6 +47,29 @@ final class AIAssistantViewModel {
             let response = try await provider.generateReply(thread: thread, instruction: instruction)
             conversation.append(role: .assistant, content: response)
             state = .done(response)
+        } catch LLMError.noAPIKey {
+            state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
+        } catch {
+            state = .failed(error.localizedDescription)
+        }
+    }
+
+    func generateStreaming(thread: EmailThread, senderEmail: String, sentMessages: [EmailMessage]) async {
+        state = .generating
+        streamingText = ""
+        toneSource = ToneContextResolver.resolve(thread: thread, sentMessages: sentMessages)
+        let instruction = UserInstruction(freeText: freeText, objective: selectedObjective, tone: selectedTone,
+                                          length: selectedLength, senderEmail: senderEmail, toneExamples: toneSource.examples)
+        do {
+            var accumulated = ""
+            conversation = PromptBuilder.buildReplyPrompt(thread: thread, instruction: instruction, toneSource: toneSource)
+            for try await chunk in provider.generateReplyStream(thread: thread, instruction: instruction) {
+                accumulated += chunk
+                streamingText = accumulated
+                state = .done(accumulated)
+            }
+            conversation.append(role: .assistant, content: accumulated)
+            if accumulated.isEmpty { state = .failed("Réponse vide reçue.") }
         } catch LLMError.noAPIKey {
             state = .failed("Clé API manquante. Configurez-la dans Paramètres → Assistant IA.")
         } catch {

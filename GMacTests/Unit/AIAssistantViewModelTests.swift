@@ -64,4 +64,20 @@ final class AIAssistantViewModelTests: XCTestCase {
     }
 
     func test_isGenerating_trueWhileGenerating() { XCTAssertFalse(vm.isGenerating) }
+
+    func test_generateStreaming_accumulatesChunks() async {
+        mock.stubbedStreamChunks = ["Hello ", "world", "!"]
+        await vm.generateStreaming(thread: thread(), senderEmail: "me@example.com", sentMessages: [])
+        if case .done(let text) = vm.state {
+            XCTAssertEqual(text, "Hello world!")
+        } else { XCTFail("Expected .done with accumulated text, got \(vm.state)") }
+    }
+
+    func test_generateStreaming_noAPIKey_movesFailed() async {
+        mock.shouldThrowNoAPIKey = true
+        await vm.generateStreaming(thread: thread(), senderEmail: "me@example.com", sentMessages: [])
+        if case .failed(let msg) = vm.state {
+            XCTAssertTrue(msg.contains("Clé API"))
+        } else { XCTFail("Expected .failed") }
+    }
 }

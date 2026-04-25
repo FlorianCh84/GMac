@@ -17,4 +17,18 @@ final class MockLLMProvider: LLMProvider, @unchecked Sendable {
     func refine(conversation: LLMConversation, instruction: String) async throws -> String {
         if shouldThrowNoAPIKey { throw LLMError.noAPIKey }; return stubbedRefinement
     }
+
+    var stubbedStreamChunks: [String] = ["Hello ", "world", "!"]
+
+    func generateReplyStream(thread: EmailThread, instruction: UserInstruction) -> AsyncThrowingStream<String, Error> {
+        let chunks = stubbedStreamChunks
+        let shouldThrow = shouldThrowNoAPIKey
+        return AsyncThrowingStream { continuation in
+            Task {
+                if shouldThrow { continuation.finish(throwing: LLMError.noAPIKey); return }
+                for chunk in chunks { continuation.yield(chunk) }
+                continuation.finish()
+            }
+        }
+    }
 }
