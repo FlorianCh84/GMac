@@ -15,14 +15,30 @@ struct ComposeView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            headerBar
-            Divider()
-            fieldsSection
-            Divider()
-            bodySection
+        HStack(spacing: 0) {
+            // --- Colonne principale : formulaire de composition ---
+            VStack(spacing: 0) {
+                headerBar
+                Divider()
+                fieldsSection
+                Divider()
+                bodySection
+            }
+            .frame(minWidth: 560, idealWidth: 680)
+
+            // --- Panneau IA : slide depuis la droite ---
+            if isAIOpen, let provider = vm.aiProvider {
+                Divider()
+                aiPanel(provider: provider)
+                    .frame(width: 380)
+                    .transition(.asymmetric(
+                        insertion: .move(edge: .trailing).combined(with: .opacity),
+                        removal:   .move(edge: .trailing).combined(with: .opacity)
+                    ))
+            }
         }
-        .frame(minWidth: 780, idealWidth: 860, minHeight: 600, idealHeight: 680)
+        .animation(.easeInOut(duration: 0.25), value: isAIOpen)
+        .frame(minHeight: 620)
         .sheet(isPresented: $isShowingDrivePicker) {
             DrivePickerView(
                 vm: DrivePickerViewModel(driveService: driveService),
@@ -41,9 +57,6 @@ struct ComposeView: View {
                 onDismiss: { isShowingDrivePicker = false }
             )
         }
-        .sheet(isPresented: $isAIOpen) {
-            aiSheet
-        }
         .alert("Erreur Drive", isPresented: Binding(
             get: { driveDownloadError != nil },
             set: { if !$0 { driveDownloadError = nil } }
@@ -52,6 +65,43 @@ struct ComposeView: View {
         } message: {
             Text(driveDownloadError ?? "")
         }
+    }
+
+    @ViewBuilder
+    private func aiPanel(provider: any LLMProvider) -> some View {
+        let thread = vm.contextThread ?? makeContextThread()
+        VStack(spacing: 0) {
+            // Header du panneau IA
+            HStack {
+                Label("Assistant IA", systemImage: "sparkles")
+                    .font(.headline)
+                Spacer()
+                Button(action: { withAnimation(.easeInOut(duration: 0.25)) { isAIOpen = false } }) {
+                    Image(systemName: "xmark.circle.fill")
+                        .foregroundStyle(.secondary)
+                }
+                .buttonStyle(.plain)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(.regularMaterial)
+            Divider()
+
+            // Panneau IA sans son propre header (on a le nôtre)
+            AIAssistantPanel(
+                vm: AIAssistantViewModel(provider: provider),
+                thread: thread,
+                senderEmail: vm.selectedSenderEmail.isEmpty ? vm.senderEmail : vm.selectedSenderEmail,
+                sentMessages: [],
+                onInject: { text in
+                    let signature = extractSignature(from: vm.bodyHTML)
+                    vm.bodyHTML = text + (signature.isEmpty ? "" : "<br><br>\(signature)")
+                    vm.body = vm.bodyHTML
+                    // Panneau reste ouvert pour affinage
+                }
+            )
+        }
+        .background(.regularMaterial)
     }
 
     private func downloadDriveFile(file: DriveFile) async -> Result<Data, AppError> {
@@ -74,28 +124,6 @@ struct ComposeView: View {
         case .offline: return "Pas de connexion"
         case .tokenExpired: return "Session expirée"
         default: return "\(error)"
-        }
-    }
-
-    @ViewBuilder
-    private var aiSheet: some View {
-        if let provider = vm.aiProvider {
-            let thread = vm.contextThread ?? makeContextThread()
-            AIAssistantPanel(
-                vm: AIAssistantViewModel(provider: provider),
-                thread: thread,
-                senderEmail: vm.selectedSenderEmail.isEmpty ? vm.senderEmail : vm.selectedSenderEmail,
-                sentMessages: [],
-                onInject: { text in
-                    // Injecter le texte généré dans le corps du mail
-                    // Préserver la signature si présente
-                    let signature = extractSignature(from: vm.bodyHTML)
-                    vm.bodyHTML = text + (signature.isEmpty ? "" : "<br><br>\(signature)")
-                    vm.body = vm.bodyHTML
-                    isAIOpen = false
-                }
-            )
-            .frame(minWidth: 380, minHeight: 500)
         }
     }
 
@@ -133,10 +161,12 @@ struct ComposeView: View {
             Text(vm.replyToThreadId != nil ? "Répondre" : "Nouveau message")
                 .font(.headline)
             Spacer()
-            Button(action: { isAIOpen = true }) {
+            Button(action: {
+                withAnimation(.easeInOut(duration: 0.25)) { isAIOpen.toggle() }
+            }) {
                 Label("IA", systemImage: "sparkles")
             }
-            .buttonStyle(.bordered)
+            .buttonStyle(isAIOpen ? .borderedProminent : .bordered)
             .disabled(vm.aiProvider == nil)
             SendButton(
                 sendState: vm.sendState,
