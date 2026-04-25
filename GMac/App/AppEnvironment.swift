@@ -9,6 +9,7 @@ final class AppEnvironment {
     let settingsService: GmailSettingsService
     let sessionStore: SessionStore
     let driveService: DriveService
+    let aiSettings: AISettingsViewModel
 
     init() {
         let keychain = KeychainService()
@@ -25,5 +26,6 @@ final class AppEnvironment {
         self.settingsService = GmailSettingsService(httpClient: client)
         self.sessionStore = SessionStore(gmailService: service)
         self.driveService = DriveService(httpClient: client)
+        self.aiSettings = AISettingsViewModel(keychain: keychain)
     }
 }

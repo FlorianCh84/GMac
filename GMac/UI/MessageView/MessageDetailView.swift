@@ -3,8 +3,11 @@ import WebKit
 
 struct MessageDetailView: View {
     @Environment(SessionStore.self) var store
+    @Environment(AppEnvironment.self) var appEnv
     let onReply: (EmailThread, EmailMessage) -> Void
     let onSaveToDrive: ((String, MessageAttachmentRef) -> Void)?
+
+    @State private var isAIPanelOpen = false
 
     init(onReply: @escaping (EmailThread, EmailMessage) -> Void, onSaveToDrive: ((String, MessageAttachmentRef) -> Void)? = nil) {
         self.onReply = onReply
@@ -32,6 +35,26 @@ struct MessageDetailView: View {
                 }
             }
             .navigationTitle(thread.subject)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("IA", systemImage: "sparkles") {
+                        isAIPanelOpen = true
+                    }
+                    .disabled(store.selectedThreadId == nil)
+                }
+            }
+            .sheet(isPresented: $isAIPanelOpen) {
+                AIAssistantPanel(
+                    vm: AIAssistantViewModel(provider: appEnv.aiSettings.activeProvider()),
+                    thread: thread,
+                    senderEmail: store.senderEmail,
+                    sentMessages: [],
+                    onInject: { text in
+                        isAIPanelOpen = false
+                        onReply(thread, thread.messages.last ?? thread.messages[0])
+                    }
+                )
+            }
         } else {
             ContentUnavailableView(
                 "Selectionnez un message",
