@@ -53,6 +53,9 @@ final class AuthenticatedHTTPClientTests: XCTestCase {
 
     @MainActor
     func test_send_500_returnsServerError() async throws {
+        try mockKeychain.save("token", key: "google_access_token")
+        try mockKeychain.save("refresh", key: "google_refresh_token")
+        try mockKeychain.save("\(Date().addingTimeInterval(3600).timeIntervalSince1970)", key: "google_token_expiry")
         let session = MockURLSession(data: Data("error".utf8), statusCode: 500)
         let client = AuthenticatedHTTPClient(session: session, oauth: oauth)
         let result: Result<TestPayload, AppError> = await client.send(
@@ -68,7 +71,11 @@ final class AuthenticatedHTTPClientTests: XCTestCase {
         let result: Result<TestPayload, AppError> = await client.send(
             URLRequest(url: URL(string: "https://api.test.com")!)
         )
-        XCTAssertEqual(result, .failure(.rateLimited(retryAfter: 30)))
+        if case .failure(.rateLimited(let d)) = result {
+            XCTAssertEqual(d, 30, accuracy: 0.001)
+        } else {
+            XCTFail("Expected .rateLimited, got \(result)")
+        }
     }
 
     @MainActor
@@ -105,12 +112,14 @@ extension MockURLSession: URLSessionProtocol {
     func data(for request: URLRequest) async throws -> (Data, URLResponse) {
         lock.withLock { _lastRequest = request }
         let url = request.url ?? URL(string: "https://mock.test")!
-        let response = HTTPURLResponse(
+        guard let response = HTTPURLResponse(
             url: url,
             statusCode: statusCode,
             httpVersion: nil,
             headerFields: headers
-        )!
+        ) else {
+            throw URLError(.badServerResponse)
+        }
         return (data, response)
     }
 }

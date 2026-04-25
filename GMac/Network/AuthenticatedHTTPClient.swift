@@ -1,6 +1,7 @@
 import Foundation
 
-final class AuthenticatedHTTPClient: HTTPClientProtocol {
+final class AuthenticatedHTTPClient: HTTPClientProtocol, @unchecked Sendable {
+    private static let defaultRetryAfterSeconds: Double = 1
     private let session: any URLSessionProtocol
     private let oauth: GoogleOAuthManager
 
@@ -38,14 +39,14 @@ final class AuthenticatedHTTPClient: HTTPClientProtocol {
                     let decoded = try JSONDecoder().decode(T.self, from: data)
                     return .success(decoded)
                 } catch let e {
-                    return .failure(.decodingError(e.localizedDescription))
+                    return .failure(.decodingError(String(describing: e)))
                 }
             case 401:
                 return .failure(.apiError(statusCode: 401, message: "Unauthorized"))
             case 403:
                 return .failure(.apiError(statusCode: 403, message: "Forbidden"))
             case 429:
-                let retryAfter = Double(httpResponse.value(forHTTPHeaderField: "Retry-After") ?? "5") ?? 5
+                let retryAfter = Double(httpResponse.value(forHTTPHeaderField: "Retry-After") ?? "") ?? Self.defaultRetryAfterSeconds
                 return .failure(.rateLimited(retryAfter: max(1, retryAfter)))
             case 500:
                 return .failure(.serverError(statusCode: 500))
