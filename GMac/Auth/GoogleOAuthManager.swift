@@ -1,0 +1,152 @@
+import AuthenticationServices
+import Foundation
+
+@Observable
+final class GoogleOAuthManager: NSObject, Sendable {
+    private let clientId: String
+    private let clientSecret: String
+    let keychain: KeychainService
+    private let redirectURI = "fr.agence810.gmac:/oauth2callback"
+    private let scopes = [
+        "https://www.googleapis.com/auth/gmail.readonly",
+        "https://www.googleapis.com/auth/gmail.send",
+        "https://www.googleapis.com/auth/gmail.settings.basic",
+        "https://www.googleapis.com/auth/gmail.settings.sharing",
+        "https://www.googleapis.com/auth/drive.file"
+    ]
+
+    // Single-flight refresh : évite la race condition où deux 401 simultanés
+    // déclenchent deux refreshes concurrents qui s'écrasent mutuellement
+    private nonisolated(unsafe) var refreshTask: Task<Void, Error>?
+
+    var isAuthenticated: Bool {
+        guard let expiry = storedExpiry else { return false }
+        let hasAccess = (try? keychain.retrieve(key: "google_access_token")) != nil
+        let hasRefresh = (try? keychain.retrieve(key: "google_refresh_token")) != nil
+        return hasAccess && hasRefresh && Date() < expiry
+    }
+
+    private var storedExpiry: Date? {
+        guard let raw = try? keychain.retrieve(key: "google_token_expiry"),
+              let ts = Double(raw) else { return nil }
+        return Date(timeIntervalSince1970: ts)
+    }
+
+    init(clientId: String, clientSecret: String, keychain: KeychainService = KeychainService()) {
+        self.clientId = clientId
+        self.clientSecret = clientSecret
+        self.keychain = keychain
+    }
+
+    func sign(_ request: URLRequest) -> URLRequest {
+        var req = request
+        if let token = try? keychain.retrieve(key: "google_access_token") {
+            req.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
+        }
+        return req
+    }
+
+    func logout() {
+        try? keychain.delete(key: "google_access_token")
+        try? keychain.delete(key: "google_refresh_token")
+        try? keychain.delete(key: "google_token_expiry")
+        refreshTask = nil
+    }
+
+    func refresh() async throws {
+        if let existingTask = refreshTask {
+            return try await existingTask.value
+        }
+        let task = Task<Void, Error> { [weak self] in
+            guard let self else { return }
+            try await self._doRefresh()
+        }
+        refreshTask = task
+        defer { refreshTask = nil }
+        try await task.value
+    }
+
+    private func _doRefresh() async throws {
+        guard let refreshToken = try? keychain.retrieve(key: "google_refresh_token") else {
+            throw AppError.tokenExpired
+        }
+        var request = URLRequest(url: URL(string: Endpoints.tokenURL)!)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let body = "grant_type=refresh_token&refresh_token=\(refreshToken)&client_id=\(clientId)&client_secret=\(clientSecret)"
+        request.httpBody = Data(body.utf8)
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let token = try JSONDecoder().decode(TokenResponse.self, from: data)
+        try storeTokens(token, refreshToken: refreshToken)
+    }
+
+    // @MainActor requis en Swift 6 : ASWebAuthenticationSession est un objet UI
+    // qui doit être créé et démarré sur le main thread
+    @MainActor
+    func startOAuthFlow() async throws {
+        let state = UUID().uuidString
+        var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")!
+        components.queryItems = [
+            URLQueryItem(name: "client_id", value: clientId),
+            URLQueryItem(name: "redirect_uri", value: redirectURI),
+            URLQueryItem(name: "response_type", value: "code"),
+            URLQueryItem(name: "scope", value: scopes.joined(separator: " ")),
+            URLQueryItem(name: "state", value: state),
+            URLQueryItem(name: "access_type", value: "offline"),
+            URLQueryItem(name: "prompt", value: "consent")
+        ]
+        guard let authURL = components.url else { throw AppError.unknown }
+
+        let callbackURL: URL = try await withCheckedThrowingContinuation { continuation in
+            let session = ASWebAuthenticationSession(
+                url: authURL,
+                callbackURLScheme: "fr.agence810.gmac"
+            ) { url, error in
+                if let error {
+                    continuation.resume(throwing: error)
+                } else if let url {
+                    continuation.resume(returning: url)
+                } else {
+                    continuation.resume(throwing: AppError.unknown)
+                }
+            }
+            session.presentationContextProvider = self
+            session.prefersEphemeralWebBrowserSession = false
+            session.start()
+        }
+
+        guard let code = URLComponents(url: callbackURL, resolvingAgainstBaseURL: false)?
+            .queryItems?.first(where: { $0.name == "code" })?.value else {
+            throw AppError.unknown
+        }
+        try await exchangeCode(code)
+    }
+
+    private func exchangeCode(_ code: String) async throws {
+        var request = URLRequest(url: URL(string: Endpoints.tokenURL)!)
+        request.httpMethod = "POST"
+        request.setValue("application/x-www-form-urlencoded", forHTTPHeaderField: "Content-Type")
+        let body = "grant_type=authorization_code&code=\(code)&redirect_uri=\(redirectURI)&client_id=\(clientId)&client_secret=\(clientSecret)"
+        request.httpBody = Data(body.utf8)
+        let (data, _) = try await URLSession.shared.data(for: request)
+        let token = try JSONDecoder().decode(TokenResponse.self, from: data)
+        guard let refreshToken = token.refreshToken else { throw AppError.unknown }
+        try storeTokens(token, refreshToken: refreshToken)
+    }
+
+    private func storeTokens(_ token: TokenResponse, refreshToken: String) throws {
+        let expiry = Date().addingTimeInterval(TimeInterval(token.expiresIn))
+        try keychain.save(token.accessToken, key: "google_access_token")
+        try keychain.save(refreshToken, key: "google_refresh_token")
+        try keychain.save("\(expiry.timeIntervalSince1970)", key: "google_token_expiry")
+    }
+}
+
+// @MainActor requis en Swift 6 : presentationAnchor doit être appelé depuis le main thread
+// car il accède à NSApplication.shared.windows (propriété UI)
+extension GoogleOAuthManager: ASWebAuthenticationPresentationContextProviding {
+    @MainActor
+    func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
+        NSApplication.shared.windows.first ?? ASPresentationAnchor()
+    }
+}
