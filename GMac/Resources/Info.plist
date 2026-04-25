@@ -21,5 +21,9 @@
     <string>Notifications pour les nouveaux emails</string>
     <key>com.apple.security.network.client</key>
     <true/>
+    <key>GOOGLE_CLIENT_ID</key>
+    <string></string>
+    <key>GOOGLE_CLIENT_SECRET</key>
+    <string></string>
 </dict>
 </plist>
