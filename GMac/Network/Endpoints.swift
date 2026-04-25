@@ -73,26 +73,23 @@ enum Endpoints {
         return url
     }
 
-    static func draftUpdate(userId: String = "me", id: String) -> URL {
+    private static func draftResourceURL(userId: String, id: String) -> URL {
         var components = URLComponents()
         components.scheme = "https"
         components.host = "gmail.googleapis.com"
         components.path = "/gmail/v1/users/\(userId)/drafts/\(id)"
         guard let url = components.url else {
-            preconditionFailure("draftUpdate URL invalide")
+            preconditionFailure("draftResourceURL invalide — erreur de programmation")
         }
         return url
     }
 
+    static func draftUpdate(userId: String = "me", id: String) -> URL {
+        draftResourceURL(userId: userId, id: id)
+    }
+
     static func draftDelete(userId: String = "me", id: String) -> URL {
-        var components = URLComponents()
-        components.scheme = "https"
-        components.host = "gmail.googleapis.com"
-        components.path = "/gmail/v1/users/\(userId)/drafts/\(id)"
-        guard let url = components.url else {
-            preconditionFailure("draftDelete URL invalide")
-        }
-        return url
+        draftResourceURL(userId: userId, id: id)
     }
 
     static func threadModify(userId: String = "me", id: String) -> URL {
