@@ -62,6 +62,39 @@ enum Endpoints {
         gmailBaseURL.appendingPathComponent("users/\(userId)/messages/send")
     }
 
+    static func draftCreate(userId: String = "me") -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "gmail.googleapis.com"
+        components.path = "/gmail/v1/users/\(userId)/drafts"
+        guard let url = components.url else {
+            preconditionFailure("draftCreate URL invalide")
+        }
+        return url
+    }
+
+    static func draftUpdate(userId: String = "me", id: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "gmail.googleapis.com"
+        components.path = "/gmail/v1/users/\(userId)/drafts/\(id)"
+        guard let url = components.url else {
+            preconditionFailure("draftUpdate URL invalide")
+        }
+        return url
+    }
+
+    static func draftDelete(userId: String = "me", id: String) -> URL {
+        var components = URLComponents()
+        components.scheme = "https"
+        components.host = "gmail.googleapis.com"
+        components.path = "/gmail/v1/users/\(userId)/drafts/\(id)"
+        guard let url = components.url else {
+            preconditionFailure("draftDelete URL invalide")
+        }
+        return url
+    }
+
     static func threadModify(userId: String = "me", id: String) -> URL {
         let components = URLComponents(url: gmailBaseURL.appendingPathComponent("users/\(userId)/threads/\(id)/modify"), resolvingAgainstBaseURL: false)!
         return components.url!
