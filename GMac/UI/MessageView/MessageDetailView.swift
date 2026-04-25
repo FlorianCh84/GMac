@@ -90,8 +90,7 @@ private struct EmailWebView: NSViewRepresentable {
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
-            // Bloquer la navigation externe -- securite
-            if navigationAction.navigationType == .linkActivated {
+            if navigationAction.navigationType != .other {
                 return .cancel
             }
             return .allow

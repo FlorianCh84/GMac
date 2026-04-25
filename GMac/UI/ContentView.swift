@@ -19,7 +19,9 @@ struct ContentView: View {
                 }
             }
         }
-        .task { await store.loadLabels() }
-        .task { await store.loadThreadList() }
+        .task {
+            await store.loadLabels()
+            await store.loadThreadList()
+        }
     }
 }

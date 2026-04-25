@@ -15,8 +15,8 @@ struct SidebarView: View {
 
     var body: some View {
         List(selection: Binding(
-            get: { store.selectedLabelId },
-            set: { store.selectedLabelId = $0 ?? "INBOX" }
+            get: { store.selectedLabelId as String? },
+            set: { if let id = $0 { store.selectedLabelId = id } }
         )) {
             Section("Boites") {
                 ForEach(systemLabels) { label in
