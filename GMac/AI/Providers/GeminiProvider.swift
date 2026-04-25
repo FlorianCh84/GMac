@@ -50,7 +50,12 @@ final class GeminiProvider: LLMProvider, Sendable {
         req.httpMethod = "POST"
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(Req(contents: contents))
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            struct GeminiError: Decodable { struct E: Decodable { let message: String? }; let error: E? }
+            let msg = (try? JSONDecoder().decode(GeminiError.self, from: data))?.error?.message ?? "HTTP \(http.statusCode)"
+            throw LLMError.requestFailed("Gemini \(http.statusCode): \(msg)")
+        }
         guard let text = try JSONDecoder().decode(Resp.self, from: data).candidates.first?.content.parts.first?.text else { throw LLMError.emptyResponse }
         return text
     }

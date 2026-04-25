@@ -49,6 +49,8 @@ final class AIAssistantViewModel {
             state = .done(response)
         } catch LLMError.noAPIKey {
             state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
+        } catch LLMError.requestFailed(let msg) {
+            state = .failed(msg)
         } catch {
             state = .failed(error.localizedDescription)
         }
@@ -72,6 +74,8 @@ final class AIAssistantViewModel {
             if accumulated.isEmpty { state = .failed("Réponse vide reçue.") }
         } catch LLMError.noAPIKey {
             state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
+        } catch LLMError.requestFailed(let msg) {
+            state = .failed(msg)
         } catch {
             state = .failed(error.localizedDescription)
         }
@@ -83,6 +87,8 @@ final class AIAssistantViewModel {
             state = .opinionDone(try await provider.requestOpinion(thread: thread))
         } catch LLMError.noAPIKey {
             state = .failed("Clé API manquante.")
+        } catch LLMError.requestFailed(let msg) {
+            state = .failed(msg)
         } catch {
             state = .failed(error.localizedDescription)
         }
@@ -102,6 +108,8 @@ final class AIAssistantViewModel {
             state = .done(refined)
         } catch LLMError.noAPIKey {
             state = .failed("Clé API \(provider.type.rawValue) manquante. Allez dans Paramètres → Assistant IA, entrez la clé et cliquez 'Sauvegarder les clés'.")
+        } catch LLMError.requestFailed(let msg) {
+            state = .failed(msg)
         } catch {
             state = .failed(error.localizedDescription)
         }

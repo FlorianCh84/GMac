@@ -55,7 +55,12 @@ final class MistralProvider: LLMProvider, Sendable {
         req.setValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(body)
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            struct APIError: Decodable { struct E: Decodable { let message: String? }; let error: E? }
+            let msg = (try? JSONDecoder().decode(APIError.self, from: data))?.error?.message ?? "HTTP \(http.statusCode)"
+            throw LLMError.requestFailed("Mistral \(http.statusCode): \(msg)")
+        }
         guard let text = try JSONDecoder().decode(Resp.self, from: data).choices.first?.message.content else { throw LLMError.emptyResponse }
         return text
     }

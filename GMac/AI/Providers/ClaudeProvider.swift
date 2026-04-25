@@ -75,7 +75,15 @@ final class ClaudeProvider: LLMProvider, Sendable {
         req.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
         req.setValue("application/json", forHTTPHeaderField: "Content-Type")
         req.httpBody = try JSONEncoder().encode(body)
-        let (data, _) = try await URLSession.shared.data(for: req)
+        let (data, response) = try await URLSession.shared.data(for: req)
+        // Détecter les erreurs HTTP avant de décoder
+        if let http = response as? HTTPURLResponse, !(200...299).contains(http.statusCode) {
+            struct APIError: Decodable { struct E: Decodable { let message: String? }; let error: E? }
+            let msg = (try? JSONDecoder().decode(APIError.self, from: data))?.error?.message
+                ?? String(data: data, encoding: .utf8)?.prefix(200).description
+                ?? "HTTP \(http.statusCode)"
+            throw LLMError.requestFailed("Claude \(http.statusCode): \(msg ?? "")")
+        }
         let resp = try JSONDecoder().decode(Resp.self, from: data)
         guard let text = resp.content.first?.text else { throw LLMError.emptyResponse }
         return text
