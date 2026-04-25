@@ -166,7 +166,8 @@ struct ComposeView: View {
             }) {
                 Label("IA", systemImage: "sparkles")
             }
-            .buttonStyle(isAIOpen ? .borderedProminent : .bordered)
+            .buttonStyle(.bordered)
+            .tint(isAIOpen ? .blue : nil)
             .disabled(vm.aiProvider == nil)
             SendButton(
                 sendState: vm.sendState,
