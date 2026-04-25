@@ -38,4 +38,10 @@ final class MockGmailService: GmailServiceProtocol, @unchecked Sendable {
     func createDraft(message: OutgoingMessage, senderEmail: String) async -> Result<DraftMessage, AppError> { lock.withLock { _createDraftResult } }
     func updateDraft(id: String, message: OutgoingMessage, senderEmail: String) async -> Result<DraftMessage, AppError> { lock.withLock { _createDraftResult } }
     func deleteDraft(id: String) async -> Result<Void, AppError> { lock.withLock { _deleteDraftResult } }
+
+    private var _attachmentResult: Result<Data, AppError> = .failure(.unknown)
+    func stubAttachment(_ r: Result<Data, AppError>) { lock.withLock { _attachmentResult = r } }
+    func fetchAttachment(messageId: String, attachmentId: String) async -> Result<Data, AppError> {
+        lock.withLock { _attachmentResult }
+    }
 }

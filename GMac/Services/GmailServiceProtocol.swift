@@ -10,4 +10,5 @@ protocol GmailServiceProtocol: Sendable {
     func updateDraft(id: String, message: OutgoingMessage, senderEmail: String) async -> Result<DraftMessage, AppError>
     func deleteDraft(id: String) async -> Result<Void, AppError>
     func fetchHistory(startHistoryId: String) async -> Result<GmailHistoryListResponse, AppError>
+    func fetchAttachment(messageId: String, attachmentId: String) async -> Result<Data, AppError>
 }

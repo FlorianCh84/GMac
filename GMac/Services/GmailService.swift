@@ -100,6 +100,21 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
         return await httpClient.send(request)
     }
 
+    func fetchAttachment(messageId: String, attachmentId: String) async -> Result<Data, AppError> {
+        let request = URLRequest(url: Endpoints.gmailAttachment(messageId: messageId, attachmentId: attachmentId))
+        let result: Result<GmailAttachmentData, AppError> = await httpClient.send(request)
+        return result.flatMap { attData in
+            var base64 = attData.data
+                .replacingOccurrences(of: "-", with: "+")
+                .replacingOccurrences(of: "_", with: "/")
+            while base64.count % 4 != 0 { base64 += "=" }
+            guard let data = Data(base64Encoded: base64) else {
+                return .failure(.decodingError("Invalid base64url in attachment"))
+            }
+            return .success(data)
+        }
+    }
+
     // MARK: - Private mapping
 
     private func mapLabel(_ api: GmailAPILabel) -> GmailLabel {
@@ -123,6 +138,7 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
     private func mapMessage(_ api: GmailAPIMessage) -> EmailMessage {
         let headers = api.payload?.headers
         let (html, plain) = MIMEParser.extractBody(from: api.payload)
+        let attachmentRefs = extractAttachmentRefs(from: api.payload)
         return EmailMessage(
             id: api.id,
             threadId: api.threadId,
@@ -137,7 +153,46 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
             bodyHTML: html,
             bodyPlain: plain,
             labelIds: api.labelIds ?? [],
-            isUnread: api.labelIds?.contains("UNREAD") ?? false
+            isUnread: api.labelIds?.contains("UNREAD") ?? false,
+            attachmentRefs: attachmentRefs
         )
+    }
+
+    private func extractAttachmentRefs(from part: GmailAPIMessage.MessagePart?) -> [MessageAttachmentRef] {
+        guard let part else { return [] }
+        var refs: [MessageAttachmentRef] = []
+        for subpart in part.parts ?? [] {
+            guard let attId = subpart.body?.attachmentId else { continue }
+            let cd = MIMEParser.header("Content-Disposition", from: subpart.headers) ?? ""
+            let ct = MIMEParser.header("Content-Type", from: subpart.headers) ?? ""
+            let filename = parseFilename(from: cd) ?? extractNameFromContentType(ct) ?? "attachment"
+            refs.append(MessageAttachmentRef(
+                attachmentId: attId,
+                filename: filename,
+                mimeType: subpart.mimeType ?? "application/octet-stream",
+                size: subpart.body?.size ?? 0
+            ))
+        }
+        return refs
+    }
+
+    private func parseFilename(from disposition: String) -> String? {
+        for part in disposition.components(separatedBy: ";") {
+            let t = part.trimmingCharacters(in: .whitespaces)
+            if t.lowercased().hasPrefix("filename=") {
+                return String(t.dropFirst("filename=".count)).trimmingCharacters(in: .init(charactersIn: "\""))
+            }
+        }
+        return nil
+    }
+
+    private func extractNameFromContentType(_ ct: String) -> String? {
+        for part in ct.components(separatedBy: ";") {
+            let t = part.trimmingCharacters(in: .whitespaces)
+            if t.lowercased().hasPrefix("name=") {
+                return String(t.dropFirst("name=".count)).trimmingCharacters(in: .init(charactersIn: "\""))
+            }
+        }
+        return nil
     }
 }

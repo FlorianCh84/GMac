@@ -128,3 +128,8 @@ struct CreateDraftRequest: Encodable, Sendable {
     }
     let message: MessageRef
 }
+
+struct GmailAttachmentData: Decodable, Sendable {
+    let size: Int
+    let data: String  // base64url
+}

@@ -1,5 +1,12 @@
 import Foundation
 
+struct MessageAttachmentRef: Sendable {
+    let attachmentId: String
+    let filename: String
+    let mimeType: String
+    let size: Int
+}
+
 struct EmailMessage: Identifiable, Sendable {
     let id: String
     let threadId: String
@@ -12,4 +19,5 @@ struct EmailMessage: Identifiable, Sendable {
     let bodyPlain: String?
     let labelIds: [String]
     let isUnread: Bool
+    let attachmentRefs: [MessageAttachmentRef]
 }
