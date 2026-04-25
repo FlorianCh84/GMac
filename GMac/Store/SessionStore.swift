@@ -18,7 +18,6 @@ final class SessionStore {
     var senderEmail: String = ""
 
     let gmailService: any GmailServiceProtocol
-    private var loadThreadTasks: [String: Task<Void, Never>] = [:]
 
     init(gmailService: any GmailServiceProtocol) {
         self.gmailService = gmailService
@@ -51,22 +50,19 @@ final class SessionStore {
     }
 
     func loadThread(id: String) async {
-        loadThreadTasks[id]?.cancel()
-        loadThreadTasks[id] = Task {
-            let result = await gmailService.fetchThread(id: id)
-            if Task.isCancelled { return }
-            switch result {
-            case .success(let thread):
-                if let index = threads.firstIndex(where: { $0.id == id }) {
-                    threads[index] = thread
-                } else {
-                    threads.append(thread)
-                }
-            case .failure(let error):
-                lastSyncError = error
+        guard !Task.isCancelled else { return }
+        let result = await gmailService.fetchThread(id: id)
+        guard !Task.isCancelled else { return }
+        switch result {
+        case .success(let thread):
+            if let index = threads.firstIndex(where: { $0.id == id }) {
+                threads[index] = thread
+            } else {
+                threads.append(thread)
             }
+        case .failure(let error):
+            lastSyncError = error
         }
-        await loadThreadTasks[id]?.value
     }
 
     func archiveThread(id: String) async {

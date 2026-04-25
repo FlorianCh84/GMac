@@ -1,4 +1,5 @@
 import SwiftUI
+import SwiftData
 
 @main
 struct GMacApp: App {
@@ -16,5 +17,6 @@ struct GMacApp: App {
                     .environment(env.oauth)
             }
         }
+        .modelContainer(for: VoiceProfile.self)
     }
 }
