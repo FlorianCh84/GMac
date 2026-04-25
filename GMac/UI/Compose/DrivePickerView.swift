@@ -22,18 +22,26 @@ struct DrivePickerView: View {
             Divider()
             if vm.isLoading {
                 ProgressView("Chargement…").frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if let error = vm.lastError {
+                VStack(spacing: 12) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.largeTitle).foregroundStyle(.orange)
+                    Text("Erreur Drive").font(.headline)
+                    Text(driveErrorMessage(error))
+                        .font(.caption).foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center).padding(.horizontal)
+                    Button("Réessayer") { Task { await vm.load() } }
+                        .buttonStyle(.bordered)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if vm.files.isEmpty {
                 VStack(spacing: 12) {
-                    Image(systemName: "externaldrive.badge.questionmark")
-                        .font(.largeTitle)
-                        .foregroundStyle(.secondary)
-                    Text("Aucun fichier Drive")
-                        .font(.headline)
-                    Text("Aucun fichier Drive trouvé. Si vous venez de mettre à jour l'app, déconnectez-vous et reconnectez-vous pour accorder les nouveaux droits d'accès Drive.")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                    Image(systemName: "externaldrive")
+                        .font(.largeTitle).foregroundStyle(.secondary)
+                    Text("Aucun fichier Drive").font(.headline)
+                    Text("Drive API activée mais aucun fichier trouvé dans votre Drive.")
+                        .font(.caption).foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center).padding(.horizontal)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
@@ -54,6 +62,17 @@ struct DrivePickerView: View {
         }
         .frame(minWidth: 380, minHeight: 300)
         .task { await vm.load() }
+    }
+
+    private func driveErrorMessage(_ error: AppError) -> String {
+        switch error {
+        case .apiError(let code, let msg):
+            if code == 403 { return "Accès refusé (403). Vérifiez que l'API Google Drive est activée dans Google Cloud Console :\nconsole.cloud.google.com/apis/library/drive.googleapis.com" }
+            if code == 401 { return "Session expirée. Déconnectez-vous et reconnectez-vous." }
+            return "Erreur API \(code): \(msg)"
+        case .offline: return "Pas de connexion internet."
+        default: return "Erreur: \(error)"
+        }
     }
 
     private func driveIcon(for mimeType: String) -> String {
