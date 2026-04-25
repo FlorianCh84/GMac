@@ -8,8 +8,17 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
     }
 
     func listFiles() async -> Result<[DriveFile], AppError> {
-        let result: Result<DriveFileListResponse, AppError> = await httpClient.send(URLRequest(url: Endpoints.driveFilesList()))
-        return result.map { $0.files }
+        let request = URLRequest(url: Endpoints.driveFilesList())
+        let result: Result<DriveFileListResponse, AppError> = await httpClient.send(request)
+        switch result {
+        case .success(let response):
+            let files = response.files ?? []
+            print("[GMac] Drive listFiles: \(files.count) fichier(s) trouvé(s)")
+            return .success(files)
+        case .failure(let error):
+            print("[GMac] Drive listFiles error: \(error)")
+            return .failure(error)
+        }
     }
 
     func uploadFile(data: Data, filename: String, mimeType: String) async -> Result<DriveFile, AppError> {

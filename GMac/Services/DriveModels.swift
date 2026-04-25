@@ -11,6 +11,6 @@ struct DriveFile: Identifiable, Decodable, Sendable, Equatable {
 }
 
 struct DriveFileListResponse: Decodable, Sendable {
-    let files: [DriveFile]
+    let files: [DriveFile]?   // optionnel — absent si résultat vide
     let nextPageToken: String?
 }

@@ -8,9 +8,10 @@ enum Endpoints {
     static func driveFilesList() -> URL {
         var c = URLComponents(string: "\(driveBase)/files")!
         c.queryItems = [
-            URLQueryItem(name: "orderBy", value: "modifiedTime desc"),
-            URLQueryItem(name: "pageSize", value: "30"),
-            URLQueryItem(name: "fields", value: "files(id,name,mimeType,size,modifiedTime),nextPageToken")
+            URLQueryItem(name: "pageSize", value: "50"),
+            URLQueryItem(name: "corpora", value: "user"),
+            URLQueryItem(name: "spaces", value: "drive"),
+            URLQueryItem(name: "fields", value: "files(id,name,mimeType,size,modifiedTime)")
         ]
         guard let url = c.url else { preconditionFailure("driveFilesList URL invalide") }
         return url
