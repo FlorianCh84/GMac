@@ -46,19 +46,108 @@ struct ComposeView: View {
             ComposeField(label: "Cc", text: $vm.cc)
             Divider().padding(.leading, 56)
             ComposeField(label: "Objet", text: $vm.subject)
+            Divider().padding(.leading, 56)
+            HStack(spacing: 8) {
+                Text("Différé")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .frame(width: 44, alignment: .trailing)
+                Toggle("", isOn: $vm.isScheduled)
+                    .labelsHidden()
+                    .toggleStyle(.switch)
+                    .controlSize(.mini)
+                if vm.isScheduled {
+                    DatePicker("", selection: $vm.scheduledDate, in: Date()...)
+                        .labelsHidden()
+                        .datePickerStyle(.compact)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 9)
         }
     }
 
     private var bodySection: some View {
-        TextEditor(text: $vm.body)
-            .font(.body)
-            .padding(12)
-            .frame(minHeight: 240)
+        VStack(spacing: 0) {
+            TextEditor(text: $vm.body)
+                .font(.body)
+                .padding(12)
+                .frame(minHeight: 200)
+                .dropDestination(for: URL.self) { urls, _ in
+                    for url in urls {
+                        guard url.isFileURL,
+                              let data = try? Data(contentsOf: url) else { continue }
+                        let filename = url.lastPathComponent
+                        let mimeType = Self.mimeType(for: url)
+                        vm.attachments.append(Attachment(id: UUID(), filename: filename, mimeType: mimeType, data: data))
+                    }
+                    return !urls.isEmpty
+                }
+
+            if !vm.attachments.isEmpty {
+                attachmentsList
+            }
+        }
+    }
+
+    private var attachmentsList: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            HStack(spacing: 8) {
+                ForEach(vm.attachments) { attachment in
+                    AttachmentChip(attachment: attachment) {
+                        vm.attachments.removeAll { $0.id == attachment.id }
+                    }
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 8)
+        }
+    }
+
+    private static func mimeType(for url: URL) -> String {
+        switch url.pathExtension.lowercased() {
+        case "pdf": return "application/pdf"
+        case "png": return "image/png"
+        case "jpg", "jpeg": return "image/jpeg"
+        case "gif": return "image/gif"
+        case "txt": return "text/plain"
+        case "doc", "docx": return "application/msword"
+        case "xls", "xlsx": return "application/vnd.ms-excel"
+        case "zip": return "application/zip"
+        default: return "application/octet-stream"
+        }
     }
 
     private var isIdle: Bool {
         guard case .idle = vm.sendState else { return false }
         return true
+    }
+}
+
+private struct AttachmentChip: View {
+    let attachment: Attachment
+    let onRemove: () -> Void
+
+    var body: some View {
+        HStack(spacing: 4) {
+            Image(systemName: "paperclip")
+                .font(.caption)
+            Text(attachment.filename)
+                .font(.caption)
+                .lineLimit(1)
+            Text(attachment.sizeDescription)
+                .font(.caption2)
+                .foregroundStyle(.secondary)
+            Button(action: onRemove) {
+                Image(systemName: "xmark.circle.fill")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .buttonStyle(.plain)
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 4)
+        .background(.quaternary, in: .capsule)
     }
 }
 

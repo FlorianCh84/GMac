@@ -7,6 +7,8 @@ struct OutgoingMessage: Sendable {
     let body: String
     let replyToThreadId: String?
     let replyToMessageId: String?
+    let scheduledDate: Date?
+    let attachments: [Attachment]
     let idempotencyKey: UUID
 
     init(
@@ -15,7 +17,9 @@ struct OutgoingMessage: Sendable {
         subject: String,
         body: String,
         replyToThreadId: String? = nil,
-        replyToMessageId: String? = nil
+        replyToMessageId: String? = nil,
+        scheduledDate: Date? = nil,
+        attachments: [Attachment] = []
     ) {
         self.to = to
         self.cc = cc
@@ -23,6 +27,8 @@ struct OutgoingMessage: Sendable {
         self.body = body
         self.replyToThreadId = replyToThreadId
         self.replyToMessageId = replyToMessageId
+        self.scheduledDate = scheduledDate
+        self.attachments = attachments
         self.idempotencyKey = UUID()
     }
 }

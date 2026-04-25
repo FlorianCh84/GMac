@@ -18,6 +18,9 @@ final class ComposeViewModel {
     var replyToThreadId: String? = nil
     var replyToMessageId: String? = nil
     var senderEmail: String = ""
+    var attachments: [Attachment] = []
+    var isScheduled: Bool = false
+    var scheduledDate: Date = Date().addingTimeInterval(3600)
 
     var sendState: SendState = .idle
 
@@ -44,7 +47,9 @@ final class ComposeViewModel {
             subject: subject,
             body: body,
             replyToThreadId: replyToThreadId,
-            replyToMessageId: replyToMessageId
+            replyToMessageId: replyToMessageId,
+            scheduledDate: isScheduled ? scheduledDate : nil,
+            attachments: attachments
         )
 
         sendState = .countdown(progress: 0.0)
@@ -91,6 +96,7 @@ final class ComposeViewModel {
         cc = ""
         subject = ""
         body = ""
+        attachments = []
         replyToThreadId = nil
         replyToMessageId = nil
     }
