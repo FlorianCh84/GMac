@@ -6,6 +6,7 @@ final class MockLLMProvider: LLMProvider, @unchecked Sendable {
     var stubbedReply: String = ""
     var stubbedOpinion: String = ""
     var stubbedRefinement: String = ""
+    var stubbedCompletion: String = ""
     var shouldThrowNoAPIKey: Bool = false
 
     func generateReply(thread: EmailThread, instruction: UserInstruction) async throws -> String {
@@ -16,6 +17,9 @@ final class MockLLMProvider: LLMProvider, @unchecked Sendable {
     }
     func refine(conversation: LLMConversation, instruction: String) async throws -> String {
         if shouldThrowNoAPIKey { throw LLMError.noAPIKey }; return stubbedRefinement
+    }
+    func complete(conversation: LLMConversation) async throws -> String {
+        if shouldThrowNoAPIKey { throw LLMError.noAPIKey }; return stubbedCompletion
     }
 
     var stubbedStreamChunks: [String] = ["Hello ", "world", "!"]

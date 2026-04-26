@@ -12,10 +12,11 @@ final class GeminiProvider: LLMProvider, Sendable {
 
     func generateReply(thread: EmailThread, instruction: UserInstruction) async throws -> String {
         let toneSource = ToneContextResolver.resolve(thread: thread, sentMessages: instruction.toneExamples)
-        return try await complete(conversation: PromptBuilder.buildReplyPrompt(thread: thread, instruction: instruction, toneSource: toneSource))
+        return try await executeCompletion(PromptBuilder.buildReplyPrompt(thread: thread, instruction: instruction, toneSource: toneSource))
     }
-    func requestOpinion(thread: EmailThread) async throws -> String { try await complete(conversation: PromptBuilder.buildOpinionPrompt(thread: thread)) }
-    func refine(conversation: LLMConversation, instruction: String) async throws -> String { try await complete(conversation: PromptBuilder.buildRefinementPrompt(existing: conversation, instruction: instruction)) }
+    func requestOpinion(thread: EmailThread) async throws -> String { try await executeCompletion(PromptBuilder.buildOpinionPrompt(thread: thread)) }
+    func refine(conversation: LLMConversation, instruction: String) async throws -> String { try await executeCompletion(PromptBuilder.buildRefinementPrompt(existing: conversation, instruction: instruction)) }
+    func complete(conversation: LLMConversation) async throws -> String { try await executeCompletion(conversation) }
 
     func generateReplyStream(thread: EmailThread, instruction: UserInstruction) -> AsyncThrowingStream<String, Error> {
         AsyncThrowingStream { continuation in
@@ -29,7 +30,7 @@ final class GeminiProvider: LLMProvider, Sendable {
         }
     }
 
-    private func complete(conversation: LLMConversation) async throws -> String {
+    private func executeCompletion(_ conversation: LLMConversation) async throws -> String {
         guard let apiKey = try? keychain.retrieve(key: "gemini_api_key"), !apiKey.isEmpty else { throw LLMError.noAPIKey }
         struct Part: Encodable { let text: String }
         struct Content: Encodable { let role: String; let parts: [Part] }

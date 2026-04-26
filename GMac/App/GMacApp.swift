@@ -20,10 +20,6 @@ struct GMacApp: App {
                         .environment(env.oauth)
                 }
             }
-            // Fallback SwiftUI pour les URLs non interceptées par AppDelegate
-            .onOpenURL { url in
-                Task { await env.oauth.handleCallbackURL(url) }
-            }
             // Observer les URLs reçues par AppDelegate (sans nouvelle fenêtre)
             .onReceive(NotificationCenter.default.publisher(for: .gmacDidReceiveURL)) { notification in
                 if let url = notification.object as? URL {

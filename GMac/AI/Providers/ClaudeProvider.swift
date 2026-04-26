@@ -13,15 +13,19 @@ final class ClaudeProvider: LLMProvider, Sendable {
     func generateReply(thread: EmailThread, instruction: UserInstruction) async throws -> String {
         let toneSource = ToneContextResolver.resolve(thread: thread, sentMessages: instruction.toneExamples)
         let conversation = PromptBuilder.buildReplyPrompt(thread: thread, instruction: instruction, toneSource: toneSource)
-        return try await complete(conversation: conversation)
+        return try await executeCompletion(conversation)
     }
 
     func requestOpinion(thread: EmailThread) async throws -> String {
-        try await complete(conversation: PromptBuilder.buildOpinionPrompt(thread: thread))
+        try await executeCompletion(PromptBuilder.buildOpinionPrompt(thread: thread))
     }
 
     func refine(conversation: LLMConversation, instruction: String) async throws -> String {
-        try await complete(conversation: PromptBuilder.buildRefinementPrompt(existing: conversation, instruction: instruction))
+        try await executeCompletion(PromptBuilder.buildRefinementPrompt(existing: conversation, instruction: instruction))
+    }
+
+    func complete(conversation: LLMConversation) async throws -> String {
+        try await executeCompletion(conversation)
     }
 
     func generateReplyStream(thread: EmailThread, instruction: UserInstruction) -> AsyncThrowingStream<String, Error> {
@@ -58,7 +62,7 @@ final class ClaudeProvider: LLMProvider, Sendable {
         }
     }
 
-    private func complete(conversation: LLMConversation) async throws -> String {
+    private func executeCompletion(_ conversation: LLMConversation) async throws -> String {
         guard let apiKey = try? keychain.retrieve(key: "claude_api_key"), !apiKey.isEmpty else { throw LLMError.noAPIKey }
         struct Msg: Encodable { let role: String; let content: String }
         struct Req: Encodable {

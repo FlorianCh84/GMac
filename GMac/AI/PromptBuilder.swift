@@ -10,6 +10,13 @@ enum PromptBuilder {
         // Détecter si c'est le premier message ou une réponse dans un fil
         let isReplyInThread = thread.messages.count > 1
 
+        let lengthGuide: String
+        switch instruction.length {
+        case .concise: lengthGuide = "3-5 lignes"
+        case .balanced: lengthGuide = "6-10 lignes"
+        case .detailed: lengthGuide = "10-20 lignes"
+        }
+
         var system = """
         Tu rédiges des réponses d'email au nom de l'utilisateur.
 
@@ -17,7 +24,7 @@ enum PromptBuilder {
         - Corps uniquement. Pas de signature. Pas de "PS".
         - Ne jamais inventer d'engagements, de dates ou de faits absents de l'échange.
         - Ne pas reformuler les questions de l'interlocuteur.
-        - Longueur : \(instruction.length.rawValue == "Concis" ? "3-5 lignes" : instruction.length.rawValue == "Équilibré" ? "6-10 lignes" : "10-20 lignes").
+        - Longueur : \(lengthGuide).
         """
 
         if let obj = instruction.objective { system += "\n- Objectif prioritaire : \(obj.rawValue)." }
@@ -64,6 +71,7 @@ enum PromptBuilder {
 
     // MARK: - Nouveau mail (premier d'un échange)
 
+    // TODO: Non exposé dans LLMProvider — à câbler dans AIAssistantViewModel pour les mails initiaux
     static func buildNewEmailPrompt(
         recipientName: String,
         recipientInfo: String,
@@ -74,6 +82,12 @@ enum PromptBuilder {
         var c = LLMConversation()
 
         let toneName = instruction.tone?.rawValue ?? "Direct"
+        let lengthGuide: String
+        switch instruction.length {
+        case .concise: lengthGuide = "3-5 lignes"
+        case .balanced: lengthGuide = "6-10 lignes"
+        case .detailed: lengthGuide = "10-20 lignes"
+        }
         var system = """
         Tu rédiges un email initial (premier contact ou relance sans fil existant) au nom de l'utilisateur.
 
@@ -81,7 +95,7 @@ enum PromptBuilder {
         - Inclure une salutation d'ouverture adaptée (voir règles ci-dessous).
         - Corps uniquement ensuite. Pas de signature.
         - Ne jamais inventer d'engagements, de dates ou de faits non fournis.
-        - Longueur : \(instruction.length.rawValue == "Concis" ? "3-5 lignes" : instruction.length.rawValue == "Équilibré" ? "6-10 lignes" : "10-20 lignes").
+        - Longueur : \(lengthGuide).
         """
         if let obj = instruction.objective { system += "\n- Objectif : \(obj.rawValue)." }
         system += "\n- Ton : \(toneName)."

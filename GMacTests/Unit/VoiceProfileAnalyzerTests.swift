@@ -17,7 +17,7 @@ final class VoiceProfileAnalyzerTests: XCTestCase {
     }
 
     func test_analyze_validJSONResponse_parsesCorrectly() async throws {
-        mockProvider.stubbedRefinement = """
+        mockProvider.stubbedCompletion = """
         {
           "formalityLevel": "formel",
           "sentenceStructure": "courtes",
@@ -37,7 +37,7 @@ final class VoiceProfileAnalyzerTests: XCTestCase {
     }
 
     func test_analyze_jsonWithMarkdownFences_parsesCorrectly() async throws {
-        mockProvider.stubbedRefinement = """
+        mockProvider.stubbedCompletion = """
         ```json
         {"formalityLevel":"informel","sentenceStructure":"courtes","greetingPatterns":["Salut"],"closingPatterns":["Bye"],"vocabulary":"courant","paragraphStyle":"court","specificExpressions":[],"thingsToAvoid":[]}
         ```

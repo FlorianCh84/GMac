@@ -61,7 +61,7 @@ final class VoiceProfileAnalyzer: Sendable {
 
         var conversation = LLMConversation()
         conversation.append(role: .user, content: prompt)
-        let response = try await provider.refine(conversation: conversation, instruction: prompt)
+        let response = try await provider.complete(conversation: conversation)
         return try parseVoiceProfileJSON(response)
     }
 

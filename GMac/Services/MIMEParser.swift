@@ -12,6 +12,8 @@ enum MIMEParser {
             .replacingOccurrences(of: "_", with: "/")
         while base64.count % 4 != 0 { base64 += "=" }
         // .ignoreUnknownCharacters tolère les sauts de ligne (\n) fréquents dans les corps MIME
+        // Retourne nil pour entrée vide ou base64 décodant vers 0 octets (corps d'email vide, rare).
+        // L'appelant utilise alors le snippet comme fallback — dégradation gracieuse, pas de crash.
         guard let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters),
               !data.isEmpty else { return nil }
         return String(data: data, encoding: .utf8)

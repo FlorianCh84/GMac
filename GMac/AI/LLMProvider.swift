@@ -33,4 +33,6 @@ protocol LLMProvider: Sendable {
         thread: EmailThread,
         instruction: UserInstruction
     ) -> AsyncThrowingStream<String, Error>
+    // Complétion générique sans sémantique particulière (utilisé par VoiceProfileAnalyzer etc.)
+    func complete(conversation: LLMConversation) async throws -> String
 }
