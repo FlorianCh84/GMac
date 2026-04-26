@@ -20,29 +20,28 @@ struct MessageDetailView: View {
     }
 
     var body: some View {
-        Group {
+        // ZStack garantit que le fond remplit toujours la totalité de l'espace disponible
+        ZStack(alignment: .topLeading) {
+            Color(.windowBackgroundColor)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+
             if let thread = selectedThread {
-                GeometryReader { geo in
-                    ScrollView {
-                        VStack(alignment: .leading, spacing: 0) {
-                            Text(thread.subject)
-                                .font(.title2.bold())
-                                .padding()
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(thread.subject)
+                            .font(.title2.bold())
+                            .padding()
 
+                        Divider()
+
+                        ForEach(thread.messages) { message in
+                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                             Divider()
-
-                            ForEach(thread.messages) { message in
-                                MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
-                                Divider()
-                            }
-
-                            // Force le scroll à occuper toute la hauteur disponible
-                            Spacer(minLength: 0)
-                                .frame(minHeight: max(0, geo.size.height - 200))
                         }
-                        .frame(minWidth: geo.size.width, minHeight: geo.size.height, alignment: .top)
                     }
+                    .frame(maxWidth: .infinity)
                 }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .navigationTitle(thread.subject)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
@@ -82,6 +81,7 @@ private struct MessageBubble: View {
     let onReply: (EmailThread, EmailMessage) -> Void
     let onSaveToDrive: ((String, MessageAttachmentRef) -> Void)?
     @Environment(SessionStore.self) var store
+    @State private var webViewHeight: CGFloat = 200  // hauteur mesurée après chargement HTML
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -101,9 +101,9 @@ private struct MessageBubble: View {
                 let html: String = rawHTML.contains("<") ? rawHTML :
                     (MIMEParser.decodeBase64(rawHTML) ?? rawHTML)
                 if html.contains("<") {
-                    // Rendu HTML via WebKit
-                    EmailWebView(html: html)
-                        .frame(minHeight: 200)
+                    // WKWebView mesure sa hauteur réelle via JS après chargement
+                    EmailWebView(html: html, height: $webViewHeight)
+                        .frame(height: max(200, webViewHeight))
                         .padding(.horizontal, 4)
                 } else {
                     Text(html)
@@ -193,6 +193,7 @@ private struct MessageBubble: View {
 
 private struct EmailWebView: NSViewRepresentable {
     let html: String
+    @Binding var height: CGFloat
 
     func makeNSView(context: Context) -> WKWebView {
         let config = WKWebViewConfiguration()
@@ -209,10 +210,22 @@ private struct EmailWebView: NSViewRepresentable {
         webView.loadHTMLString(html, baseURL: nil)
     }
 
-    func makeCoordinator() -> Coordinator { Coordinator() }
+    func makeCoordinator() -> Coordinator { Coordinator(height: $height) }
 
     final class Coordinator: NSObject, WKNavigationDelegate {
         var loadedHTML: String?
+        @Binding var height: CGFloat
+
+        init(height: Binding<CGFloat>) { _height = height }
+
+        // Après chargement, mesurer la hauteur réelle du contenu HTML
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            webView.evaluateJavaScript("document.body.scrollHeight") { result, _ in
+                if let h = result as? Double, h > 0 {
+                    DispatchQueue.main.async { self.height = CGFloat(h) }
+                }
+            }
+        }
 
         func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction) async -> WKNavigationActionPolicy {
             if navigationAction.navigationType != .other {
