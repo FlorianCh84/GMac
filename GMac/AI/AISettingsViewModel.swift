@@ -4,7 +4,19 @@ import Observation
 @Observable
 @MainActor
 final class AISettingsViewModel {
-    var selectedProvider: LLMProviderType = .claude
+    private static let providerKey = "gmac.selectedProvider"
+
+    var selectedProvider: LLMProviderType = {
+        if let raw = UserDefaults.standard.string(forKey: "gmac.selectedProvider"),
+           let type = LLMProviderType(rawValue: raw) {
+            return type
+        }
+        return .claude
+    }() {
+        didSet {
+            UserDefaults.standard.set(selectedProvider.rawValue, forKey: "gmac.selectedProvider")
+        }
+    }
     var claudeKey: String = ""
     var openaiKey: String = ""
     var geminiKey: String = ""
@@ -21,9 +33,7 @@ final class AISettingsViewModel {
         openaiKey = (try? keychain.retrieve(key: "openai_api_key")) ?? ""
         geminiKey = (try? keychain.retrieve(key: "gemini_api_key")) ?? ""
         mistralKey = (try? keychain.retrieve(key: "mistral_api_key")) ?? ""
-        if let raw = try? keychain.retrieve(key: "llm_selected_provider"), let t = LLMProviderType(rawValue: raw) {
-            selectedProvider = t
-        }
+        // selectedProvider est chargé depuis UserDefaults via la propriété calculée — plus fiable que le Keychain
     }
 
     func save() async {

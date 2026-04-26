@@ -7,8 +7,14 @@ final class AISettingsViewModelTests: XCTestCase {
     var vm: AISettingsViewModel!
 
     override func setUp() async throws {
+        // Nettoyer UserDefaults avant chaque test pour éviter les interférences entre runs
+        UserDefaults.standard.removeObject(forKey: "gmac.selectedProvider")
         keychain = MockKeychainService()
         vm = AISettingsViewModel(keychain: keychain)
+    }
+
+    override func tearDown() async throws {
+        UserDefaults.standard.removeObject(forKey: "gmac.selectedProvider")
     }
 
     func test_initialState_defaultProviderClaude() { XCTAssertEqual(vm.selectedProvider, .claude) }

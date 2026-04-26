@@ -24,7 +24,14 @@ final class ComposeViewModel {
     var scheduledDate: Date = Date().addingTimeInterval(3600)
 
     var availableSenders: [SendAsAlias] = []
-    var selectedSenderEmail: String = ""
+
+    private static let lastSenderKey = "gmac.lastSelectedSender"
+
+    var selectedSenderEmail: String = UserDefaults.standard.string(forKey: ComposeViewModel.lastSenderKey) ?? "" {
+        didSet {
+            UserDefaults.standard.set(selectedSenderEmail, forKey: ComposeViewModel.lastSenderKey)
+        }
+    }
 
     var aiProvider: (any LLMProvider)? = nil
     var contextThread: EmailThread? = nil  // thread original si réponse

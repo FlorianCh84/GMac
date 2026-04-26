@@ -21,10 +21,13 @@ struct RichTextEditor: NSViewRepresentable {
 
     func updateNSView(_ webView: WKWebView, context: Context) {
         guard context.coordinator.loadedHTML != html else { return }
-        context.coordinator.loadedHTML = html
-        if let jsonData = try? JSONEncoder().encode(html),
-           let jsonString = String(data: jsonData, encoding: .utf8) {
-            webView.evaluateJavaScript("setContent(\(jsonString));") { _, _ in }
+        if context.coordinator.isPageLoaded {
+            // Page chargée → injecter immédiatement
+            context.coordinator.inject(html, into: webView)
+        } else {
+            // Page pas encore prête → mettre en attente pour didFinish
+            context.coordinator.pendingHTML = html
+            context.coordinator.loadedHTML = html  // évite les re-injections multiples
         }
     }
 
@@ -171,8 +174,19 @@ struct RichTextEditor: NSViewRepresentable {
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         @Binding var html: String
         var loadedHTML: String? = nil  // nil = WKWebView pas encore chargé
+        var isPageLoaded = false       // true après webView(_:didFinish:)
+        var pendingHTML: String? = nil // HTML à injecter dès que la page est prête
 
         init(html: Binding<String>) { _html = html }
+
+        // Appelé quand la page HTML est entièrement chargée — inject le HTML en attente
+        func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
+            isPageLoaded = true
+            if let pending = pendingHTML, !pending.isEmpty {
+                inject(pending, into: webView)
+                pendingHTML = nil
+            }
+        }
 
         func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "contentChanged", let body = message.body as? String {
@@ -180,6 +194,14 @@ struct RichTextEditor: NSViewRepresentable {
                     self.html = body
                     self.loadedHTML = body  // sync — évite la re-injection pendant la frappe
                 }
+            }
+        }
+
+        func inject(_ content: String, into webView: WKWebView) {
+            loadedHTML = content
+            if let jsonData = try? JSONEncoder().encode(content),
+               let jsonString = String(data: jsonData, encoding: .utf8) {
+                webView.evaluateJavaScript("setContent(\(jsonString));") { _, _ in }
             }
         }
     }
