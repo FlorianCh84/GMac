@@ -15,24 +15,30 @@ struct ThreadListView: View {
                 ProgressView("Chargement...")
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else if let error = store.lastSyncError {
-                VStack(spacing: 12) {
-                    Image(systemName: "exclamationmark.triangle")
-                        .font(.largeTitle)
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.system(size: 40))
                         .foregroundStyle(.orange)
                     Text("Impossible de charger les emails")
                         .font(.headline)
+                    // Erreur précise bien visible
                     Text(errorMessage(error))
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.subheadline)
+                        .foregroundStyle(.primary)
                         .multilineTextAlignment(.center)
-                        .padding(.horizontal)
+                        .padding(.horizontal, 24)
+                        .padding(.vertical, 8)
+                        .background(.orange.opacity(0.08), in: .rect(cornerRadius: 8))
                     Button("Réessayer") {
                         store.lastSyncError = nil
                         Task { await store.loadLabels(); await store.loadThreadList() }
                     }
-                    .buttonStyle(.bordered)
+                    .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .onAppear {
+                    print("[GMac] Erreur chargement emails : \(error)")
+                }
             } else if filteredThreads.isEmpty {
                 ContentUnavailableView("Aucun message", systemImage: "tray")
             } else {
