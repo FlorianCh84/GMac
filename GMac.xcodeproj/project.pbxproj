@@ -73,6 +73,7 @@
 		9EED8129B17597BD9DD4E6AB /* AIAssistantViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 318B3DDC750310294AE9B3B7 /* AIAssistantViewModel.swift */; };
 		9F0B054B8179C33A9BE9C6D8 /* ScheduledSendStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 284E86D1D54FD184386968B3 /* ScheduledSendStore.swift */; };
 		9F8FC064BC157749D64285BF /* ComposeViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C49BE0F49560222C5C71D22 /* ComposeViewModelTests.swift */; };
+		A05ED641D747504C22ED5631 /* Config.xcconfig.example in Resources */ = {isa = PBXBuildFile; fileRef = D66ED4ED915F6A81451CB036 /* Config.xcconfig.example */; };
 		A1C6181F06FFD8952E9A38E2 /* LabelsManagerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E88A7007362BECA792F0E1FF /* LabelsManagerView.swift */; };
 		A3B312294759F31497864C7B /* AuthenticatedHTTPClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 80156A5ED2E262C469CBAE61 /* AuthenticatedHTTPClient.swift */; };
 		ACA792171BEFA01189E1B2DA /* Endpoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 30BDD3C3D0FC5CB5AC8AC1AF /* Endpoints.swift */; };
@@ -156,6 +157,7 @@
 		46F6AB9DD59C6D5BBB6415A6 /* OutgoingMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OutgoingMessage.swift; sourceTree = "<group>"; };
 		48293A612CAB139A342A008B /* VacationSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VacationSettingsView.swift; sourceTree = "<group>"; };
 		48CB0C7E2B6A838A08B45E9B /* GmailSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailSettingsService.swift; sourceTree = "<group>"; };
+		48CEB17DAD94EA117E04DBE2 /* Config.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Config.xcconfig; sourceTree = "<group>"; };
 		49711E9C6322A3D30B785099 /* SignatureEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureEditorView.swift; sourceTree = "<group>"; };
 		4FEA4330A45DB643FE347FB5 /* PromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilder.swift; sourceTree = "<group>"; };
 		5281164F3860ACF9FF3145C7 /* DriveFolderPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveFolderPickerView.swift; sourceTree = "<group>"; };
@@ -211,6 +213,7 @@
 		CD2D446A5D965C6BDFAA659C /* GMacTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = GMacTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		CDD5252F4AC1FBE0FA184ED3 /* VacationSettingsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VacationSettingsViewModel.swift; sourceTree = "<group>"; };
 		D31BFA6AF6398A70C05E83B8 /* DriveService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveService.swift; sourceTree = "<group>"; };
+		D66ED4ED915F6A81451CB036 /* Config.xcconfig.example */ = {isa = PBXFileReference; path = Config.xcconfig.example; sourceTree = "<group>"; };
 		D76E9951CD6EE4D2605DEDB1 /* SessionStoreTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStoreTests.swift; sourceTree = "<group>"; };
 		D7DCBD9CB36B46341D01AB55 /* AIAssistantPanel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AIAssistantPanel.swift; sourceTree = "<group>"; };
 		D8BC274167317AB7D94C8453 /* GMacApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GMacApp.swift; sourceTree = "<group>"; };
@@ -253,6 +256,8 @@
 		09BFFE4F0D471E29FCBE466E /* GMac */ = {
 			isa = PBXGroup;
 			children = (
+				48CEB17DAD94EA117E04DBE2 /* Config.xcconfig */,
+				D66ED4ED915F6A81451CB036 /* Config.xcconfig.example */,
 				097D443A649BE76C4709515C /* AI */,
 				1270B3E4384B0CEEB91246FA /* App */,
 				D096EE5319B280A33291FA1F /* Auth */,
@@ -547,6 +552,7 @@
 			buildPhases = (
 				D864F9F53F51D8653100EDB9 /* SwiftLint */,
 				14DE64DC4AF7F62572A69493 /* Sources */,
+				09F9973F9AA2A262561592D3 /* Resources */,
 			);
 			buildRules = (
 			);
@@ -595,6 +601,17 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		09F9973F9AA2A262561592D3 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A05ED641D747504C22ED5631 /* Config.xcconfig.example in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
 		D864F9F53F51D8653100EDB9 /* SwiftLint */ = {
@@ -806,6 +823,7 @@
 		};
 		621B8BB2765A621E2E6675E9 /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 48CEB17DAD94EA117E04DBE2 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;
@@ -821,6 +839,7 @@
 		};
 		7971E976511992893F3DBE11 /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 48CEB17DAD94EA117E04DBE2 /* Config.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				COMBINE_HIDPI_IMAGES = YES;

@@ -20,6 +20,9 @@ targets:
     platform: macOS
     sources:
       - path: GMac
+    configFiles:
+      Debug: GMac/Config.xcconfig
+      Release: GMac/Config.xcconfig
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: fr.agence810.GMac
