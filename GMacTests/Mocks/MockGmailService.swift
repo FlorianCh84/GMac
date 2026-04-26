@@ -44,4 +44,12 @@ final class MockGmailService: GmailServiceProtocol, @unchecked Sendable {
     func fetchAttachment(messageId: String, attachmentId: String) async -> Result<Data, AppError> {
         lock.withLock { _attachmentResult }
     }
+
+    private var _searchResult: Result<[GmailThreadRef], AppError> = .success([])
+    func stubSearch(_ result: Result<[GmailThreadRef], AppError>) { lock.withLock { _searchResult = result } }
+    func searchThreads(query: String) async -> Result<[GmailThreadRef], AppError> { lock.withLock { _searchResult } }
+
+    private var _sendDraftResult: Result<Void, AppError> = .success(())
+    func stubSendDraft(_ result: Result<Void, AppError>) { lock.withLock { _sendDraftResult = result } }
+    func sendDraft(id: String) async -> Result<Void, AppError> { lock.withLock { _sendDraftResult } }
 }

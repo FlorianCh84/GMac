@@ -33,15 +33,18 @@ final class ComposeViewModel {
         }
     }
 
-    var aiSettings: AISettingsViewModel? = nil   // provider créé à l'ouverture du panneau
-    var contextThread: EmailThread? = nil  // thread original si réponse
+    var aiSettings: AISettingsViewModel? = nil
+    var contextThread: EmailThread? = nil
+    var scheduledSendManager: ScheduledSendManager? = nil
 
     var sendState: SendState = .idle
 
     var isValid: Bool {
-        !to.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !subject.trimmingCharacters(in: .whitespaces).isEmpty &&
-        (!body.trimmingCharacters(in: .whitespaces).isEmpty || !bodyHTML.trimmingCharacters(in: .whitespaces).isEmpty)
+        let hasRecipient = !to.trimmingCharacters(in: .whitespaces).isEmpty
+        let hasSubject = !subject.trimmingCharacters(in: .whitespaces).isEmpty
+        let hasBody = !body.trimmingCharacters(in: .whitespaces).isEmpty || !bodyHTML.trimmingCharacters(in: .whitespaces).isEmpty
+        let hasValidSchedule = !isScheduled || scheduledDate >= Date().addingTimeInterval(300)
+        return hasRecipient && hasSubject && hasBody && hasValidSchedule
     }
 
     private let gmailService: any GmailServiceProtocol
@@ -52,18 +55,22 @@ final class ComposeViewModel {
 
     func startSend(countdownDuration: TimeInterval = 3.0) async {
         guard isValid else { return }
+        if isScheduled, scheduledDate < Date().addingTimeInterval(300) {
+            sendState = .failed(.apiError(statusCode: 400, message: "L'heure d'envoi doit être au moins 5 minutes dans le futur"))
+            return
+        }
 
-        // Snapshot avant le countdown — garantit que le mail envoyé correspond exactement
-        // à ce que l'utilisateur a confirmé en cliquant Envoyer, même s'il modifie le texte pendant les 3s.
+        let toList = to.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let ccList = cc.isEmpty ? [] : cc.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        let sender = selectedSenderEmail.isEmpty ? senderEmail : selectedSenderEmail
+
         let message = OutgoingMessage(
-            to: to.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
-            cc: cc.isEmpty ? [] : cc.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty },
+            to: toList, cc: ccList,
             subject: subject,
             body: bodyHTML.isEmpty ? body : bodyHTML,
             isHTML: !bodyHTML.isEmpty,
             replyToThreadId: replyToThreadId,
             replyToMessageId: replyToMessageId,
-            scheduledDate: isScheduled ? scheduledDate : nil,
             attachments: attachments
         )
 
@@ -85,16 +92,35 @@ final class ComposeViewModel {
         }
 
         guard case .countdown = sendState else { return }
-
         sendState = .sending
-        let result = await gmailService.send(message: message, senderEmail: selectedSenderEmail.isEmpty ? senderEmail : selectedSenderEmail)
 
-        switch result {
-        case .success:
-            clearComposer()
-            sendState = .idle
-        case .failure(let error):
-            sendState = .failed(error)
+        if isScheduled {
+            let result = await gmailService.createDraft(message: message, senderEmail: sender)
+            switch result {
+            case .success(let draft):
+                let entry = ScheduledSendEntry(
+                    draftId: draft.id,
+                    scheduledDate: scheduledDate,
+                    subject: subject,
+                    to: toList,
+                    threadId: replyToThreadId,
+                    senderEmail: sender
+                )
+                scheduledSendManager?.schedule(entry: entry)
+                clearComposer()
+                sendState = .idle
+            case .failure(let error):
+                sendState = .failed(error)
+            }
+        } else {
+            let result = await gmailService.send(message: message, senderEmail: sender)
+            switch result {
+            case .success:
+                clearComposer()
+                sendState = .idle
+            case .failure(let error):
+                sendState = .failed(error)
+            }
         }
     }
 
@@ -108,20 +134,74 @@ final class ComposeViewModel {
 
     func loadSenders(settingsService: any GmailSettingsServiceProtocol) async {
         let result = await settingsService.fetchSendAsList()
-        guard case .success(let aliases) = result, !aliases.isEmpty else { return }
-        availableSenders = aliases
-        let primary = aliases.first(where: { $0.isPrimary == true }) ?? aliases[0]
 
-        // Restaurer le sender persisté si encore valide, sinon utiliser le primaire
-        let savedEmail = UserDefaults.standard.string(forKey: ComposeViewModel.lastSenderKey) ?? ""
-        let resolvedSender = aliases.first(where: { $0.sendAsEmail == savedEmail }) ?? primary
-        selectedSenderEmail = resolvedSender.sendAsEmail
-
-        // Injecter signature si body vide
-        if bodyHTML.isEmpty, let sig = resolvedSender.signature, !sig.isEmpty {
-            bodyHTML = "<br><br><hr><div style='color:#666;font-size:13px;'>\(sig)</div>"
-            body = bodyHTML
+        var signature: String? = nil
+        if case .success(let aliases) = result, !aliases.isEmpty {
+            availableSenders = aliases
+            let primary = aliases.first(where: { $0.isPrimary == true }) ?? aliases[0]
+            let savedEmail = UserDefaults.standard.string(forKey: ComposeViewModel.lastSenderKey) ?? ""
+            let resolvedSender = aliases.first(where: { $0.sendAsEmail == savedEmail }) ?? primary
+            selectedSenderEmail = resolvedSender.sendAsEmail
+            signature = resolvedSender.signature
         }
+
+        guard bodyHTML.isEmpty else { return }
+        bodyHTML = buildInitialBody(signature: signature)
+        body = bodyHTML
+    }
+
+    private func buildInitialBody(signature: String?) -> String {
+        var html = "<br>"
+
+        if let sig = signature, !sig.isEmpty {
+            html += "<br><hr><div style='color:#666;font-size:13px;'>\(sig)</div>"
+        }
+
+        if let thread = contextThread {
+            html += quotedThreadHTML(thread: thread)
+        }
+
+        return html
+    }
+
+    private func quotedThreadHTML(thread: EmailThread) -> String {
+        let msg: EmailMessage?
+        if let msgId = replyToMessageId {
+            msg = thread.messages.first(where: { $0.id == msgId }) ?? thread.messages.last
+        } else {
+            msg = thread.messages.last
+        }
+        guard let message = msg else { return "" }
+
+        let formatter = DateFormatter()
+        formatter.dateStyle = .long
+        formatter.timeStyle = .short
+        formatter.locale = Locale(identifier: "fr_FR")
+        let dateStr = formatter.string(from: message.date)
+
+        let originalBody: String
+        if let html = message.bodyHTML, html.contains("<") {
+            originalBody = html
+        } else {
+            let plain = (message.bodyPlain ?? message.snippet)
+                .replacingOccurrences(of: "&", with: "&amp;")
+                .replacingOccurrences(of: "<", with: "&lt;")
+                .replacingOccurrences(of: ">", with: "&gt;")
+            originalBody = "<div style='white-space:pre-wrap'>\(plain)</div>"
+        }
+
+        let from = message.from
+            .replacingOccurrences(of: "&", with: "&amp;")
+            .replacingOccurrences(of: "<", with: "&lt;")
+            .replacingOccurrences(of: ">", with: "&gt;")
+
+        return """
+        <br><br>
+        <div style="margin-top:8px;padding-left:12px;border-left:3px solid #ccc;color:#555">
+          <p style="margin:0 0 6px 0;font-size:12px"><b>\(from)</b> a écrit le \(dateStr) :</p>
+          \(originalBody)
+        </div>
+        """
     }
 
     func selectSender(_ alias: SendAsAlias) {

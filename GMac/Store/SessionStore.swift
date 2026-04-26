@@ -11,6 +11,10 @@ final class SessionStore {
     var selectedLabelId: String = "INBOX"
     var selectedThreadId: String? = nil
 
+    var searchQuery: String = ""
+    var searchResults: [EmailThread] = []
+    var isSearching: Bool = false
+
     var pendingOperations: Set<String> = []
     var isLoading: Bool = false
     var lastSyncError: AppError? = nil
@@ -77,6 +81,38 @@ final class SessionStore {
             threads.removeAll { $0.id == id }
             if selectedThreadId == id { selectedThreadId = nil }
         case .failure(let error):
+            lastSyncError = error
+        }
+    }
+
+    func performSearch(query: String) async {
+        let trimmed = query.trimmingCharacters(in: .whitespaces)
+        guard !trimmed.isEmpty else {
+            searchResults = []
+            isSearching = false
+            return
+        }
+        isSearching = true
+        defer { isSearching = false }
+
+        let result = await gmailService.searchThreads(query: trimmed)
+        switch result {
+        case .success(let refs):
+            var found: [EmailThread] = []
+            await withTaskGroup(of: EmailThread?.self) { group in
+                for ref in refs.prefix(30) {
+                    group.addTask {
+                        guard case .success(let t) = await self.gmailService.fetchThread(id: ref.id) else { return nil }
+                        return t
+                    }
+                }
+                for await thread in group {
+                    if let t = thread { found.append(t) }
+                }
+            }
+            searchResults = found.sorted { $0.date > $1.date }
+        case .failure(let error):
+            if case .network(let urlError) = error, urlError.code == .cancelled { return }
             lastSyncError = error
         }
     }

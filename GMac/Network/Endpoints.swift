@@ -76,6 +76,15 @@ enum Endpoints {
         return components.url!
     }
 
+    static func threadsSearch(query: String, userId: String = "me", maxResults: Int = 30) -> URL {
+        var components = URLComponents(url: gmailBaseURL.appendingPathComponent("users/\(userId)/threads"), resolvingAgainstBaseURL: false)!
+        components.queryItems = [
+            URLQueryItem(name: "maxResults", value: "\(maxResults)"),
+            URLQueryItem(name: "q", value: query)
+        ]
+        return components.url!
+    }
+
     static func threadGet(userId: String = "me", id: String) -> URL {
         var components = URLComponents(url: gmailBaseURL.appendingPathComponent("users/\(userId)/threads/\(id)"), resolvingAgainstBaseURL: false)!
         components.queryItems = [URLQueryItem(name: "format", value: "FULL")]
@@ -140,6 +149,14 @@ enum Endpoints {
 
     static func draftDelete(userId: String = "me", id: String) -> URL {
         draftResourceURL(userId: userId, id: id)
+    }
+
+    static func draftSend(userId: String = "me") -> URL {
+        var c = URLComponents()
+        c.scheme = "https"; c.host = "gmail.googleapis.com"
+        c.path = "/gmail/v1/users/\(userId)/drafts/send"
+        guard let url = c.url else { preconditionFailure("draftSend URL invalide") }
+        return url
     }
 
     static func threadModify(userId: String = "me", id: String) -> URL {

@@ -12,6 +12,7 @@ final class AppEnvironment {
     let aiSettings: AISettingsViewModel
     let voiceProfileAnalyzer: VoiceProfileAnalyzer
     let syncEngine: SyncEngine
+    let scheduledSendManager: ScheduledSendManager
 
     init() {
         let keychain = KeychainService()
@@ -31,5 +32,6 @@ final class AppEnvironment {
         self.aiSettings = AISettingsViewModel(keychain: keychain)
         self.voiceProfileAnalyzer = VoiceProfileAnalyzer(provider: aiSettings.activeProvider())
         self.syncEngine = SyncEngine(store: sessionStore)
+        self.scheduledSendManager = ScheduledSendManager(gmailService: service)
     }
 }

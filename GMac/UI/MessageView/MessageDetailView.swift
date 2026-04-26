@@ -20,49 +20,46 @@ struct MessageDetailView: View {
     }
 
     var body: some View {
-        Group {
-            if let thread = selectedThread {
-                ScrollView {
-                    LazyVStack(alignment: .leading, spacing: 0) {
-                        Text(thread.subject)
-                            .font(.title2.bold())
-                            .padding()
+        if let thread = selectedThread {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0) {
+                    Text(thread.subject)
+                        .font(.title2.bold())
+                        .padding()
+                    Divider()
+                    ForEach(thread.messages) { message in
+                        MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                         Divider()
-                        ForEach(thread.messages) { message in
-                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
-                            Divider()
-                        }
-                    }
-                    .frame(maxWidth: .infinity)
-                }
-                .navigationTitle(thread.subject)
-                .toolbar {
-                    ToolbarItem(placement: .primaryAction) {
-                        Button("IA", systemImage: "sparkles") { isAIPanelOpen = true }
-                            .disabled(store.selectedThreadId == nil)
                     }
                 }
-                .sheet(isPresented: $isAIPanelOpen) {
-                    AIAssistantPanel(
-                        vm: AIAssistantViewModel(provider: appEnv.aiSettings.activeProvider()),
-                        thread: thread,
-                        senderEmail: store.senderEmail,
-                        sentMessages: [],
-                        onInject: { _ in
-                            isAIPanelOpen = false
-                            onReply(thread, thread.messages.last ?? thread.messages[0])
-                        }
-                    )
+                .frame(maxWidth: .infinity)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .navigationTitle(thread.subject)
+            .toolbar {
+                ToolbarItem(placement: .primaryAction) {
+                    Button("IA", systemImage: "sparkles") { isAIPanelOpen = true }
                 }
-            } else {
-                ContentUnavailableView(
-                    "Sélectionnez un message",
-                    systemImage: "envelope",
-                    description: Text("Choisissez un thread dans la liste")
+            }
+            .sheet(isPresented: $isAIPanelOpen) {
+                AIAssistantPanel(
+                    vm: AIAssistantViewModel(provider: appEnv.aiSettings.activeProvider()),
+                    thread: thread,
+                    senderEmail: store.senderEmail,
+                    sentMessages: [],
+                    onInject: { _ in
+                        isAIPanelOpen = false
+                        onReply(thread, thread.messages.last ?? thread.messages[0])
+                    }
                 )
             }
+        } else {
+            ContentUnavailableView(
+                "Sélectionnez un message",
+                systemImage: "envelope",
+                description: Text("Choisissez un thread dans la liste")
+            )
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 

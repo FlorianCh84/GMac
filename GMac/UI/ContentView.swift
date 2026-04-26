@@ -34,6 +34,7 @@ struct ContentView: View {
                     settingsService: appEnv.settingsService,
                     aiSettings: appEnv.aiSettings,
                     contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
+                    scheduledSendManager: appEnv.scheduledSendManager,
                     onDismiss: {
                         withAnimation(.easeInOut(duration: 0.2)) {
                             resetCompose()
@@ -149,8 +150,8 @@ struct ContentView: View {
                 }
             }
         }
-        .onAppear { appEnv.syncEngine.start() }
-        .onDisappear { appEnv.syncEngine.stop() }
+        .onAppear { appEnv.syncEngine.start(); appEnv.scheduledSendManager.start() }
+        .onDisappear { appEnv.syncEngine.stop(); appEnv.scheduledSendManager.stop() }
         .task {
             await store.loadLabels()
             await store.loadThreadList()

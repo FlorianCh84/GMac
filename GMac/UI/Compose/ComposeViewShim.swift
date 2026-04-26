@@ -9,8 +9,9 @@ struct ComposeViewShim: View {
     let gmailService: any GmailServiceProtocol
     let driveService: any DriveServiceProtocol
     let settingsService: any GmailSettingsServiceProtocol
-    let aiSettings: AISettingsViewModel   // instance partagée — provider créé à l'ouverture du panneau
+    let aiSettings: AISettingsViewModel
     let contextThread: EmailThread?
+    let scheduledSendManager: ScheduledSendManager
     let onDismiss: () -> Void
 
     @State private var vm: ComposeViewModel
@@ -27,6 +28,7 @@ struct ComposeViewShim: View {
         settingsService: any GmailSettingsServiceProtocol,
         aiSettings: AISettingsViewModel,
         contextThread: EmailThread? = nil,
+        scheduledSendManager: ScheduledSendManager,
         onDismiss: @escaping () -> Void
     ) {
         self.replyToThreadId = replyToThreadId
@@ -39,6 +41,7 @@ struct ComposeViewShim: View {
         self.settingsService = settingsService
         self.aiSettings = aiSettings
         self.contextThread = contextThread
+        self.scheduledSendManager = scheduledSendManager
         self.onDismiss = onDismiss
 
         let initialVM = ComposeViewModel(gmailService: gmailService)
@@ -49,6 +52,7 @@ struct ComposeViewShim: View {
         initialVM.senderEmail = senderEmail
         initialVM.aiSettings = aiSettings
         initialVM.contextThread = contextThread
+        initialVM.scheduledSendManager = scheduledSendManager
         self._vm = State(initialValue: initialVM)
     }
 

@@ -231,9 +231,12 @@ struct ComposeView: View {
                     .toggleStyle(.switch)
                     .controlSize(.mini)
                 if vm.isScheduled {
-                    DatePicker("", selection: $vm.scheduledDate, in: Date()...)
+                    DatePicker("", selection: $vm.scheduledDate, in: Date().addingTimeInterval(300)...)
                         .labelsHidden()
                         .datePickerStyle(.compact)
+                    Image(systemName: "info.circle")
+                        .foregroundStyle(.secondary)
+                        .help("L'envoi nécessite que votre Mac soit allumé. Si GMac est fermé, le mail sera envoyé au prochain lancement de l'app.")
                 }
             }
             .padding(.horizontal, 12)

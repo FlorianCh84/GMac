@@ -100,6 +100,21 @@ final class GmailService: GmailServiceProtocol, @unchecked Sendable {
         return await httpClient.send(request)
     }
 
+    func sendDraft(id: String) async -> Result<Void, AppError> {
+        var request = URLRequest(url: Endpoints.draftSend())
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = try? JSONSerialization.data(withJSONObject: ["id": id])
+        let result: Result<SendMessageResponse, AppError> = await httpClient.send(request)
+        return result.map { _ in () }
+    }
+
+    func searchThreads(query: String) async -> Result<[GmailThreadRef], AppError> {
+        let request = URLRequest(url: Endpoints.threadsSearch(query: query))
+        let result: Result<GmailThreadListResponse, AppError> = await httpClient.send(request)
+        return result.map { $0.threads ?? [] }
+    }
+
     func fetchAttachment(messageId: String, attachmentId: String) async -> Result<Data, AppError> {
         let request = URLRequest(url: Endpoints.gmailAttachment(messageId: messageId, attachmentId: attachmentId))
         let result: Result<GmailAttachmentData, AppError> = await httpClient.send(request)
