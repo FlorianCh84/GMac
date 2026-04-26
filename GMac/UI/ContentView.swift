@@ -12,6 +12,8 @@ struct ContentView: View {
     @State private var composePrefilledSubject: String = ""
     @State private var driveUploadSuccess = false
     @State private var cachedAIProvider: (any LLMProvider)? = nil
+    @State private var isDriveFolderPickerOpen = false
+    @State private var pendingDriveUpload: (messageId: String, ref: MessageAttachmentRef)? = nil
 
     var body: some View {
         NavigationSplitView {
@@ -65,6 +67,34 @@ struct ContentView: View {
         }
         .sheet(isPresented: $isShowingSettings) {
             settingsSheet
+        }
+        .sheet(isPresented: $isDriveFolderPickerOpen) {
+            if let pending = pendingDriveUpload {
+                DriveFolderPickerView(
+                    driveService: appEnv.driveService,
+                    onSelect: { folder in
+                        isDriveFolderPickerOpen = false
+                        Task { @MainActor in
+                            let fetch = await store.gmailService.fetchAttachment(
+                                messageId: pending.messageId,
+                                attachmentId: pending.ref.attachmentId
+                            )
+                            guard case .success(let data) = fetch else { return }
+                            let upload = await appEnv.driveService.uploadFile(
+                                data: data,
+                                filename: pending.ref.filename,
+                                mimeType: pending.ref.mimeType,
+                                parentId: folder?.id
+                            )
+                            if case .success = upload { driveUploadSuccess = true }
+                        }
+                    },
+                    onDismiss: {
+                        isDriveFolderPickerOpen = false
+                        pendingDriveUpload = nil
+                    }
+                )
+            }
         }
         .overlay(alignment: .top) {
             if driveUploadSuccess {
@@ -128,12 +158,8 @@ struct ContentView: View {
     }
 
     private func saveToDrive(messageId: String, ref: MessageAttachmentRef) {
-        Task { @MainActor in
-            let fetch = await store.gmailService.fetchAttachment(messageId: messageId, attachmentId: ref.attachmentId)
-            guard case .success(let data) = fetch else { return }
-            let upload = await appEnv.driveService.uploadFile(data: data, filename: ref.filename, mimeType: ref.mimeType)
-            if case .success = upload { driveUploadSuccess = true }
-        }
+        pendingDriveUpload = (messageId: messageId, ref: ref)
+        isDriveFolderPickerOpen = true
     }
 
     private func startNewMessage() {

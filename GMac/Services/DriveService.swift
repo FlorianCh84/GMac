@@ -25,12 +25,12 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
         }
     }
 
-    func uploadFile(data: Data, filename: String, mimeType: String) async -> Result<DriveFile, AppError> {
+    func uploadFile(data: Data, filename: String, mimeType: String, parentId: String? = nil) async -> Result<DriveFile, AppError> {
         let boundary = "GMacDrive_\(UUID().uuidString.replacingOccurrences(of: "-", with: ""))"
         var request = URLRequest(url: Endpoints.driveFilesUpload())
         request.httpMethod = "POST"
         request.setValue("multipart/related; boundary=\"\(boundary)\"", forHTTPHeaderField: "Content-Type")
-        request.httpBody = buildMultipartBody(data: data, filename: filename, mimeType: mimeType, boundary: boundary)
+        request.httpBody = buildMultipartBody(data: data, filename: filename, mimeType: mimeType, parentId: parentId, boundary: boundary)
         return await httpClient.send(request)
     }
 
@@ -52,13 +52,19 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
         return await httpClient.download(URLRequest(url: url))
     }
 
-    private func buildMultipartBody(data: Data, filename: String, mimeType: String, boundary: String) -> Data {
+    private func buildMultipartBody(data: Data, filename: String, mimeType: String, parentId: String? = nil, boundary: String) -> Data {
         var body = Data()
         func append(_ string: String) { body.append(Data(string.utf8)) }
         let crlf = "\r\n"
+        let metadataJSON: String
+        if let parentId = parentId {
+            metadataJSON = "{\"name\":\"\(filename)\",\"mimeType\":\"\(mimeType)\",\"parents\":[\"\(parentId)\"]}"
+        } else {
+            metadataJSON = "{\"name\":\"\(filename)\",\"mimeType\":\"\(mimeType)\"}"
+        }
         append("--\(boundary)\(crlf)")
         append("Content-Type: application/json; charset=UTF-8\(crlf)\(crlf)")
-        append("{\"name\":\"\(filename)\",\"mimeType\":\"\(mimeType)\"}")
+        append(metadataJSON)
         append(crlf)
         append("--\(boundary)\(crlf)")
         append("Content-Type: \(mimeType)\(crlf)\(crlf)")

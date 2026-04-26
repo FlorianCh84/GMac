@@ -103,6 +103,7 @@
 		FAD3990C7E09655352C1DAD5 /* DriveServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1302048060D1008DFC8D87E5 /* DriveServiceTests.swift */; };
 		FAE19320AB4EF4A0ED0CF218 /* ComposeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8272688963D5A7015FE4DEDD /* ComposeView.swift */; };
 		FB3EAC3A3D9048D593164A38 /* TokenResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9BBB09B27B6271C6A78963FB /* TokenResponse.swift */; };
+		FBF778409861CE1EE2C3862A /* DriveFolderPickerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5281164F3860ACF9FF3145C7 /* DriveFolderPickerView.swift */; };
 		FC8747291604636E4AB4E8D1 /* ComposeViewShim.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05095948A8E1ACA7D2DD18A4 /* ComposeViewShim.swift */; };
 		FEB7E1C798A5927AB82EBF50 /* RetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CA451C3B519EC23D6ACDA3F9 /* RetryTests.swift */; };
 		FEDF6ADA757589573EC96B2D /* GMacApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8BC274167317AB7D94C8453 /* GMacApp.swift */; };
@@ -152,6 +153,7 @@
 		48CB0C7E2B6A838A08B45E9B /* GmailSettingsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailSettingsService.swift; sourceTree = "<group>"; };
 		49711E9C6322A3D30B785099 /* SignatureEditorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignatureEditorView.swift; sourceTree = "<group>"; };
 		4FEA4330A45DB643FE347FB5 /* PromptBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PromptBuilder.swift; sourceTree = "<group>"; };
+		5281164F3860ACF9FF3145C7 /* DriveFolderPickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveFolderPickerView.swift; sourceTree = "<group>"; };
 		576E6375A5FD2CD664C8130B /* SSEParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SSEParserTests.swift; sourceTree = "<group>"; };
 		5800B414C5BF07AF06450B43 /* MockKeychainService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockKeychainService.swift; sourceTree = "<group>"; };
 		58389D8813899E4D06368589 /* GmailSettingsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailSettingsServiceTests.swift; sourceTree = "<group>"; };
@@ -274,6 +276,7 @@
 				8272688963D5A7015FE4DEDD /* ComposeView.swift */,
 				6C514C4C3AF94FBDBA07C01B /* ComposeViewModel.swift */,
 				05095948A8E1ACA7D2DD18A4 /* ComposeViewShim.swift */,
+				5281164F3860ACF9FF3145C7 /* DriveFolderPickerView.swift */,
 				11DE8522064B72A118F70809 /* DrivePickerView.swift */,
 				596FA26A05D35FD2C2143CF0 /* DrivePickerViewModel.swift */,
 				C2C511ED921426D74FD3AD0C /* RichTextEditor.swift */,
@@ -624,6 +627,7 @@
 				6ACC6E4B6D949544F8A20955 /* ComposeViewModel.swift in Sources */,
 				FC8747291604636E4AB4E8D1 /* ComposeViewShim.swift in Sources */,
 				D4DBF21804E14BB443A0E019 /* ContentView.swift in Sources */,
+				FBF778409861CE1EE2C3862A /* DriveFolderPickerView.swift in Sources */,
 				98ED83B65EA474A2C12F0E8F /* DriveModels.swift in Sources */,
 				EF71FE159B37A140346F30C0 /* DrivePickerView.swift in Sources */,
 				CF1C4C801E6BACFBDB55AC68 /* DrivePickerViewModel.swift in Sources */,

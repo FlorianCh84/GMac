@@ -1,5 +1,6 @@
 import SwiftUI
 import WebKit
+import AppKit
 
 struct MessageDetailView: View {
     @Environment(SessionStore.self) var store
@@ -19,49 +20,54 @@ struct MessageDetailView: View {
     }
 
     var body: some View {
-        if let thread = selectedThread {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 0) {
-                    Text(thread.subject)
-                        .font(.title2.bold())
-                        .padding()
+        Group {
+            if let thread = selectedThread {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        Text(thread.subject)
+                            .font(.title2.bold())
+                            .padding()
 
-                    Divider()
-
-                    ForEach(thread.messages) { message in
-                        MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                         Divider()
+
+                        ForEach(thread.messages) { message in
+                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
+                            Divider()
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .navigationTitle(thread.subject)
+                .toolbar {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button("IA", systemImage: "sparkles") {
+                            isAIPanelOpen = true
+                        }
+                        .disabled(store.selectedThreadId == nil)
                     }
                 }
-            }
-            .navigationTitle(thread.subject)
-            .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button("IA", systemImage: "sparkles") {
-                        isAIPanelOpen = true
-                    }
-                    .disabled(store.selectedThreadId == nil)
+                .sheet(isPresented: $isAIPanelOpen) {
+                    AIAssistantPanel(
+                        vm: AIAssistantViewModel(provider: appEnv.aiSettings.activeProvider()),
+                        thread: thread,
+                        senderEmail: store.senderEmail,
+                        sentMessages: [],
+                        onInject: { text in
+                            isAIPanelOpen = false
+                            onReply(thread, thread.messages.last ?? thread.messages[0])
+                        }
+                    )
                 }
-            }
-            .sheet(isPresented: $isAIPanelOpen) {
-                AIAssistantPanel(
-                    vm: AIAssistantViewModel(provider: appEnv.aiSettings.activeProvider()),
-                    thread: thread,
-                    senderEmail: store.senderEmail,
-                    sentMessages: [],
-                    onInject: { text in
-                        isAIPanelOpen = false
-                        onReply(thread, thread.messages.last ?? thread.messages[0])
-                    }
+            } else {
+                ContentUnavailableView(
+                    "Selectionnez un message",
+                    systemImage: "envelope",
+                    description: Text("Choisissez un thread dans la liste")
                 )
             }
-        } else {
-            ContentUnavailableView(
-                "Selectionnez un message",
-                systemImage: "envelope",
-                description: Text("Choisissez un thread dans la liste")
-            )
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
 }
 
@@ -70,6 +76,7 @@ private struct MessageBubble: View {
     let thread: EmailThread
     let onReply: (EmailThread, EmailMessage) -> Void
     let onSaveToDrive: ((String, MessageAttachmentRef) -> Void)?
+    @Environment(SessionStore.self) var store
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -124,11 +131,22 @@ private struct MessageBubble: View {
                             Text(ByteCountFormatter.string(fromByteCount: Int64(ref.size), countStyle: .file))
                                 .font(.caption2).foregroundStyle(.secondary)
                             Spacer()
+                            Button(action: {
+                                Task { @MainActor in
+                                    await saveAttachmentToMac(messageId: message.id, ref: ref)
+                                }
+                            }) {
+                                Image(systemName: "arrow.down.to.line")
+                            }
+                            .buttonStyle(.bordered)
+                            .controlSize(.mini)
+                            .help("Enregistrer sur Mac")
                             Button("Drive") {
                                 onSaveToDrive?(message.id, ref)
                             }
                             .buttonStyle(.bordered)
                             .controlSize(.mini)
+                            .help("Enregistrer dans Google Drive")
                         }
                     }
                 }
@@ -146,6 +164,24 @@ private struct MessageBubble: View {
             }
             .padding(.horizontal)
             .padding(.bottom, 12)
+        }
+    }
+
+    private func saveAttachmentToMac(messageId: String, ref: MessageAttachmentRef) async {
+        let fetchResult = await store.gmailService.fetchAttachment(messageId: messageId, attachmentId: ref.attachmentId)
+        guard case .success(let data) = fetchResult else { return }
+        await MainActor.run {
+            let panel = NSSavePanel()
+            panel.nameFieldStringValue = ref.filename
+            panel.canCreateDirectories = true
+            panel.title = "Enregistrer la pièce jointe"
+            if panel.runModal() == .OK, let url = panel.url {
+                do {
+                    try data.write(to: url)
+                } catch {
+                    // Silencieux — les erreurs d'écriture sont rares
+                }
+            }
         }
     }
 }
