@@ -19,10 +19,11 @@ struct GMacApp: App {
                 }
             }
             .onOpenURL { url in
-                // Garanti @MainActor par SwiftUI — aucun problème d'isolation
                 Task { await env.oauth.handleCallbackURL(url) }
             }
         }
+        // Reroute les URLs OAuth vers la fenêtre existante au lieu d'en ouvrir une nouvelle
+        .handlesExternalEvents(matching: ["*"])
         .modelContainer(for: VoiceProfile.self)
     }
 }
