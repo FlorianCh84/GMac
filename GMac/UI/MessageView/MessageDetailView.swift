@@ -20,29 +20,26 @@ struct MessageDetailView: View {
     }
 
     var body: some View {
-        if let thread = selectedThread {
-            ScrollView {
-                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
-                    Text(thread.subject)
-                        .font(.title2.bold())
-                        .padding()
-
-                    Divider()
-
-                    ForEach(thread.messages) { message in
-                        MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
+        Group {
+            if let thread = selectedThread {
+                ScrollView {
+                    LazyVStack(alignment: .leading, spacing: 0) {
+                        Text(thread.subject)
+                            .font(.title2.bold())
+                            .padding()
                         Divider()
+                        ForEach(thread.messages) { message in
+                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
+                            Divider()
+                        }
                     }
+                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity)
-            }
                 .navigationTitle(thread.subject)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
-                        Button("IA", systemImage: "sparkles") {
-                            isAIPanelOpen = true
-                        }
-                        .disabled(store.selectedThreadId == nil)
+                        Button("IA", systemImage: "sparkles") { isAIPanelOpen = true }
+                            .disabled(store.selectedThreadId == nil)
                     }
                 }
                 .sheet(isPresented: $isAIPanelOpen) {
@@ -51,7 +48,7 @@ struct MessageDetailView: View {
                         thread: thread,
                         senderEmail: store.senderEmail,
                         sentMessages: [],
-                        onInject: { text in
+                        onInject: { _ in
                             isAIPanelOpen = false
                             onReply(thread, thread.messages.last ?? thread.messages[0])
                         }
@@ -59,7 +56,7 @@ struct MessageDetailView: View {
                 }
             } else {
                 ContentUnavailableView(
-                    "Selectionnez un message",
+                    "Sélectionnez un message",
                     systemImage: "envelope",
                     description: Text("Choisissez un thread dans la liste")
                 )
