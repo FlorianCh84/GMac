@@ -40,10 +40,12 @@ final class PromptBuilderTests: XCTestCase {
         XCTAssertTrue(c.messages.contains { $0.content.contains("façon d'écrire") })
     }
 
-    func test_buildOpinionPrompt_systemContainsStratégiques() {
+    func test_buildOpinionPrompt_systemContainsStructure() {
         let thread = makeThread(subject: "Test")
         let c = PromptBuilder.buildOpinionPrompt(thread: thread)
-        XCTAssertTrue(c.messages.first?.content.contains("stratégiques") ?? false)
+        let content = c.messages.first?.content ?? ""
+        XCTAssertTrue(content.contains("Recommandations"), "Le prompt doit contenir la section Recommandations")
+        XCTAssertTrue(content.contains("Ton & intention"), "Le prompt doit contenir la section Ton & intention")
     }
 
     func test_buildRefinementPrompt_appendsInstruction() {

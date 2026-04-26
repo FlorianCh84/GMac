@@ -6,12 +6,14 @@ enum MIMEParser {
     }
 
     static func decodeBase64(_ encoded: String) -> String? {
+        guard !encoded.isEmpty else { return nil }
         var base64 = encoded
             .replacingOccurrences(of: "-", with: "+")
             .replacingOccurrences(of: "_", with: "/")
         while base64.count % 4 != 0 { base64 += "=" }
         // .ignoreUnknownCharacters tolère les sauts de ligne (\n) fréquents dans les corps MIME
-        guard let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else { return nil }
+        guard let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters),
+              !data.isEmpty else { return nil }
         return String(data: data, encoding: .utf8)
             ?? String(data: data, encoding: .isoLatin1)
     }

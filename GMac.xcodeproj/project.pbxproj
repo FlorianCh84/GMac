@@ -21,6 +21,7 @@
 		193AC2BAB61443E4EF74DBC8 /* LabelsManagerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = B48CC59B450B320EC48A68C7 /* LabelsManagerViewModel.swift */; };
 		1BFD7C87ADEDE6288539D6EB /* VacationSettingsViewModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3036ED2F52B5A547218CF144 /* VacationSettingsViewModelTests.swift */; };
 		1C09EC0AFE99A4BFCD1E6E20 /* LoginView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CCA1059375FBF5F27B43FE7F /* LoginView.swift */; };
+		1C5FB3C1C2E7E4846B4C3D76 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 19B1FC0AA980B2DA13978325 /* AppDelegate.swift */; };
 		21919D535B262CF4F5CDA93F /* RichTextEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = C2C511ED921426D74FD3AD0C /* RichTextEditor.swift */; };
 		267C6E72C913FB2197A5A99D /* SignatureEditorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49711E9C6322A3D30B785099 /* SignatureEditorView.swift */; };
 		27C3A0923FD1070840195202 /* SyncEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0208C05C75901ABD5E41CA35 /* SyncEngine.swift */; };
@@ -126,6 +127,7 @@
 		11DE8522064B72A118F70809 /* DrivePickerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DrivePickerView.swift; sourceTree = "<group>"; };
 		1302048060D1008DFC8D87E5 /* DriveServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveServiceTests.swift; sourceTree = "<group>"; };
 		1846C96781ED48FBD4E8B1C3 /* DriveServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DriveServiceProtocol.swift; sourceTree = "<group>"; };
+		19B1FC0AA980B2DA13978325 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		19D26FEB384267E03DC28996 /* MIMEParserTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MIMEParserTests.swift; sourceTree = "<group>"; };
 		1E1F3C5A1EDC4E783E7AC744 /* AppErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppErrorTests.swift; sourceTree = "<group>"; };
 		2346DD38857AE68058E8E925 /* GmailServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GmailServiceProtocol.swift; sourceTree = "<group>"; };
@@ -259,6 +261,7 @@
 		1270B3E4384B0CEEB91246FA /* App */ = {
 			isa = PBXGroup;
 			children = (
+				19B1FC0AA980B2DA13978325 /* AppDelegate.swift */,
 				2C3DC87663EA40C738A0A854 /* AppEnvironment.swift */,
 				D8BC274167317AB7D94C8453 /* GMacApp.swift */,
 			);
@@ -611,6 +614,7 @@
 				9EED8129B17597BD9DD4E6AB /* AIAssistantViewModel.swift in Sources */,
 				177F7E222F0819E60C5EC962 /* AISettingsView.swift in Sources */,
 				47D504DFCECE7E8B57B7FF94 /* AISettingsViewModel.swift in Sources */,
+				1C5FB3C1C2E7E4846B4C3D76 /* AppDelegate.swift in Sources */,
 				66FCE39CFCA9E72319CE4D49 /* AppEnvironment.swift in Sources */,
 				54876A699A968CABE7EC3DE2 /* AppError.swift in Sources */,
 				7D01CB3308B6B1F4E0E80486 /* Attachment.swift in Sources */,
