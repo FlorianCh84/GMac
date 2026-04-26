@@ -56,6 +56,10 @@ struct LoginView: View {
         Task {
             do {
                 try await oauth.startOAuthFlow()
+            } catch is CancellationError {
+                errorMessage = "Connexion expirée ou annulée. Réessayez."
+            } catch AppError.tokenExpired {
+                errorMessage = "Délai de connexion dépassé (5 min). Réessayez."
             } catch {
                 errorMessage = error.localizedDescription
             }
