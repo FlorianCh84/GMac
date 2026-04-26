@@ -20,28 +20,22 @@ struct MessageDetailView: View {
     }
 
     var body: some View {
-        // ZStack garantit que le fond remplit toujours la totalité de l'espace disponible
-        ZStack(alignment: .topLeading) {
-            Color(.windowBackgroundColor)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+        if let thread = selectedThread {
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 0, pinnedViews: []) {
+                    Text(thread.subject)
+                        .font(.title2.bold())
+                        .padding()
 
-            if let thread = selectedThread {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(thread.subject)
-                            .font(.title2.bold())
-                            .padding()
+                    Divider()
 
+                    ForEach(thread.messages) { message in
+                        MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                         Divider()
-
-                        ForEach(thread.messages) { message in
-                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
-                            Divider()
-                        }
                     }
-                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .frame(maxWidth: .infinity)
+            }
                 .navigationTitle(thread.subject)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
