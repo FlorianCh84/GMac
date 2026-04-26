@@ -76,9 +76,31 @@ enum MIMEParser {
             .trimmingCharacters(in: .whitespaces)
 
         if baseMime == "text/html" {
-            html = decodeBody(part.body?.data)
+            // Premier décodage (base64url → contenu)
+            // Certains emails ont Content-Transfer-Encoding: base64 → double encodage
+            // Si le résultat ne contient pas de balise HTML, tenter un second décodage
+            if let firstPass = decodeBody(part.body?.data) {
+                if firstPass.contains("<") {
+                    html = firstPass
+                } else if let secondPass = decodeBase64(firstPass), secondPass.contains("<") {
+                    html = secondPass
+                } else {
+                    html = firstPass
+                }
+            }
         } else if baseMime == "text/plain" {
-            plain = decodeBody(part.body?.data)
+            if let firstPass = decodeBody(part.body?.data) {
+                // Si le "texte" ressemble à du base64 (pas d'espaces ni de ponctuation),
+                // tenter un second décodage
+                let looksLikeBase64 = firstPass.count > 20 &&
+                    !firstPass.contains(" ") &&
+                    firstPass.allSatisfy { $0.isLetter || $0.isNumber || $0 == "-" || $0 == "_" || $0 == "=" }
+                if looksLikeBase64, let secondPass = decodeBase64(firstPass) {
+                    plain = secondPass
+                } else {
+                    plain = firstPass
+                }
+            }
         } else {
             // Multipart ou autre → descendre dans les sous-parties
             for subpart in part.parts ?? [] {

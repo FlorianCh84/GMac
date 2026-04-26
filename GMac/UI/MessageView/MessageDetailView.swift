@@ -84,12 +84,23 @@ private struct MessageBubble: View {
             .padding(.horizontal)
             .padding(.top, 12)
 
-            if let html = message.bodyHTML, html.contains("<") {
-                // Rendu HTML via WebKit
-                EmailWebView(html: html)
-                    .frame(minHeight: 200)
-                    .padding(.horizontal, 4)
-            } else if let content = message.bodyHTML ?? message.bodyPlain {
+            if let rawHTML = message.bodyHTML {
+                // Si le "HTML" ne contient pas de balises, tenter un second décodage base64
+                let html: String = rawHTML.contains("<") ? rawHTML :
+                    (MIMEParser.decodeBase64(rawHTML) ?? rawHTML)
+                if html.contains("<") {
+                    // Rendu HTML via WebKit
+                    EmailWebView(html: html)
+                        .frame(minHeight: 200)
+                        .padding(.horizontal, 4)
+                } else {
+                    Text(html)
+                        .font(.body)
+                        .textSelection(.enabled)
+                        .padding(.horizontal)
+                        .padding(.bottom, 12)
+                }
+            } else if let content = message.bodyPlain {
                 // Texte brut (ou HTML mal parsé sans balises)
                 Text(content)
                     .font(.body)
