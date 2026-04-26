@@ -29,8 +29,6 @@ final class AppEnvironment {
         self.sessionStore = SessionStore(gmailService: service)
         self.driveService = DriveService(httpClient: client)
         self.aiSettings = AISettingsViewModel(keychain: keychain)
-        print("[GMac] AppEnvironment: provider actif = \(aiSettings.selectedProvider.rawValue)")
-        print("[GMac] AppEnvironment: gemini key = \(((try? keychain.retrieve(key: "gemini_api_key")) ?? "").prefix(5))...")
         self.voiceProfileAnalyzer = VoiceProfileAnalyzer(provider: aiSettings.activeProvider())
         self.syncEngine = SyncEngine(store: sessionStore)
     }
