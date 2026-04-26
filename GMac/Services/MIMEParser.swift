@@ -10,7 +10,8 @@ enum MIMEParser {
             .replacingOccurrences(of: "-", with: "+")
             .replacingOccurrences(of: "_", with: "/")
         while base64.count % 4 != 0 { base64 += "=" }
-        guard let data = Data(base64Encoded: base64) else { return nil }
+        // .ignoreUnknownCharacters tolère les sauts de ligne (\n) fréquents dans les corps MIME
+        guard let data = Data(base64Encoded: base64, options: .ignoreUnknownCharacters) else { return nil }
         return String(data: data, encoding: .utf8)
             ?? String(data: data, encoding: .isoLatin1)
     }
@@ -65,16 +66,25 @@ enum MIMEParser {
             }
         }
 
-        switch part.mimeType {
-        case "text/html":
+        // Comparaison insensible à la casse ET aux paramètres ("text/html; charset=utf-8" → match)
+        let baseMime = part.mimeType?.lowercased()
+            .components(separatedBy: ";").first?
+            .trimmingCharacters(in: .whitespaces)
+
+        if baseMime == "text/html" {
             html = decodeBody(part.body?.data)
-        case "text/plain":
+        } else if baseMime == "text/plain" {
             plain = decodeBody(part.body?.data)
-        default:
+        } else {
+            // Multipart ou autre → descendre dans les sous-parties
             for subpart in part.parts ?? [] {
                 let (h, p) = extractBodyRecursive(from: subpart)
                 if html == nil { html = h }
                 if plain == nil { plain = p }
+            }
+            // Si aucune sous-partie, essayer le body directement comme fallback
+            if html == nil && plain == nil, let data = part.body?.data, !data.isEmpty {
+                plain = decodeBase64(data)
             }
         }
         return (html, plain)

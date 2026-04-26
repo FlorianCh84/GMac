@@ -84,13 +84,16 @@ private struct MessageBubble: View {
             .padding(.horizontal)
             .padding(.top, 12)
 
-            if let html = message.bodyHTML {
+            if let html = message.bodyHTML, html.contains("<") {
+                // Rendu HTML via WebKit
                 EmailWebView(html: html)
                     .frame(minHeight: 200)
                     .padding(.horizontal, 4)
-            } else if let plain = message.bodyPlain {
-                Text(plain)
+            } else if let content = message.bodyHTML ?? message.bodyPlain {
+                // Texte brut (ou HTML mal parsé sans balises)
+                Text(content)
                     .font(.body)
+                    .textSelection(.enabled)
                     .padding(.horizontal)
                     .padding(.bottom, 12)
             } else {
