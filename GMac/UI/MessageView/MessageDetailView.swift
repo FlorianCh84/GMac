@@ -22,22 +22,27 @@ struct MessageDetailView: View {
     var body: some View {
         Group {
             if let thread = selectedThread {
-                ScrollView {
-                    VStack(alignment: .leading, spacing: 0) {
-                        Text(thread.subject)
-                            .font(.title2.bold())
-                            .padding()
+                GeometryReader { geo in
+                    ScrollView {
+                        VStack(alignment: .leading, spacing: 0) {
+                            Text(thread.subject)
+                                .font(.title2.bold())
+                                .padding()
 
-                        Divider()
-
-                        ForEach(thread.messages) { message in
-                            MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
                             Divider()
+
+                            ForEach(thread.messages) { message in
+                                MessageBubble(message: message, thread: thread, onReply: onReply, onSaveToDrive: onSaveToDrive)
+                                Divider()
+                            }
+
+                            // Force le scroll à occuper toute la hauteur disponible
+                            Spacer(minLength: 0)
+                                .frame(minHeight: max(0, geo.size.height - 200))
                         }
+                        .frame(minWidth: geo.size.width, minHeight: geo.size.height, alignment: .top)
                     }
-                    .frame(maxWidth: .infinity)
                 }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
                 .navigationTitle(thread.subject)
                 .toolbar {
                     ToolbarItem(placement: .primaryAction) {
