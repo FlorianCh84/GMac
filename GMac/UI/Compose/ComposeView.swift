@@ -5,6 +5,8 @@ struct ComposeView: View {
     @State private var isShowingDrivePicker = false
     @State private var isAIOpen = false
     @State private var driveDownloadError: String? = nil
+    // Accès direct à AppEnvironment pour garantir le provider IA le plus récent
+    @Environment(AppEnvironment.self) private var appEnv
     let driveService: any DriveServiceProtocol
     let onDismiss: () -> Void
 
@@ -27,7 +29,8 @@ struct ComposeView: View {
             .frame(minWidth: 420, maxWidth: .infinity)
 
             // --- Panneau IA : slide depuis la droite ---
-            if isAIOpen, let settings = vm.aiSettings {
+            if isAIOpen {
+                let settings = appEnv.aiSettings
                 Divider()
                 aiPanel(settings: settings)
                     .frame(width: 380)
@@ -170,7 +173,7 @@ struct ComposeView: View {
             }
             .buttonStyle(.bordered)
             .tint(isAIOpen ? .blue : nil)
-            .disabled(vm.aiSettings == nil)
+            .disabled(false) // toujours activé — appEnv.aiSettings est toujours disponible
             SendButton(
                 sendState: vm.sendState,
                 isValid: vm.isValid,
