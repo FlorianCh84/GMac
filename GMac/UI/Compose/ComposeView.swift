@@ -27,9 +27,9 @@ struct ComposeView: View {
             .frame(minWidth: 420, maxWidth: .infinity)
 
             // --- Panneau IA : slide depuis la droite ---
-            if isAIOpen, let provider = vm.aiProvider {
+            if isAIOpen, let settings = vm.aiSettings {
                 Divider()
-                aiPanel(provider: provider)
+                aiPanel(settings: settings)
                     .frame(width: 380)
                     .transition(.asymmetric(
                         insertion: .move(edge: .trailing).combined(with: .opacity),
@@ -68,7 +68,9 @@ struct ComposeView: View {
     }
 
     @ViewBuilder
-    private func aiPanel(provider: any LLMProvider) -> some View {
+    private func aiPanel(settings: AISettingsViewModel) -> some View {
+        // Provider créé à l'ouverture du panneau → toujours le provider actuel (pas le cache)
+        let provider = settings.activeProvider()
         let thread = vm.contextThread ?? makeContextThread()
         VStack(spacing: 0) {
             // Header du panneau IA
@@ -168,7 +170,7 @@ struct ComposeView: View {
             }
             .buttonStyle(.bordered)
             .tint(isAIOpen ? .blue : nil)
-            .disabled(vm.aiProvider == nil)
+            .disabled(vm.aiSettings == nil)
             SendButton(
                 sendState: vm.sendState,
                 isValid: vm.isValid,

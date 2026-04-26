@@ -33,7 +33,7 @@ final class ComposeViewModel {
         }
     }
 
-    var aiProvider: (any LLMProvider)? = nil
+    var aiSettings: AISettingsViewModel? = nil   // provider créé à l'ouverture du panneau
     var contextThread: EmailThread? = nil  // thread original si réponse
 
     var sendState: SendState = .idle

@@ -30,7 +30,7 @@ struct ContentView: View {
                     gmailService: store.gmailService,
                     driveService: appEnv.driveService,
                     settingsService: appEnv.settingsService,
-                    aiProvider: cachedAIProvider,
+                    aiSettings: appEnv.aiSettings,
                     contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
                     onDismiss: {
                         withAnimation(.easeInOut(duration: 0.2)) {
