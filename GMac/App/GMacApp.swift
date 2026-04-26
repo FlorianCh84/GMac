@@ -3,6 +3,8 @@ import SwiftData
 
 @main
 struct GMacApp: App {
+    // AppDelegate intercepte les URLs au niveau AppKit — empêche la création d'une 2e fenêtre
+    @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @State private var env = AppEnvironment()
 
     var body: some Scene {
@@ -18,11 +20,17 @@ struct GMacApp: App {
                         .environment(env.oauth)
                 }
             }
+            // Fallback SwiftUI pour les URLs non interceptées par AppDelegate
             .onOpenURL { url in
                 Task { await env.oauth.handleCallbackURL(url) }
             }
+            // Observer les URLs reçues par AppDelegate (sans nouvelle fenêtre)
+            .onReceive(NotificationCenter.default.publisher(for: .gmacDidReceiveURL)) { notification in
+                if let url = notification.object as? URL {
+                    Task { await env.oauth.handleCallbackURL(url) }
+                }
+            }
         }
-        // Reroute les URLs OAuth vers la fenêtre existante au lieu d'en ouvrir une nouvelle
         .handlesExternalEvents(matching: ["*"])
         .modelContainer(for: VoiceProfile.self)
     }
