@@ -11,6 +11,7 @@ struct ContentView: View {
     @State private var composePrefilledTo: String = ""
     @State private var composePrefilledSubject: String = ""
     @State private var driveUploadSuccess = false
+    @State private var cachedAIProvider: (any LLMProvider)? = nil
 
     var body: some View {
         NavigationSplitView {
@@ -29,7 +30,7 @@ struct ContentView: View {
                     gmailService: store.gmailService,
                     driveService: appEnv.driveService,
                     settingsService: appEnv.settingsService,
-                    aiProvider: appEnv.aiSettings.activeProvider(),
+                    aiProvider: cachedAIProvider,
                     contextThread: composeReplyToThreadId.flatMap { id in store.threads.first { $0.id == id } },
                     onDismiss: {
                         withAnimation(.easeInOut(duration: 0.2)) {
@@ -136,6 +137,7 @@ struct ContentView: View {
     }
 
     private func startNewMessage() {
+        cachedAIProvider = appEnv.aiSettings.activeProvider()  // snapshot au moment d'ouvrir
         composeReplyToThreadId = nil
         composeReplyToMessageId = nil
         composePrefilledTo = ""
@@ -145,6 +147,7 @@ struct ContentView: View {
     }
 
     private func startReply(thread: EmailThread, message: EmailMessage) {
+        cachedAIProvider = appEnv.aiSettings.activeProvider()  // snapshot au moment d'ouvrir
         composeReplyToThreadId = thread.id
         composeReplyToMessageId = message.id
         composePrefilledTo = message.from

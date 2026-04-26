@@ -100,6 +100,7 @@ final class GoogleOAuthManager: NSObject {
     // Ouvre le browser système et suspend jusqu'au callback onOpenURL.
     // Aucun callback XPC — entièrement @MainActor, aucune assertion d'isolation possible.
     func startOAuthFlow() async throws {
+        guard pendingContinuation == nil else { throw AppError.unknown }
         let expectedState = UUID().uuidString
         var components = URLComponents(string: "https://accounts.google.com/o/oauth2/v2/auth")! // swiftlint:disable:this force_unwrapping
         components.queryItems = [
@@ -114,6 +115,14 @@ final class GoogleOAuthManager: NSObject {
         guard let authURL = components.url else { throw AppError.unknown }
 
         pendingState = expectedState
+
+        // Timeout via une task racing : la continuation est résumée soit par handleCallbackURL,
+        // soit par la task de timeout qui appelle cancelOAuthFlow() et lève AppError.tokenExpired.
+        let timeoutTask = Task { [weak self] in
+            try await Task.sleep(for: .seconds(300))
+            await self?.cancelOAuthFlow()
+        }
+        defer { timeoutTask.cancel() }
 
         try await withCheckedThrowingContinuation { (continuation: CheckedContinuation<Void, Error>) in
             pendingContinuation = continuation

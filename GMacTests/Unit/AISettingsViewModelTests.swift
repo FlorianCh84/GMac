@@ -26,9 +26,12 @@ final class AISettingsViewModelTests: XCTestCase {
     }
 
     func test_save_storesSelectedProvider() async {
+        // selectedProvider est persisté via UserDefaults didSet — pas dans le Keychain
         vm.selectedProvider = .mistral
+        XCTAssertEqual(UserDefaults.standard.string(forKey: "gmac.selectedProvider"), LLMProviderType.mistral.rawValue)
         await vm.save()
-        XCTAssertEqual(try? keychain.retrieve(key: "llm_selected_provider"), LLMProviderType.mistral.rawValue)
+        // Le Keychain ne doit plus stocker llm_selected_provider (mort — UserDefaults didSet le gère)
+        XCTAssertNil(try? keychain.retrieve(key: "llm_selected_provider"))
     }
 
     func test_activeProvider_returnsCorrectType() {

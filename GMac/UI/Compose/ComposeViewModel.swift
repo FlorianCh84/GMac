@@ -110,11 +110,15 @@ final class ComposeViewModel {
         let result = await settingsService.fetchSendAsList()
         guard case .success(let aliases) = result, !aliases.isEmpty else { return }
         availableSenders = aliases
-        // Sélectionner l'alias primaire par défaut
         let primary = aliases.first(where: { $0.isPrimary == true }) ?? aliases[0]
-        selectedSenderEmail = primary.sendAsEmail
-        // Injecter la signature comme contenu initial si le body est vide
-        if bodyHTML.isEmpty, let sig = primary.signature, !sig.isEmpty {
+
+        // Restaurer le sender persisté si encore valide, sinon utiliser le primaire
+        let savedEmail = UserDefaults.standard.string(forKey: ComposeViewModel.lastSenderKey) ?? ""
+        let resolvedSender = aliases.first(where: { $0.sendAsEmail == savedEmail }) ?? primary
+        selectedSenderEmail = resolvedSender.sendAsEmail
+
+        // Injecter signature si body vide
+        if bodyHTML.isEmpty, let sig = resolvedSender.signature, !sig.isEmpty {
             bodyHTML = "<br><br><hr><div style='color:#666;font-size:13px;'>\(sig)</div>"
             body = bodyHTML
         }

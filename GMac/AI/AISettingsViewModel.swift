@@ -46,7 +46,7 @@ final class AISettingsViewModel {
             try keychain.save(openaiKey, key: "openai_api_key")
             try keychain.save(geminiKey, key: "gemini_api_key")
             try keychain.save(mistralKey, key: "mistral_api_key")
-            try keychain.save(selectedProvider.rawValue, key: "llm_selected_provider")
+            // try keychain.save(selectedProvider.rawValue, key: "llm_selected_provider")  // mort — UserDefaults didSet le gère
             saveSuccess = true
         } catch {
             saveError = error.localizedDescription

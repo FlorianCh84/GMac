@@ -26,8 +26,8 @@ struct RichTextEditor: NSViewRepresentable {
             context.coordinator.inject(html, into: webView)
         } else {
             // Page pas encore prête → mettre en attente pour didFinish
+            // Ne pas mettre loadedHTML ici — seulement quand l'injection est réelle
             context.coordinator.pendingHTML = html
-            context.coordinator.loadedHTML = html  // évite les re-injections multiples
         }
     }
 
@@ -171,13 +171,14 @@ struct RichTextEditor: NSViewRepresentable {
         """
     }
 
+    @MainActor
     final class Coordinator: NSObject, WKNavigationDelegate, WKScriptMessageHandler {
         @Binding var html: String
         var loadedHTML: String? = nil  // nil = WKWebView pas encore chargé
         var isPageLoaded = false       // true après webView(_:didFinish:)
         var pendingHTML: String? = nil // HTML à injecter dès que la page est prête
 
-        init(html: Binding<String>) { _html = html }
+        nonisolated init(html: Binding<String>) { _html = html }
 
         // Appelé quand la page HTML est entièrement chargée — inject le HTML en attente
         func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
@@ -188,9 +189,9 @@ struct RichTextEditor: NSViewRepresentable {
             }
         }
 
-        func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
+        nonisolated func userContentController(_ controller: WKUserContentController, didReceive message: WKScriptMessage) {
             if message.name == "contentChanged", let body = message.body as? String {
-                DispatchQueue.main.async {
+                Task { @MainActor in
                     self.html = body
                     self.loadedHTML = body  // sync — évite la re-injection pendant la frappe
                 }

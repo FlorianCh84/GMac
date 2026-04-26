@@ -39,10 +39,8 @@ final class DriveService: DriveServiceProtocol, @unchecked Sendable {
         let result = await httpClient.download(request)
         switch result {
         case .success(let data):
-            print("[GMac] Drive downloadFile \(id): \(data.count) bytes")
             return .success(data)
         case .failure(let error):
-            print("[GMac] Drive downloadFile \(id) error: \(error)")
             return .failure(error)
         }
     }

@@ -50,6 +50,7 @@ final class AuthenticatedHTTPClient: HTTPClientProtocol, @unchecked Sendable {
                     let (data2, response2) = try await session.data(for: resigned)
                     guard let http2 = response2 as? HTTPURLResponse,
                           (200...299).contains(http2.statusCode) else { return .failure(.unknown) }
+                    guard !data2.isEmpty else { return .failure(.emptyResponse) }
                     return .success(data2)
                 } catch { return .failure(.tokenExpired) }
             case 403: return .failure(.apiError(statusCode: 403, message: "Forbidden"))
