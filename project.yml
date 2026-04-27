@@ -27,6 +27,7 @@ targets:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: fr.agence810.GMac
         INFOPLIST_FILE: GMac/Resources/Info.plist
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
     preBuildScripts:
       - script: |
           export PATH="$PATH:/opt/homebrew/bin:/usr/local/bin"

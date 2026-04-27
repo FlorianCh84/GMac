@@ -68,3 +68,4 @@ excluded:
   - .build
   - DerivedData
   - GMacTests
+  - scripts
